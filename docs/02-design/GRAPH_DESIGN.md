@@ -1,0 +1,31 @@
+# Graph Design
+
+Status: Draft
+
+## 1. Purpose
+
+프로젝트, 블로그, 기술 등 콘텐츠의 연결 관계를 시각적으로 탐색한다.
+
+## 2. Node Candidates
+
+- Project
+- Blog
+- Skill
+- Category
+
+초기 MVP에서 어떤 Node Type까지 포함할지는 설계 단계에서 축소 가능하다.
+
+## 3. Edge
+
+Document Relation을 기본 Edge Source로 사용한다.
+
+## 4. Filter
+
+- All
+- Project
+- Blog
+- Skill
+
+## 5. RAG Integration
+
+Graph용 Relation과 RAG Relation Expansion의 데이터 소스를 분리하지 않는 것을 기본 방향으로 한다.
