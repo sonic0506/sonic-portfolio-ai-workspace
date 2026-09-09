@@ -42,12 +42,14 @@ Admin Web
 
 배포 구성은 [ADR-0003](../03-decisions/ADR-0003-initial-deployment.md)을 따른다: Vercel Hobby, 서울 Lightsail 2GB, RDS PostgreSQL micro Single-AZ/gp3 20GB. 나머지 상세 설계는 Draft이다.
 
-아래 항목은 ADR로 확정해야 한다.
+모델과 검색·답변 정책은 [ADR-0006](../03-decisions/ADR-0006-embedding-model-and-retrieval.md), [ADR-0007](../03-decisions/ADR-0007-generation-model-and-answer-prompt.md)로 확정했다. 콘텐츠·Document 모델은 [ADR-0005](../03-decisions/ADR-0005-content-and-document-model.md)를 따른다.
 
-- Authentication session details
-- Deployment implementation / domains / performance and cost verification
-- API style
-- LLM model / Embedding provider and model / RAG integration
+아래 5건이 남아 있으며, 이 문서가 `Accepted`가 되려면 먼저 해소해야 한다.
+
+- Authentication session details — 허용 GitHub 계정 식별자, 세션/CORS/CSRF 정책
+- API style — API_DESIGN.md도 Draft다
 - Graph library
 - S3 region / access policy and Markdown storage strategy
-- Dependency versions and build tools
+- Dependency versions and build tools — PostgreSQL / pgvector 버전, Spring AI 채택 여부 포함
+
+배포 구성은 ADR-0003으로 정했으나 실제 배포·성능·청구는 미검증이다. Spring AI와 pgvector의 버전 호환성도 미검증이다.

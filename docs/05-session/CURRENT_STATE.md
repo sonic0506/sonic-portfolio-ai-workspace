@@ -68,7 +68,10 @@ Last Updated: 2026-09-09
 - viora 원문의 "단독 담당" / "논의 참여" 구분이 답변에서 보존됐다.
 - 생성 모델과 프롬프트 정책을 ADR-0007에 **Proposed**로 기록했다. 사용자 확정 전이다.
 - **ADR-0006과 ADR-0007은 2026-09-10 사용자가 채택해 Accepted다.** RAG 파이프라인의 모델·검색·답변 정책이 모두 측정 근거와 함께 확정됐다.
-- ADR-0001~0007이 모두 Accepted다. 구현 시작 전 필요한 핵심 결정은 남아 있지 않다.
+- ADR-0001~0007이 모두 Accepted다. 다만 **이것이 개발 설계 완료를 뜻하지는 않는다.**
+- ARCHITECTURE / DATA_MODEL / RAG_DESIGN / API_DESIGN / GRAPH_DESIGN이 모두 아직 `Draft`다. CURRENT_PLAN의 Definition of Done은 앞의 셋이 `Accepted` 수준일 것을 요구한다.
+- 미확정으로 남은 것: 인증 상세(허용 GitHub 계정 식별자, 세션/CORS/CSRF), API Style, Graph 라이브러리, S3 정책/Markdown 저장, PostgreSQL·pgvector 버전과 빌드 도구, Spring AI 채택 여부.
+- 비용은 계산만 했고 실제 배포·청구는 미검증이다. Spring AI/pgvector 버전 호환성도 미검증이다.
 - 다만 Hybrid search는 검토 대상 승격까지이며 도입 확정이 아니다. Spring AI 사용 여부와 버전 호환성도 미검증이다.
 - 실측값은 `docs/06-testing/RAG_MEASUREMENTS.md`가 기준 문서다. 다른 문서는 수치를 복제하지 않고 링크한다.
 - 하네스에 `--save`를 추가해 이후 실행은 `poc/results/<날짜>-<명령>.json`에 원본을 남긴다. 측정 2·3은 도입 전 실행이라 로그에서 옮긴 값이다.
