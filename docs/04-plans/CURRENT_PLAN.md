@@ -21,7 +21,8 @@ Status: Active
 - [x] DB ERD 초안 작성 — DATA_MODEL.md (샘플 콘텐츠 기준, 공백 8건 반영)
 - [x] Document / Relation 상세 모델 확정 — ADR-0005 Accepted (2026-09-09 사용자 채택)
 - [x] RAG PoC 검색 품질 측정 — 기대 출처 7/7, ADR-0006(Proposed)
-- [x] RAG PoC 답변 생성 측정 — 7/7 기대 동작, ADR-0007(Proposed)
+- [x] RAG PoC 답변 생성 측정 — 7/7 기대 동작, ADR-0007 Accepted
+- [x] 배포/인증/모델 등 남은 기술 결정 — 모델은 ADR-0006/0007로 확정. 인증 상세는 구현 단계로 이월
 - [x] RAG PoC용 샘플 데이터 선정 — 프로젝트 3건 + 블로그 3편 + Skill 목록 (`samples/`)
 - [ ] 첫 구현 계획 작성
 

@@ -1,14 +1,18 @@
 # RAG Design
 
-Status: Draft — 모델 조합은 PoC 측정 완료(ADR-0006 / ADR-0007, 둘 다 Proposed)
+Status: Draft — 모델과 검색·답변 정책은 확정(ADR-0006 / ADR-0007). 세션 저장과 Relation 확장 구현은 Draft
 
-답변 및 세션 정책은 [ADR-0004](../03-decisions/ADR-0004-rag-answer-and-session-policy.md)로 확정했다. 모델/저장 방식/상세 검색 구현은 Draft이다.
+답변 및 세션 정책은 [ADR-0004](../03-decisions/ADR-0004-rag-answer-and-session-policy.md), 콘텐츠·Document 모델은 [ADR-0005](../03-decisions/ADR-0005-content-and-document-model.md), 임베딩·검색은 [ADR-0006](../03-decisions/ADR-0006-embedding-model-and-retrieval.md), 생성 모델·프롬프트는 [ADR-0007](../03-decisions/ADR-0007-generation-model-and-answer-prompt.md)로 확정했다. 세션 이력 저장 방식과 Relation 확장 구현은 Draft이다.
 
 ## 1. Objective
 
-### 초기 구현 조합 제안 — 미확정
+### 구현 조합 — 확정
 
-- 생성 gpt-4.1-mini, 임베딩 text-embedding-3-small, Spring AI와 기존 RDS pgvector 조합을 PoC 기준안으로 제안한다. 실제 한국어 검색/근거 준수/후속 질문 평가 전 품질을 보장하지 않는다.
+- 생성 `gpt-4.1-mini`(temperature 0), 임베딩 `text-embedding-3-small`(차원 1536), 기존 RDS pgvector 조합을 사용한다. 2026-09-09~10 PoC에서 기대 출처 7/7 회수와 근거 부족 거부를 확인했다([RAG_MEASUREMENTS](../06-testing/RAG_MEASUREMENTS.md)).
+- 청킹은 섹션 기준으로 하고 200자 미만 섹션은 인접 청크에 병합한다. 검색 상위 K는 5다.
+- **근거 부족 판정은 유사도 임계값이 아니라 생성 단계에서 한다.** 측정에서 근거 있는 질문의 최저 상위 점수와 근거 없는 질문의 상위 점수 간격이 0.030에 불과했다.
+- 출처 표시 단위는 문서다. 문장 단위 각주를 요구하지 않는다.
+- Spring AI 사용 여부와 버전 호환성은 여전히 미검증이다. PoC는 표준 라이브러리 스크립트로 수행했다.
 - Spring AI는 모델 호출, 임베딩, pgvector 연결과 대화 메모리 지원에 활용한다. 공개 필터, Relation 확장, 출처 검증, 세션 접근 제어, 재색인 및 Playground 검색 추적은 애플리케이션 책임으로 명시한다.
 - 별도 Python 서비스 없이 Spring Boot에서 흐름을 제어한다. JPA/QueryDSL은 비즈니스 데이터에 사용하며 벡터 검색은 Spring AI PGvector 지원 또는 필요한 SQL로 처리한다. 모델/라이브러리 버전과 테이블 매핑은 후속 검증한다.
 - 질문 해석 → 공개 문서 검색 → 제한된 관계 확장 → 근거/세션 이력 조립 → 답변/출처 반환 흐름을 제안한다. 복잡한 자율 에이전트나 추가 모델 호출은 필요성이 평가로 확인되면 도입한다.

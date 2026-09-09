@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-09-10 — RAG Model ADRs Accepted
+
+- 사용자가 ADR-0006(임베딩 모델·차원·검색 정책)과 ADR-0007(생성 모델·답변 프롬프트)을 그대로 채택했다. 둘 다 Accepted로 올렸다.
+- ADR-0001~0007이 모두 Accepted가 됐다. 구현 시작에 필요한 핵심 결정은 남아 있지 않다.
+- RAG_DESIGN의 "초기 구현 조합 제안 — 미확정" 절을 "구현 조합 — 확정"으로 바꾸고 측정 근거를 연결했다. 세션 이력 저장과 Relation 확장 구현은 여전히 Draft다.
+- DATA_MODEL의 남은 결정에서 임베딩/생성 모델 항목을 해소 처리했다.
+- ADR-0006 결정 5(Hybrid search)는 검토 대상 승격까지이며 도입 확정이 아님을 ADR과 CURRENT_STATE에 명시했다. Spring AI 채택 여부와 버전 호환성도 미검증으로 남는다.
+- 검증: ADR 상태와 참조 문서 대조만 수행했다. 새 측정이나 코드 변경은 없다.
+- 다음: Spring Boot 프로젝트 생성과 ERD 마이그레이션 작성(Roadmap Phase 5).
+
 ## 2026-09-10 — Measurements Archived
 
 - 실측값이 실행 로그에만 남아 사라지는 문제를 정리했다. `docs/06-testing/RAG_MEASUREMENTS.md`를 수치의 기준 문서로 만들었다.

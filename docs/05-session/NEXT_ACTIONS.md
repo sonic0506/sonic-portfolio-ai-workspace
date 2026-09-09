@@ -6,9 +6,9 @@ Last Updated: 2026-09-09
 
 REQUIREMENTS의 전체 기능을 1차 배포에 포함한다. Graph View와 RAG Playground도 포함하며 기존 Out of Scope는 유지한다. 범위를 다시 축소하지 않고 기능별 상세 정책과 수용 기준을 구체화한다.
 
-## Priority 1 — RAG 모델과 상세 기술 설계
+## Priority 1 — 구현 착수 (Roadmap Phase 5)
 
-- RAG_DESIGN의 Spring AI 기반 초기 조합은 제안 상태다. 채택 시 ADR로 확정하고 실제 질문/출처 평가 및 Spring Boot 버전 호환성을 검증한다.
+- RAG 모델 조합은 ADR-0006/0007로 확정했다. 남은 것은 Spring AI 채택 여부와 버전 호환성 검증이며 구현 단계에서 확인한다.
 
 배포는 ADR-0003으로 확정했다. 전체 MVP와 기존 예산을 유지한다.
 
@@ -35,8 +35,10 @@ REQUIREMENTS의 전체 기능을 1차 배포에 포함한다. Graph View와 RAG 
 - [x] 검색 품질을 측정했다. 기대 출처 7/7, 임베딩 차원 실측 1536.
 - [x] 근거 없음 질문의 유사도 분포를 확인했다. 임계값 판정은 불가하며 생성 단계 책임으로 정리했다.
 - [x] 생성 모델을 측정했다. 질문 7개 모두 기대대로 동작했고 ADR-0007(Proposed)에 기록했다.
-- **ADR-0006과 ADR-0007을 사용자와 확정한다. 현재 최우선 항목이다.**
-- 확정 후 Spring Boot 프로젝트를 만들고 ERD를 마이그레이션으로 옮긴다. Roadmap Phase 5 진입.
+- [x] ADR-0006과 ADR-0007을 확정했다(Accepted).
+- **Spring Boot 프로젝트를 만들고 DATA_MODEL의 ERD를 마이그레이션으로 옮긴다. 현재 최우선 항목이며 Roadmap Phase 5 진입이다.**
+- 구현 착수 전 확인이 필요한 항목: 허용 GitHub 계정 식별자, PostgreSQL/pgvector 버전, 빌드 도구, Spring AI 채택 여부.
+- 챗봇 질문 제한의 집계 기준과 세션 이력 보관·복원·만료 정책을 설계한다. 두 항목 모두 스키마에 영향을 준다.
 - 세션 기능 관련 평가 사례(RAG-005/006/008/009/010)는 구현 후에 측정한다.
 - 콘텐츠가 늘거나 블로그를 실제 원고로 교체하면 `--save`로 재측정하고 RAG_MEASUREMENTS에 추가한다. 점수 분포와 Hybrid search 필요성이 재검토 대상이다.
 - **PoC에 사용한 OpenAI API 키를 폐기하고 재발급한다. 대화에 노출됐다.**

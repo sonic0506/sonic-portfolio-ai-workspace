@@ -1,7 +1,7 @@
 # ADR-0006: Embedding Model and Retrieval Policy
 
-- Status: **Proposed** — 사용자 확정 전
-- Date: 2026-09-09
+- Status: Accepted
+- Date: 2026-09-09 (2026-09-10 사용자 채택)
 
 ## Context
 
@@ -52,6 +52,7 @@ ADR-0001이 LLM 제공자를 OpenAI로 확정했으나 구체 모델은 미정�
 - 측정 표본이 문서 5건, 질문 7개다. 실제 콘텐츠가 늘어나면 점수 분포가 달라질 수 있고, 특히 근거 부족 판정과 Hybrid search 필요성은 재측정 대상이다.
 - 측정은 메모리 코사인 계산으로 했다. pgvector HNSW의 근사 검색은 회수율이 다를 수 있으며 실제 DB에서 재확인이 필요하다.
 - 블로그 3편이 AI 초안이라 문체가 균질하다. 실제 원고로 교체하면 결과가 달라질 수 있다.
+- 2026-09-10 사용자가 다섯 결정을 그대로 채택했다. 결정 5(Hybrid search)는 검토 대상 승격까지이며 도입 확정이 아니다.
 
 ## Related Documents
 
