@@ -1,5 +1,7 @@
 # Requirements
 
+프로젝트·블로그·프로필의 상세 입력 항목과 목록 표시 기준은 [CONTENT_SPEC](CONTENT_SPEC.md)을 따른다(2026-09-09 사용자 구체화). 최신 요청에 없는 기존 항목은 자동 삭제하지 않고 확인 대상으로 구분한다.
+
 ## MVP Scope — Confirmed 2026-09-09
 
 사용자 결정에 따라 아래 Public, Admin, Data / RAG 기능 전체를 1차 배포에 포함한다. Graph View, Relation 관리/확장, RAG Playground도 포함하며, 비기능 요구사항도 적용한다.
@@ -20,10 +22,11 @@
 ### Projects
 - 프로젝트 목록을 제공한다.
 - 일반 프로젝트는 프로젝트명, 기간, 포지션, 기여도, 기술 스택 중심으로 간략히 노출한다.
-- 대표 프로젝트는 Case Study 형태의 상세 내용을 제공한다.
+- 상세 설명은 제목 + Markdown 본문 섹션과 추천 질문 블록으로 구성한다. 대표/비대표 목록 표시 항목은 CONTENT_SPEC을 따른다.
 - 프로젝트 상세에서 관련 블로그/문서를 확인할 수 있다.
 
 ### Blog
+- 본문은 제목 + Markdown 섹션으로 작성하고 추천 질문 블록을 삽입할 수 있다.
 - Markdown 기반 블로그 글을 렌더링한다.
 - 하나의 글은 여러 Category에 속할 수 있다.
 - Tag를 별도로 관리한다.
@@ -35,9 +38,13 @@
 - Node Type 기반 필터를 지원한다.
 
 ### RAG Chatbot
+- Project/Blog/Profile의 추천 질문 클릭 시 새 채팅 세션을 열고 즉시 전송한다. 기존 세션 이력은 이어받지 않는다.
 - Profile, Career, Project, Blog, Skill 등 등록 데이터에 근거해 답변한다.
 - 데이터에 없는 사실을 임의로 생성하지 않는다.
-- 검색에 사용한 출처를 사용자에게 연결할 수 있는 구조를 고려한다.
+- 답변의 근거로 사용한 공개 원문 출처를 표시한다.
+- 공개 콘텐츠만 검색/Relation 확장에 사용하고, 근거가 부족하면 부족함을 명시한다.
+- 같은 대화 세션 안에서 이전 질문/답변을 기억하여 후속 질문을 이해한다. 다른 세션/방문자의 이력과 분리한다.
+- 대화 이력을 사실 근거로 대신 사용하지 않고 현재 공개 원문을 기준으로 답변한다. 상세 정책은 ADR-0004를 따른다.
 - 문서 Relation을 활용해 관련 Context를 확장할 수 있어야 한다.
 
 ## 2. Admin Requirements
@@ -49,7 +56,7 @@
 ### Project Management
 - 프로젝트 기본 정보, 기간, 역할, 기여도, 설명, 기술 스택을 관리한다.
 - 대표 프로젝트 여부를 설정할 수 있다.
-- 대표 프로젝트는 Problem, Role, Architecture, Key Features, Challenges, Troubleshooting, Result 등 상세 내용을 관리할 수 있다.
+- 상세 섹션 제목은 CONTENT_SPEC의 프리셋 선택 또는 직접 입력으로 관리한다. 본문은 Markdown이며 추천 질문 블록 삽입을 지원한다.
 - 관련 문서를 선택할 수 있다.
 
 ### Blog Management
@@ -59,6 +66,8 @@
 - 관련 Project/Document를 연결할 수 있다.
 
 ### Knowledge Management
+
+- 공통 Skill 목록을 등록/관리하고 Project/Blog/Profile에서 동일한 기술 명칭을 재사용한다.
 - Document 목록을 조회할 수 있다.
 - Document Relation을 관리할 수 있다.
 - Graph 형태로 관계를 확인할 수 있다.
