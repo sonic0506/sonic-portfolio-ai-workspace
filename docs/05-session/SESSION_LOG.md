@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-09-09 — Sample Content Prepared
+
+- 사용자가 제공한 대표 프로젝트 3건(비오라 / 유진로봇 / 싱크마스터)을 CONTENT_SPEC 형식으로 `samples/projects/`에 저장했다. 원문의 서술 지침·검토 메모는 본문에서 분리해 front matter의 `open_questions`로 옮겼다.
+- 프로젝트에서 파생한 블로그 3편을 `samples/blog/`에 작성했다. AI 초안이며 `sample: true`로 표시했다. 프로젝트 서술 범위를 넘는 사실이나 수치를 만들지 않았다.
+- `blog/offline-first-boundary.md`는 RAG-007(공개 범위 필터) 검증을 위해 비공개로 두고, 공개 글이 Relation으로 참조하도록 구성했다.
+- 추천 질문 블록 문법은 `:::questions` 컨테이너를 후보로 채택했다. CONTENT_SPEC의 미정 항목이며 확정 아님.
+- 샘플 적용 결과 데이터 모델 공백 8건을 식별해 `samples/README.md`에 기록했다. CURRENT_STATE와 NEXT_ACTIONS를 동기화하고 CURRENT_PLAN의 샘플 데이터 항목을 완료 처리했다.
+- 검증: 문서 대조와 파일 구성 확인만 수행했다. 색인/검색/실행 테스트는 구현이 없어 수행하지 않았다.
+- 다음: 공백 8건을 반영한 ERD 초안 작성, 이어서 최소 RAG PoC.
+
 ## 2026-09-09 — Uncommitted Documents Organized
 
 - 워킹 트리에만 있던 문서 변경을 주제별 커밋으로 정리했다: 배포/비용(ADR-0003, ADR-0002, AWS_COST_PROPOSAL, ARCHITECTURE), RAG 정책/콘텐츠 스펙(ADR-0004, RAG_DESIGN, RAG_TEST_CASES, CONTENT_SPEC, REQUIREMENTS, DATA_MODEL), 세션 인계 문서.

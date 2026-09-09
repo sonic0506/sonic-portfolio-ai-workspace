@@ -25,10 +25,13 @@ REQUIREMENTS의 전체 기능을 1차 배포에 포함한다. Graph View와 RAG 
 
 - CONTENT_SPEC의 최신 입력 항목으로 필드/관계 초안을 작성한다. 추천 질문은 새 세션 생성 후 즉시 전송, Blog는 섹션형 Markdown, 상태 배지는 방문자 미노출, Profile 소개글은 별도 짧은 문구로 확정했다. 추천 질문의 원문 맥락 전달과 기존 미언급 항목의 유지 여부를 후속 설계한다.
 
-- 실제 프로젝트 1~2개를 샘플로 선정한다.
-- 실제 블로그 글 2~3개를 샘플로 선정한다.
-- Project / Blog / Skill / Relation 모델이 샘플을 충분히 표현하는지 검증한다.
-- Document와 DocumentChunk 상세 필드를 확정한다.
+- [x] 실제 프로젝트 3건을 샘플로 확보했다(`samples/projects/`).
+- [x] 블로그 3편 샘플을 작성했다(`samples/blog/`, AI 초안이며 사용자 확인 전).
+- [x] 샘플로 Project / Blog / Skill / Relation 모델의 공백 8건을 식별했다(`samples/README.md`).
+- 식별된 공백 8건을 해소하는 ERD 초안을 작성한다. 이것이 현재 최우선 작업이다.
+- Document와 DocumentChunk 상세 필드를 확정한다. 섹션 1개 = 청크 1개가 성립하지 않음을 샘플에서 확인했다.
+- 비오라의 측정 수치, 싱크마스터의 모델 불일치 검증 유무 등 각 샘플 front matter의 `open_questions`를 사용자에게 확인한다.
+- 블로그 샘플을 사용자 문체와 사실 기준으로 검토하거나 실제 원고로 교체한다.
 
 ## 분석에서 확인한 설계 검토 항목 — 미확정
 

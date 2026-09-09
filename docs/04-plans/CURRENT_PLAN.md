@@ -20,7 +20,7 @@ Status: Active
 - [ ] 시스템 아키텍처 확정
 - [ ] DB ERD 초안 작성
 - [ ] Document / Relation 상세 모델 확정
-- [ ] RAG PoC용 샘플 데이터 선정
+- [x] RAG PoC용 샘플 데이터 선정 — 프로젝트 3건 + 블로그 3편 + Skill 목록 (`samples/`)
 - [ ] 첫 구현 계획 작성
 
 ## Definition of Done for Current Phase

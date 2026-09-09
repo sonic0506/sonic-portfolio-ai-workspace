@@ -33,6 +33,14 @@ Last Updated: 2026-09-09
 - Vector Search + Document Relation 기반 Context 확장 구조를 지향한다.
 - Codex와 Claude Code 모두 `docs/`를 SSOT로 사용한다.
 
+## Sample Content — 2026-09-09
+
+- 사용자가 대표 프로젝트 3건(비오라 / 유진로봇 / 싱크마스터)의 상세 기술서를 제공했다. `samples/projects/`에 CONTENT_SPEC 형식으로 저장했다.
+- 블로그 3편은 프로젝트 내용에서 파생한 AI 작성 샘플 초안이다(`sample: true`). 사용자 문체와 사실 확인 전이며 실제 발행분이 아니다.
+- `blog/offline-first-boundary.md`는 RAG 공개 범위 필터 검증(RAG-007)을 위해 의도적으로 비공개(Draft)로 뒀다. 공개 글이 이 글을 Relation으로 참조한다.
+- 추천 질문 블록 저장 문법은 remark-directive 컨테이너(`:::questions`)를 후보로 사용했다. 확정 아님.
+- 샘플로 확인된 데이터 모델 공백 8건은 `samples/README.md`에 정리했다. 소속 필드, 기여도 주석, 진행 중 상태, 목록 정렬 키, 관리자 전용 메모, 공개→비공개 링크 필터 시점, 섹션-청크 불일치, Skill 참조 키 분리이다.
+
 ## Not Yet Decided
 
 - Authentication session details / allowed GitHub account identifier
@@ -48,7 +56,7 @@ Last Updated: 2026-09-09
 
 - Application code: Not started
 - Project documentation bootstrap: Created (모든 결정/설계 문서 커밋 완료)
-- Sample portfolio content: Not yet organized
+- Sample portfolio content: 대표 프로젝트 3건(사용자 제공) + 블로그 3편(AI 샘플 초안, 1편 비공개) + 공통 Skill 목록을 `samples/`에 정리
 - RAG PoC: Not started
 
 ## Important Notes
