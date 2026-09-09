@@ -28,8 +28,10 @@ REQUIREMENTS의 전체 기능을 1차 배포에 포함한다. Graph View와 RAG 
 - [x] 실제 프로젝트 3건을 샘플로 확보했다(`samples/projects/`).
 - [x] 블로그 3편 샘플을 작성했다(`samples/blog/`, AI 초안이며 사용자 확인 전).
 - [x] 샘플로 Project / Blog / Skill / Relation 모델의 공백 8건을 식별했다(`samples/README.md`).
-- 식별된 공백 8건을 해소하는 ERD 초안을 작성한다. 이것이 현재 최우선 작업이다.
-- Document와 DocumentChunk 상세 필드를 확정한다. 섹션 1개 = 청크 1개가 성립하지 않음을 샘플에서 확인했다.
+- [x] 식별된 공백 8건을 해소하는 ERD 초안을 작성했다(DATA_MODEL).
+- [x] Document와 DocumentChunk 상세 필드 초안을 작성했다. 섹션 1개 = 청크 1개가 성립하지 않음을 반영했다.
+- **ADR-0005의 세 결정(섹션 저장 / Relation 기준 ID / 공개 필터 시점)을 사용자와 확정한다. 현재 최우선 항목이다.**
+- 확정 후 최소 RAG PoC로 청킹 경계와 한국어 검색 품질을 측정한다. `vector(n)` 차원은 그 결과로 고정한다.
 - 비오라의 측정 수치, 싱크마스터의 모델 불일치 검증 유무 등 각 샘플 front matter의 `open_questions`를 사용자에게 확인한다.
 - 블로그 샘플을 사용자 문체와 사실 기준으로 검토하거나 실제 원고로 교체한다.
 

@@ -18,8 +18,8 @@ Status: Active
 - [x] 핵심 기술 스택 결정 — 사용자 선택을 ADR-0001에 기록
 - [ ] 배포/인증/모델 등 남은 기술 결정 및 비용·호환성 검증
 - [ ] 시스템 아키텍처 확정
-- [ ] DB ERD 초안 작성
-- [ ] Document / Relation 상세 모델 확정
+- [x] DB ERD 초안 작성 — DATA_MODEL.md (샘플 콘텐츠 기준, 공백 8건 반영)
+- [ ] Document / Relation 상세 모델 확정 — ADR-0005에 Proposed. 사용자 확정 필요
 - [x] RAG PoC용 샘플 데이터 선정 — 프로젝트 3건 + 블로그 3편 + Skill 목록 (`samples/`)
 - [ ] 첫 구현 계획 작성
 

@@ -41,6 +41,15 @@ Last Updated: 2026-09-09
 - 추천 질문 블록 저장 문법은 remark-directive 컨테이너(`:::questions`)를 후보로 사용했다. 확정 아님.
 - 샘플로 확인된 데이터 모델 공백 8건은 `samples/README.md`에 정리했다. 소속 필드, 기여도 주석, 진행 중 상태, 목록 정렬 키, 관리자 전용 메모, 공개→비공개 링크 필터 시점, 섹션-청크 불일치, Skill 참조 키 분리이다.
 
+## Data Model — 2026-09-09
+
+- 샘플 콘텐츠 기준 ERD 초안을 DATA_MODEL에 작성했다. 17개 테이블이며 샘플에서 식별한 공백 8건을 모두 반영했다.
+- 두지 않기로 한 테이블과 이유를 함께 기록했다: `admin_user`(허용 계정 1개는 설정값), `suggested_question`(본문 인라인), `chat_usage`(집계 규칙 미정), `document_index_job`(상태 컬럼으로 충분).
+- `TROUBLESHOOTING`을 document_type에서 제외했다. 샘플에서 독립 원본이 아니라 프로젝트의 한 섹션이었다.
+- ADR-0005(Proposed)에 세 결정을 분리했다: 섹션 단일 테이블 + 추천 질문 본문 인라인, Relation 기준 = Document ID, 공개 범위 필터 = 조회 시점.
+- **ADR-0005는 Proposed이며 사용자 확정 전이다.** 확정 없이 구현을 시작하지 않는다.
+- `vector(1536)`은 text-embedding-3-small 후보 기준값이며 모델 확정 전까지 고정이 아니다.
+
 ## Not Yet Decided
 
 - Authentication session details / allowed GitHub account identifier

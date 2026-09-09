@@ -15,6 +15,9 @@ Status: Draft
 
 초기 MVP에서 어떤 Node Type까지 포함할지는 설계 단계에서 축소 가능하다.
 
+Skill과 Category는 `document_type`에 포함하지 않는다([DATA_MODEL](DATA_MODEL.md), [ADR-0005](../03-decisions/ADR-0005-content-and-document-model.md)).
+`document_relation`이 Document 사이만 연결하므로, Skill/Category를 노드로 그리려면 `project_skill` / `blog_skill` / `blog_category` 연결 테이블을 Graph 전용 Edge로 함께 읽어야 한다. MVP 포함 여부는 미정이다.
+
 ## 3. Edge
 
 Document Relation을 기본 Edge Source로 사용한다.

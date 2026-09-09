@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-09-09 — ERD Draft
+
+- `samples/`의 실제 콘텐츠를 기준으로 DATA_MODEL에 ERD 초안을 작성했다. Business Data 11개 + Document Layer 3개 + Chat 3개 테이블이다.
+- 샘플에서 식별한 공백 8건을 모두 스키마에 반영하고 처리 방식을 표로 남겼다.
+- Postgres 작성 규칙을 적용했다: `bigint generated always as identity` PK, `text`/`timestamptz`, 소문자 snake_case, FK 인덱스, 공개 목록용 부분 인덱스, HNSW 벡터 인덱스.
+- 두지 않기로 한 테이블 5개와 이유를 기록했다. `admin_user`는 허용 계정이 하나라 설정값으로 대체한다.
+- ADR 대상 결정 3건을 ADR-0005에 **Proposed**로 분리했다. 사용자 확정 전이므로 Accepted로 올리지 않았다.
+- GRAPH_DESIGN에 Skill/Category가 Document가 아니라는 점과 Graph 전용 Edge가 필요하다는 점을 반영했다.
+- 검증: 문서 간 정책 대조만 수행했다. DB가 없어 DDL 실행, 제약 동작, 인덱스 계획은 미검증이다.
+- 다음: ADR-0005 확정 후 최소 RAG PoC.
+
 ## 2026-09-09 — Sample Content Prepared
 
 - 사용자가 제공한 대표 프로젝트 3건(비오라 / 유진로봇 / 싱크마스터)을 CONTENT_SPEC 형식으로 `samples/projects/`에 저장했다. 원문의 서술 지침·검토 메모는 본문에서 분리해 front matter의 `open_questions`로 옮겼다.
