@@ -1,0 +1,89 @@
+{
+  "measured_at": "2026-09-10T07:20:59.842270+09:00",
+  "embed_model": "text-embedding-3-small",
+  "chat_model": "gpt-4.1-mini",
+  "max_chars": 1200,
+  "min_chars": 200,
+  "result": {
+    "documents": [
+      {
+        "id": "offline-first-boundary",
+        "type": "BLOG",
+        "visible": false,
+        "chars": 1650,
+        "chunks_section": 6,
+        "chunks_bounded": 5
+      },
+      {
+        "id": "web-serial-usb",
+        "type": "BLOG",
+        "visible": true,
+        "chars": 2586,
+        "chunks_section": 7,
+        "chunks_bounded": 6
+      },
+      {
+        "id": "websocket-binary-video",
+        "type": "BLOG",
+        "visible": true,
+        "chars": 1849,
+        "chunks_section": 7,
+        "chunks_bounded": 5
+      },
+      {
+        "id": "syncmaster",
+        "type": "PROJECT",
+        "visible": true,
+        "chars": 2483,
+        "chunks_section": 9,
+        "chunks_bounded": 4
+      },
+      {
+        "id": "viora",
+        "type": "PROJECT",
+        "visible": true,
+        "chars": 2330,
+        "chunks_section": 8,
+        "chunks_bounded": 8
+      },
+      {
+        "id": "yujin-robot",
+        "type": "PROJECT",
+        "visible": true,
+        "chars": 2469,
+        "chunks_section": 9,
+        "chunks_bounded": 7
+      }
+    ],
+    "strategies": {
+      "A: 섹션 = 청크": {
+        "count": 46,
+        "min": 88,
+        "max": 647,
+        "median": 268,
+        "over_max": 0,
+        "under_min": 11,
+        "merged": []
+      },
+      "B: 경계 조정": {
+        "count": 35,
+        "min": 205,
+        "max": 821,
+        "median": 367,
+        "over_max": 0,
+        "under_min": 0,
+        "merged": [
+          "주의할 점 + 정리",
+          "지금이라면 고칠 것 + 정리",
+          "시작 + HLS를 뺀 이유: 지연",
+          "WebRTC를 뺀 이유: 인프라 비용 대비 이득 + 그래서 WebSocket",
+          "개요 + 배경 · 문제 + 역할 · 기여도",
+          "기술 선택 이유 + 주요 작업",
+          "트러블슈팅 + 성과 + 배운 것",
+          "배경 · 문제 + 역할 · 기여도",
+          "성과 + 배운 것"
+        ]
+      }
+    }
+  }
+}

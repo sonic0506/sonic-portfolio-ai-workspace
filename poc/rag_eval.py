@@ -12,6 +12,7 @@
   2. 공개 범위 필터(document.visible)가 검색 결과에서 실제로 동작하는가
 """
 
+import datetime
 import json
 import os
 import re
@@ -21,6 +22,7 @@ import urllib.request
 from pathlib import Path
 
 SAMPLES = Path(__file__).resolve().parent.parent / "samples"
+RESULTS = Path(__file__).resolve().parent / "results"
 
 # ponytail: 토큰 대신 문자 수로 잰다. tiktoken 의존성 없이 경계 비교는 가능하다.
 # 절대 토큰 예산(8191)을 확인해야 할 때 tiktoken을 붙인다.
@@ -53,6 +55,19 @@ EVAL = [
     ("WebRTC 대신 WebSocket을 선택한 이유가 뭔가요?", {"yujin-robot", "websocket-binary-video"}),
     ("OAuth 인증 관련 트러블슈팅 경험을 설명해주세요.", set()),  # 근거 없음 (RAG-003)
 ]
+
+
+def save_result(name, data):
+    """--save 가 있으면 결과를 날짜별 JSON으로 남긴다."""
+    if "--save" not in sys.argv:
+        return
+    RESULTS.mkdir(exist_ok=True)
+    path = RESULTS / f"{datetime.date.today().isoformat()}-{name}.json"
+    payload = {"measured_at": datetime.datetime.now().astimezone().isoformat(),
+               "embed_model": EMBED_MODEL, "chat_model": CHAT_MODEL,
+               "max_chars": MAX_CHARS, "min_chars": MIN_CHARS, "result": data}
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"\n저장: {path.relative_to(RESULTS.parent.parent)}")
 
 
 def parse_front_matter(text):
@@ -168,11 +183,22 @@ def _split_long(body):
 
 
 def report_chunks(docs):
+    out = {"documents": [{"id": d["id"], "type": d["type"], "visible": d["visible"],
+                          "chars": len(d["content"]),
+                          "chunks_section": len(chunk_by_section(d)),
+                          "chunks_bounded": len(chunk_bounded(d))} for d in docs],
+           "strategies": {}}
     for name, fn in (("A: 섹션 = 청크", chunk_by_section), ("B: 경계 조정", chunk_bounded)):
         chunks = [c for d in docs for c in fn(d)]
         sizes = sorted(len(c["text"]) for c in chunks)
         over = [c for c in chunks if len(c["text"]) > MAX_CHARS]
         under = [c for c in chunks if len(c["text"]) < MIN_CHARS]
+        out["strategies"][name] = {
+            "count": len(chunks), "min": sizes[0], "max": sizes[-1],
+            "median": int(statistics.median(sizes)),
+            "over_max": len(over), "under_min": len(under),
+            "merged": [" + ".join(c["sections"]) for c in chunks if len(c["sections"]) > 1],
+        }
         print(f"\n### 전략 {name}")
         print(f"  청크 수      : {len(chunks)}")
         print(f"  길이(자)     : 최소 {sizes[0]} / 중앙 {int(statistics.median(sizes))} / 최대 {sizes[-1]}")
@@ -180,6 +206,7 @@ def report_chunks(docs):
         print(f"  {MAX_CHARS}자 초과  : {len(over)}  {[c['sections'][0] for c in over][:5]}")
         print(f"  {MIN_CHARS}자 미만   : {len(under)}  {[c['sections'][0] for c in under][:5]}")
         print(f"  섹션 병합    : {len(multi)}  {[' + '.join(c['sections']) for c in multi][:3]}")
+    return out
 
 
 def embed(texts):
@@ -235,6 +262,7 @@ def retrieve(docs, top_k=5):
 def run_answer(docs):
     """검색 결과로 답변을 생성한다. ADR-0004의 근거/출처/근거부족 요구를 확인한다."""
     titles = {d["id"]: d["title"] for d in docs}
+    out = []
     for q, expected, scored in retrieve(docs):
         evidence = "\n\n".join(
             f"[{i}] {titles[c['doc_id']]} — {' + '.join(c['sections'])}\n{c['text']}"
@@ -249,10 +277,16 @@ def run_answer(docs):
         passed = ", ".join(f"[{i}] {c['doc_id']}" for i, (_, c) in enumerate(scored, 1))
         print(f"   전달 근거: {passed}")
         print(f"\n{answer}")
+        out.append({"question": q, "expected": sorted(expected),
+                    "evidence": [{"rank": i, "score": round(sc, 4), "doc_id": c["doc_id"],
+                                  "sections": c["sections"]}
+                                 for i, (sc, c) in enumerate(scored, 1)],
+                    "answer": answer})
+    return out
 
 
 def run_search(docs, top_k=5):
-    hits = 0
+    hits, out = 0, []
     for q, expected, scored in retrieve(docs, top_k):
         found = {c["doc_id"] for _, c in scored}
         ok = expected <= found if expected else True
@@ -261,8 +295,13 @@ def run_search(docs, top_k=5):
         print(f"   기대 {sorted(expected) or '없음(근거 부족 기대)'} / 상위 {sorted(found)}  {'OK' if ok else 'MISS'}")
         for s, c in scored:
             print(f"     {s:.3f}  {c['doc_id']} / {' + '.join(c['sections'])}")
+        out.append({"question": q, "expected": sorted(expected), "hit": bool(ok),
+                    "top": [{"rank": i, "score": round(sc, 4), "doc_id": c["doc_id"],
+                             "sections": c["sections"]}
+                            for i, (sc, c) in enumerate(scored, 1)]})
     print(f"\n기대 출처 포함: {hits}/{len(EVAL)}")
     print("비공개 문서가 결과에 없어야 한다 (offline-first-boundary).")
+    return {"hits": hits, "total": len(EVAL), "questions": out}
 
 
 def selftest(docs):
@@ -305,11 +344,11 @@ if __name__ == "__main__":
               f"(공개 {sum(d['visible'] for d in documents)} / 비공개 {sum(not d['visible'] for d in documents)})")
         for d in documents:
             print(f"  {'○' if d['visible'] else '×'} {d['type']:8} {d['id']:26} {len(d['content']):>6}자")
-        report_chunks(documents)
+        save_result("chunks", report_chunks(documents))
     elif cmd == "search":
-        run_search(documents)
+        save_result("search", run_search(documents))
     elif cmd == "answer":
-        run_answer(documents)
+        save_result("answer", run_answer(documents))
     elif cmd == "dim":
         print(f"{EMBED_MODEL} embedding dim = {len(embed(['차원 확인'])[0])}")
     elif cmd == "selftest":

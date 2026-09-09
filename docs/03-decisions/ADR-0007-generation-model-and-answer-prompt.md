@@ -13,7 +13,7 @@ ADR-0006이 임베딩 모델과 검색 정책을 다뤘고 생성 모델은 "측
 
 ## Evidence
 
-`gpt-4.1-mini`, `temperature: 0`, 검색 상위 5건 전달.
+`gpt-4.1-mini`, `temperature: 0`, 검색 상위 5건 전달. 답변 원문은 [RAG_MEASUREMENTS](../06-testing/RAG_MEASUREMENTS.md#측정-3--답변-생성)에 있다.
 
 | 질문 | 결과 |
 |---|---|
@@ -68,3 +68,4 @@ ADR-0006이 임베딩 모델과 검색 정책을 다뤘고 생성 모델은 "측
 - [RAG Design](../02-design/RAG_DESIGN.md)
 - [Evaluation Cases](../06-testing/RAG_TEST_CASES.md)
 - [PoC Harness](../../poc/README.md)
+- [Measurements](../06-testing/RAG_MEASUREMENTS.md)

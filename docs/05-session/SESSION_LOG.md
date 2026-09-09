@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-09-10 — Measurements Archived
+
+- 실측값이 실행 로그에만 남아 사라지는 문제를 정리했다. `docs/06-testing/RAG_MEASUREMENTS.md`를 수치의 기준 문서로 만들었다.
+- 청킹·검색·답변 세 측정의 원본 수치를 모두 옮겼다. 검색은 질문 7개의 상위 5건 전체 점수, 답변은 근거 부족 거부와 비공개 미유출, 기여 경계 보존 사례를 원문으로 보관했다.
+- "측정이 바꾼 결정" 표로 각 수치가 어떤 스키마·ADR 변경을 유발했는지 추적 가능하게 했다.
+- 하네스에 `--save`를 추가했다. 이후 실행은 `poc/results/<날짜>-<명령>.json`에 원본을 남긴다. 청킹은 재실행해 JSON 원본을 확보했고, 검색·답변은 도입 전 실행이라 로그에서 옮긴 값임을 명시했다.
+- DOCUMENT_RULES 1절에 따라 poc/README와 ADR-0006/0007, RAG_TEST_CASES의 중복 수치를 기준 문서 링크로 정리했다.
+- 검증: `selftest` 통과, `chunks --save` 재실행으로 JSON 원본 생성 확인. 추가 API 호출은 하지 않았다.
+- 다음: ADR-0006/0007 확정 후 Spring Boot 프로젝트 생성(Roadmap Phase 5).
+
 ## 2026-09-10 — Answer Generation Measured
 
 - `poc/rag_eval.py`에 `answer` 명령을 추가하고 실행했다. `gpt-4.1-mini`, `temperature 0`, 검색 상위 5건 전달.

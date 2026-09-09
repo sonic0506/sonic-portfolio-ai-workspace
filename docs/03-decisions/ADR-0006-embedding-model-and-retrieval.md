@@ -21,7 +21,7 @@ ADR-0001이 LLM 제공자를 OpenAI로 확정했으나 구체 모델은 미정�
 | WebRTC 대신 WebSocket을 선택한 이유가 뭔가요? | websocket-binary-video, yujin-robot | 0.678 | 포함 |
 | OAuth 인증 관련 트러블슈팅 경험을 설명해주세요. | 없음(근거 부족 기대) | 0.342 | — |
 
-기대 출처 포함 7/7. 임베딩 차원은 실측 1536이다.
+기대 출처 포함 7/7. 임베딩 차원은 실측 1536이다. 상위 5건 전체 점수는 [RAG_MEASUREMENTS](../06-testing/RAG_MEASUREMENTS.md#측정-2--검색-회수)에 있다.
 
 비공개 문서 `offline-first-boundary`는 어떤 질문의 상위 결과에도 등장하지 않았다. "오프라인 우선 앱에서 동기화 충돌"은 그 비공개 글의 제목과 거의 같은 질문인데도 공개 원본인 `syncmaster`가 0.520으로 최상위였다. ADR-0005의 조회 시점 필터가 실제로 동작한다(RAG-007).
 
@@ -60,3 +60,4 @@ ADR-0001이 LLM 제공자를 OpenAI로 확정했으나 구체 모델은 미정�
 - [RAG Answer and Session Policy](ADR-0004-rag-answer-and-session-policy.md)
 - [Content and Document Model](ADR-0005-content-and-document-model.md)
 - [PoC Harness](../../poc/README.md)
+- [Measurements](../06-testing/RAG_MEASUREMENTS.md)
