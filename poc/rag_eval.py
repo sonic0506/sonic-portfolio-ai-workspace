@@ -28,6 +28,15 @@ MAX_CHARS = 1200
 MIN_CHARS = 200
 
 EMBED_MODEL = "text-embedding-3-small"
+CHAT_MODEL = "gpt-4.1-mini"
+
+# ADR-0004: 공개 근거만 사용, 출처 표시, 근거 부족 시 명시.
+SYSTEM_PROMPT = """너는 개발자 포트폴리오의 질의응답 도우미다.
+
+- 아래 <근거> 안의 내용만 사용해 답한다. 근거에 없는 사실을 만들지 않는다.
+- 답변에서 사용한 근거는 [1] 같은 번호로 표시한다.
+- 근거가 질문에 답하기 부족하면 부족하다고 명시하고 추측하지 않는다.
+- 근거에 없는 기술이나 경험을 물으면 해당 내용이 등록되어 있지 않다고 답한다."""
 
 # 관리자 전용/메타 필드. Document 생성 대상에서 제외한다 (DATA_MODEL 공백 5번).
 ADMIN_FIELDS = {"admin_note", "open_questions", "sample_note", "draft_note"}
@@ -196,19 +205,55 @@ def cosine(a, b):
     return dot / (na * nb) if na and nb else 0.0
 
 
-def run_search(docs, top_k=5):
+def chat(messages):
+    key = os.environ["OPENAI_API_KEY"]
+    req = urllib.request.Request(
+        "https://api.openai.com/v1/chat/completions",
+        data=json.dumps({"model": CHAT_MODEL, "messages": messages,
+                         "temperature": 0}).encode(),
+        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+    )
+    with urllib.request.urlopen(req) as r:
+        return json.load(r)["choices"][0]["message"]["content"]
+
+
+def retrieve(docs, top_k=5):
+    """공개 문서만 색인해 질문별 상위 청크를 돌려준다."""
     visible = {d["id"] for d in docs if d["visible"]}
     chunks = [c for d in docs for c in chunk_bounded(d)]
     print(f"청크 {len(chunks)}개 임베딩 중... (모델 {EMBED_MODEL})")
     vecs = embed([c["text"] for c in chunks])
     qvecs = embed([q for q, _ in EVAL])
-
-    hits = 0
     for (q, expected), qv in zip(EVAL, qvecs):
         scored = sorted(
             ((cosine(qv, v), c) for v, c in zip(vecs, chunks) if c["doc_id"] in visible),
             key=lambda x: -x[0],
         )[:top_k]
+        yield q, expected, scored
+
+
+def run_answer(docs):
+    """검색 결과로 답변을 생성한다. ADR-0004의 근거/출처/근거부족 요구를 확인한다."""
+    titles = {d["id"]: d["title"] for d in docs}
+    for q, expected, scored in retrieve(docs):
+        evidence = "\n\n".join(
+            f"[{i}] {titles[c['doc_id']]} — {' + '.join(c['sections'])}\n{c['text']}"
+            for i, (_, c) in enumerate(scored, 1)
+        )
+        answer = chat([
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": f"<근거>\n{evidence}\n</근거>\n\n질문: {q}"},
+        ])
+        print(f"\n{'=' * 70}\nQ. {q}")
+        print(f"   기대 출처: {sorted(expected) or '없음(근거 부족 기대)'}")
+        passed = ", ".join(f"[{i}] {c['doc_id']}" for i, (_, c) in enumerate(scored, 1))
+        print(f"   전달 근거: {passed}")
+        print(f"\n{answer}")
+
+
+def run_search(docs, top_k=5):
+    hits = 0
+    for q, expected, scored in retrieve(docs, top_k):
         found = {c["doc_id"] for _, c in scored}
         ok = expected <= found if expected else True
         hits += ok
@@ -263,6 +308,8 @@ if __name__ == "__main__":
         report_chunks(documents)
     elif cmd == "search":
         run_search(documents)
+    elif cmd == "answer":
+        run_answer(documents)
     elif cmd == "dim":
         print(f"{EMBED_MODEL} embedding dim = {len(embed(['차원 확인'])[0])}")
     elif cmd == "selftest":

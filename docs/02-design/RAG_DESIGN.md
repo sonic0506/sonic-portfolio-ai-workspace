@@ -1,6 +1,6 @@
 # RAG Design
 
-Status: Draft
+Status: Draft — 모델 조합은 PoC 측정 완료(ADR-0006 / ADR-0007, 둘 다 Proposed)
 
 답변 및 세션 정책은 [ADR-0004](../03-decisions/ADR-0004-rag-answer-and-session-policy.md)로 확정했다. 모델/저장 방식/상세 검색 구현은 Draft이다.
 
