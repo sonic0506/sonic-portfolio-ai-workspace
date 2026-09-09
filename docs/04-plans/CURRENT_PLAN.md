@@ -14,8 +14,9 @@ Status: Active
 - [x] 주요 Public / Admin 요구사항 정리
 - [x] 권장 전체 Roadmap 정리
 - [x] Codex / Claude 공통 문서 운영 체계 생성
-- [ ] MVP 범위 최종 확정
-- [ ] 기술 스택 후보 비교 및 결정
+- [x] MVP 범위 최종 확정 — REQUIREMENTS의 전체 기능 포함, Graph View 및 RAG Playground 포함
+- [x] 핵심 기술 스택 결정 — 사용자 선택을 ADR-0001에 기록
+- [ ] 배포/인증/모델 등 남은 기술 결정 및 비용·호환성 검증
 - [ ] 시스템 아키텍처 확정
 - [ ] DB ERD 초안 작성
 - [ ] Document / Relation 상세 모델 확정
