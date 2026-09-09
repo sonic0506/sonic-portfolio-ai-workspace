@@ -19,7 +19,8 @@ Status: Active
 - [ ] 배포/인증/모델 등 남은 기술 결정 및 비용·호환성 검증
 - [ ] 시스템 아키텍처 확정
 - [x] DB ERD 초안 작성 — DATA_MODEL.md (샘플 콘텐츠 기준, 공백 8건 반영)
-- [ ] Document / Relation 상세 모델 확정 — ADR-0005에 Proposed. 사용자 확정 필요
+- [x] Document / Relation 상세 모델 확정 — ADR-0005 Accepted (2026-09-09 사용자 채택)
+- [ ] RAG PoC 검색 품질 측정 — 청킹 측정 완료, 임베딩/검색은 API 키 없어 미실행
 - [x] RAG PoC용 샘플 데이터 선정 — 프로젝트 3건 + 블로그 3편 + Skill 목록 (`samples/`)
 - [ ] 첫 구현 계획 작성
 

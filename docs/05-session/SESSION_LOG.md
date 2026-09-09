@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-09-09 — ADR-0005 Accepted and Chunking Measured
+
+- 사용자가 ADR-0005의 세 결정을 그대로 채택해 Status를 Accepted로 올렸다.
+- `poc/rag_eval.py`를 작성했다. 의존성 없이 표준 라이브러리만 쓰며 `chunks` / `selftest` / `search` 세 명령을 가진다.
+- 청킹 측정을 실행했다. 섹션 = 청크는 46청크(200자 미만 11개), 짧은 섹션 병합은 35청크(최소 205 / 중앙 367 / 최대 821자)였다.
+- **가장 긴 섹션이 647자로, 길이 때문에 섹션을 분할할 일은 없었다.** 기존에 기록한 "섹션이 길어 쪼개야 한다"는 방향은 이 규모에서 틀렸고, 실제 문제는 짧은 섹션이었다.
+- 병합 청크 9개가 두 개 이상 섹션에 걸쳐 `document_chunk.section_title`을 `section_titles text[]`로 수정했다.
+- selftest가 관리자 필드 제외, 추천 질문 블록 제거, 비공개 문서 검색 제외를 assert로 확인한다. 작성 중 front matter 파서 버그와 청크 병합의 선두 섹션 예외를 잡아 수정했다.
+- 검증: `selftest`와 `chunks` 실행 결과다. **`search`는 OPENAI_API_KEY가 없어 실행하지 못했고 한국어 검색 품질은 미측정이다.**
+- 다음: 키를 넣고 `search` 실행 후 임베딩 모델과 `vector(n)` 차원을 ADR로 확정.
+
 ## 2026-09-09 — ERD Draft
 
 - `samples/`의 실제 콘텐츠를 기준으로 DATA_MODEL에 ERD 초안을 작성했다. Business Data 11개 + Document Layer 3개 + Chat 3개 테이블이다.

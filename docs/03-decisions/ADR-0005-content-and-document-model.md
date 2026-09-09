@@ -1,6 +1,6 @@
 # ADR-0005: Content and Document Model
 
-- Status: **Proposed** — 사용자 확정 전
+- Status: Accepted
 - Date: 2026-09-09
 
 ## Context
@@ -65,6 +65,7 @@
 - 추천 질문을 Markdown 본문에 두므로 질문 목록만 따로 조회하려면 본문 파싱이 필요하다. 현재 요구사항에 그런 조회가 없다.
 - `content_section`의 CHECK 제약은 소유자 타입이 늘어날 때마다 컬럼과 제약을 함께 수정해야 한다. 소유자 타입은 CONTENT_SPEC 기준 세 가지로 고정되어 있다.
 - 세 결정 모두 실행 검증을 거치지 않았다. 구현이 없으므로 성능·정합성은 미검증이다.
+- 2026-09-09 사용자가 세 결정을 그대로 채택했다.
 
 ## Related Documents
 

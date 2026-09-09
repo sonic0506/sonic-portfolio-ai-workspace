@@ -291,7 +291,7 @@ create table document_chunk (
   document_id   bigint not null references document(id) on delete cascade,
   chunk_index   int not null,
   content       text not null,
-  section_title text,          -- 유래한 섹션. 청크 경계와 1:1이 아니다
+  section_titles text[] not null default '{}',  -- 유래한 섹션들. 청크 경계와 1:1이 아니다
   token_count   int,
   embedding     vector(1536),  -- 차원은 임베딩 모델 확정 후 고정
   metadata      jsonb not null default '{}',
@@ -303,7 +303,11 @@ create index document_chunk_embedding_idx on document_chunk
   using hnsw (embedding vector_cosine_ops);
 ```
 
-- `section_title`은 출처 표시와 디버깅용 메타데이터다. 샘플에서 "역할 · 기여도"는 표 세 줄, "기술 선택 이유"는 여러 문단이라 섹션 1개 = 청크 1개가 성립하지 않았다.
+- `section_titles`는 출처 표시와 디버깅용 메타데이터다. **배열인 이유는 PoC 측정 결과다**(`poc/`).
+  샘플 6건에서 가장 긴 섹션이 647자라 길이 때문에 섹션을 쪼갤 일은 없었다. 문제는 반대쪽이었다.
+  46개 섹션 중 11개가 200자 미만("정리", "시작", "개요")이라 그대로 청크로 쓰면 검색 노이즈가 된다.
+  짧은 섹션을 인접 섹션에 병합하면 35청크(최소 205 / 중앙 367 / 최대 821자)가 되는데,
+  이 중 9개가 두 개 이상의 섹션에 걸친다. 단일 `section_title`로는 출처를 정확히 표시할 수 없다.
 - 벡터 인덱스는 HNSW를 쓴다. 문서 수가 수십~수백 규모라 빌드 비용이 문제되지 않고 IVFFlat보다 recall이 안정적이다.
 - 공개 범위는 검색 시 `document.visible` 조인으로 거른다. 청크에 `visible`을 복제하고 부분 HNSW 인덱스를 만드는 방식이 더 빠르지만, 현재 데이터 규모에서 필요 없는 비정규화다. 규모가 커져 조인 비용이 문제되면 그때 전환한다.
 - `vector(1536)`은 text-embedding-3-small 기준 후보값이다. 모델 ADR 전까지 확정이 아니다.
@@ -383,7 +387,7 @@ create index chat_message_source_document_idx on chat_message_source (document_i
 | 4 | 기간 동일 시 정렬 미결정 | `project_public_list_idx (display_order, period_start desc, id desc)` |
 | 5 | 관리자 전용 메모 | `project.admin_note` / `blog_post.admin_note`. Document 생성 대상에서 제외 |
 | 6 | 공개→비공개 링크 필터 시점 | 조회 시점 필터. `document.visible` 조인으로 검색·Relation 확장·출처에서 제외 |
-| 7 | 섹션 ≠ 청크 | 청크 경계는 독립, `document_chunk.section_title`은 메타데이터 |
+| 7 | 섹션 ≠ 청크 | 청크 경계는 독립, `document_chunk.section_titles`(배열)는 메타데이터. PoC에서 병합 청크 9개 확인 |
 | 8 | Skill 참조 키 | `skill.code` / `skill.name` 분리 |
 
 8번의 잔여 항목인 `STT` / `LLM` / `TTS`의 분류는 정하지 않았다. 파이프라인 단계에 가까우나 프로필 표시에는 기술로 보이는 편이 자연스러워, 실제 프로필 스킬 그룹 확정 시 함께 결정한다.

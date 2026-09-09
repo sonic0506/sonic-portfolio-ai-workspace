@@ -30,8 +30,11 @@ REQUIREMENTS의 전체 기능을 1차 배포에 포함한다. Graph View와 RAG 
 - [x] 샘플로 Project / Blog / Skill / Relation 모델의 공백 8건을 식별했다(`samples/README.md`).
 - [x] 식별된 공백 8건을 해소하는 ERD 초안을 작성했다(DATA_MODEL).
 - [x] Document와 DocumentChunk 상세 필드 초안을 작성했다. 섹션 1개 = 청크 1개가 성립하지 않음을 반영했다.
-- **ADR-0005의 세 결정(섹션 저장 / Relation 기준 ID / 공개 필터 시점)을 사용자와 확정한다. 현재 최우선 항목이다.**
-- 확정 후 최소 RAG PoC로 청킹 경계와 한국어 검색 품질을 측정한다. `vector(n)` 차원은 그 결과로 고정한다.
+- [x] ADR-0005의 세 결정을 사용자가 채택했다(Accepted).
+- [x] 청킹 경계를 실측했다. 결과를 `poc/README.md`와 DATA_MODEL에 반영했다.
+- **`OPENAI_API_KEY`를 넣고 `python3 poc/rag_eval.py search`를 실행해 한국어 검색 품질을 측정한다. 현재 최우선 항목이다.**
+- 측정 결과로 `vector(n)` 차원과 임베딩 모델을 ADR로 확정한다. 현재 1536은 후보값이다.
+- 근거 없음 질문(RAG-003)의 유사도 분포를 보고 "근거 부족" 판정 임계값을 정한다.
 - 비오라의 측정 수치, 싱크마스터의 모델 불일치 검증 유무 등 각 샘플 front matter의 `open_questions`를 사용자에게 확인한다.
 - 블로그 샘플을 사용자 문체와 사실 기준으로 검토하거나 실제 원고로 교체한다.
 

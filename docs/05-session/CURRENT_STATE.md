@@ -47,8 +47,17 @@ Last Updated: 2026-09-09
 - 두지 않기로 한 테이블과 이유를 함께 기록했다: `admin_user`(허용 계정 1개는 설정값), `suggested_question`(본문 인라인), `chat_usage`(집계 규칙 미정), `document_index_job`(상태 컬럼으로 충분).
 - `TROUBLESHOOTING`을 document_type에서 제외했다. 샘플에서 독립 원본이 아니라 프로젝트의 한 섹션이었다.
 - ADR-0005(Proposed)에 세 결정을 분리했다: 섹션 단일 테이블 + 추천 질문 본문 인라인, Relation 기준 = Document ID, 공개 범위 필터 = 조회 시점.
-- **ADR-0005는 Proposed이며 사용자 확정 전이다.** 확정 없이 구현을 시작하지 않는다.
+- ADR-0005는 2026-09-09 사용자가 그대로 채택해 **Accepted**다.
 - `vector(1536)`은 text-embedding-3-small 후보 기준값이며 모델 확정 전까지 고정이 아니다.
+
+## RAG PoC — 2026-09-09
+
+- `poc/rag_eval.py`로 청킹 경계를 실측했다. 의존성 없는 표준 라이브러리 스크립트이며 `chunks` / `selftest`는 API 키 없이 실행된다.
+- **측정 결과 기존 가정이 틀렸다.** 가장 긴 섹션이 647자라 섹션을 길이 때문에 쪼갤 일은 없었다. 실제 문제는 200자 미만 짧은 섹션 11개였다.
+- 짧은 섹션을 병합하면 46 → 35청크(최소 205 / 중앙 367 / 최대 821자)가 되고, 이 중 9개가 두 개 이상 섹션에 걸친다.
+- 이에 따라 DATA_MODEL의 `document_chunk.section_title`을 `section_titles text[]`로 수정했다.
+- selftest가 관리자 필드 제외, 추천 질문 블록 제거, 비공개 문서 검색 제외(RAG-007)를 assert로 확인한다.
+- **임베딩·검색 평가는 미실행이다.** `OPENAI_API_KEY`가 없다. 한국어 검색 품질, 전략 A/B 정확도 차이, `vector(n)` 차원은 모두 미측정이다.
 
 ## Not Yet Decided
 
