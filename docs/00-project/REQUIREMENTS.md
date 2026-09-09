@@ -1,5 +1,16 @@
 # Requirements
 
+## MVP Scope — Confirmed 2026-09-09
+
+사용자 결정에 따라 아래 Public, Admin, Data / RAG 기능 전체를 1차 배포에 포함한다. Graph View, Relation 관리/확장, RAG Playground도 포함하며, 비기능 요구사항도 적용한다.
+
+- Public Profile, Project List / Detail, Blog List / Detail
+- Admin CRUD, Markdown Editor / Preview, Category / Tag 및 Relation 관리
+- Document Pipeline, Vector Search, RAG Chatbot
+- Graph View, RAG Index 상태 / Re-index, RAG Playground
+
+기능별 상세 정책과 수용 기준은 설계 단계에서 구체화한다. 전체 포함은 이 문서의 요구사항 범위를 뜻하며, 별도 Backlog의 검토 후보까지 자동 확정하지 않는다. 아래 Out of Scope는 유지한다.
+
 ## 1. Public Requirements
 
 ### Profile
@@ -69,7 +80,10 @@
 
 - Public 페이지는 모바일/데스크톱 반응형을 고려한다.
 - SEO를 고려한다.
-- Admin은 인증된 사용자만 접근할 수 있어야 한다.
+- Admin은 GitHub으로 인증된 운영자 본인 계정만 접근할 수 있어야 한다. 다른 GitHub 계정은 관리자 접근을 거부한다.
+- 월 운영비는 서버·DB·S3·OpenAI API·도메인·세금 등 전부 포함하여 100,000원을 예산으로 한다.
+- AWS와 AWS 관리형 DB를 우선 검토한다.
+- 챗봇 질문 횟수 제한을 적용한다. 제한 활성화 여부와 수치를 설정으로 변경할 수 있어야 하며, 제한 해제는 관리자 인증/권한 검사에 영향을 주지 않는다. 구체적인 제한 기준과 수치는 설계에서 정한다.
 - 비밀키와 운영 환경 설정은 저장소에 직접 커밋하지 않는다.
 - 중요한 변경은 테스트 가능해야 한다.
 - 문서와 구현의 일관성을 유지한다.
