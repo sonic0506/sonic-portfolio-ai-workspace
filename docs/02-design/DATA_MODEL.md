@@ -293,7 +293,7 @@ create table document_chunk (
   content       text not null,
   section_titles text[] not null default '{}',  -- 유래한 섹션들. 청크 경계와 1:1이 아니다
   token_count   int,
-  embedding     vector(1536),  -- 차원은 임베딩 모델 확정 후 고정
+  embedding     vector(1536),  -- text-embedding-3-small 실측 (ADR-0006)
   metadata      jsonb not null default '{}',
   created_at    timestamptz not null default now(),
   unique (document_id, chunk_index)
@@ -310,7 +310,7 @@ create index document_chunk_embedding_idx on document_chunk
   이 중 9개가 두 개 이상의 섹션에 걸친다. 단일 `section_title`로는 출처를 정확히 표시할 수 없다.
 - 벡터 인덱스는 HNSW를 쓴다. 문서 수가 수십~수백 규모라 빌드 비용이 문제되지 않고 IVFFlat보다 recall이 안정적이다.
 - 공개 범위는 검색 시 `document.visible` 조인으로 거른다. 청크에 `visible`을 복제하고 부분 HNSW 인덱스를 만드는 방식이 더 빠르지만, 현재 데이터 규모에서 필요 없는 비정규화다. 규모가 커져 조인 비용이 문제되면 그때 전환한다.
-- `vector(1536)`은 text-embedding-3-small 기준 후보값이다. 모델 ADR 전까지 확정이 아니다.
+- `vector(1536)`은 `text-embedding-3-small`의 실측 차원이다([ADR-0006](../03-decisions/ADR-0006-embedding-model-and-retrieval.md), Proposed). 모델을 바꾸면 전체 재임베딩이 필요하다.
 
 ### document_relation
 
@@ -394,7 +394,7 @@ create index chat_message_source_document_idx on chat_message_source (document_i
 
 ## 7. 남은 결정
 
-- 임베딩 모델과 `vector(n)` 차원 — 모델 ADR 대상
+- ~~임베딩 모델과 `vector(n)` 차원~~ — ADR-0006에 Proposed. 생성 모델은 여전히 미측정·미결정
 - PostgreSQL / pgvector 버전과 HNSW 파라미터(`m`, `ef_construction`)
 - 세션 이력 보관 기간·복원·만료 동작
 - 챗봇 질문 제한의 집계 기준

@@ -263,6 +263,8 @@ if __name__ == "__main__":
         report_chunks(documents)
     elif cmd == "search":
         run_search(documents)
+    elif cmd == "dim":
+        print(f"{EMBED_MODEL} embedding dim = {len(embed(['차원 확인'])[0])}")
     elif cmd == "selftest":
         selftest(documents)
     else:
