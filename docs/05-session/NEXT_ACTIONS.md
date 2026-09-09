@@ -6,23 +6,24 @@ Last Updated: 2026-09-09
 
 REQUIREMENTS의 전체 기능을 1차 배포에 포함한다. Graph View와 RAG Playground도 포함하며 기존 Out of Scope는 유지한다. 범위를 다시 축소하지 않고 기능별 상세 정책과 수용 기준을 구체화한다.
 
-## Priority 1 — 남은 운영 조건 및 기술 결정
+## Priority 1 — RAG 모델과 상세 기술 설계
 
-핵심 스택은 ADR-0001, 운영 조건은 ADR-0002로 확정했다. 모든 비용을 포함한 월 10만 원, AWS 및 AWS 관리형 DB 선호, GitHub 본인 계정 인증, 설정으로 해제 가능한 챗봇 제한을 기준으로 설계한다. 예상 트래픽이 미정이면 비용 계산 시 가정을 명시한다.
+- RAG_DESIGN의 Spring AI 기반 초기 조합은 제안 상태다. 채택 시 ADR로 확정하고 실제 질문/출처 평가 및 Spring Boot 버전 호환성을 검증한다.
 
-- AWS 서비스/리전별 비용과 관리형 PostgreSQL의 pgvector 지원을 공식 자료로 검증한다.
-- 로그인 구현 시 허용할 GitHub 계정 식별자를 확인한다.
-- 질문 제한의 기준, 기간, 수치와 비활성화 설정을 정의한다. 제한 해제가 인증/권한 검사를 해제하지 않도록 한다.
+배포는 ADR-0003으로 확정했다. 전체 MVP와 기존 예산을 유지한다.
 
-결정 대상:
-- Auth session details
-- API style
-- LLM model / Embedding provider and model / RAG integration
-- Graph library
-- Specific AWS hosting / DB service / cost estimate and usage thresholds
-- Dependency versions / build tools / S3 policy / Markdown storage
+- RAG 답변/세션 정책은 ADR-0004로 확정했다. 이력 저장 위치·보관 기간·새로고침/재방문 복원·삭제/만료·컨텍스트 상한을 후속 설계한다.
+
+- 생성 모델, Embedding 모델, RAG 통합 방식의 후보를 비교한다. 기존 비용 산정의 gpt-4.1-mini/text-embedding-3-small은 아직 후보이다.
+- 실제 콘텐츠와 질문으로 기대 출처, 답변 품질, 지연, 비용 기준을 정한다.
+- API/스트리밍, GitHub 세션, 도메인/CORS/CSRF 정책을 설계한다. 실제 허용 GitHub 계정은 인증 구현 전 확인한다.
+- 챗봇 제한의 기준/기간/수치 및 해제 설정을 정의한다.
+- PostgreSQL/pgvector 버전, Graph/Markdown 도구, 빌드 도구를 확정한다.
+- 배포 시 Vercel 무료 조건/저장소 연결, Lightsail와 RDS 사설 연결 및 메모리 부하를 검증한다.
 
 ## Priority 2 — 데이터 설계
+
+- CONTENT_SPEC의 최신 입력 항목으로 필드/관계 초안을 작성한다. 추천 질문은 새 세션 생성 후 즉시 전송, Blog는 섹션형 Markdown, 상태 배지는 방문자 미노출, Profile 소개글은 별도 짧은 문구로 확정했다. 추천 질문의 원문 맥락 전달과 기존 미언급 항목의 유지 여부를 후속 설계한다.
 
 - 실제 프로젝트 1~2개를 샘플로 선정한다.
 - 실제 블로그 글 2~3개를 샘플로 선정한다.

@@ -4,6 +4,95 @@
 
 ---
 
+## 2026-09-09 — Uncommitted Documents Organized
+
+- 워킹 트리에만 있던 문서 변경을 주제별 커밋으로 정리했다: 배포/비용(ADR-0003, ADR-0002, AWS_COST_PROPOSAL, ARCHITECTURE), RAG 정책/콘텐츠 스펙(ADR-0004, RAG_DESIGN, RAG_TEST_CASES, CONTENT_SPEC, REQUIREMENTS, DATA_MODEL), 세션 인계 문서.
+- `.DS_Store` 추적을 해제하고 `.gitignore`를 추가했다.
+- 문서 내용 변경은 없다. 기존 결정/미확정 상태를 그대로 커밋했다.
+- 다음: NEXT_ACTIONS의 Priority 1~2(RAG 모델 채택, 샘플 콘텐츠 기반 데이터 모델 검증)를 진행한다.
+
+## 2026-09-09 — Content Follow-up Decisions
+
+- 사용자 답변 4개를 반영했다: 상태 배지 미노출, 추천 질문 새 세션 즉시 전송, Blog 섹션형 Markdown/추천 질문 지원, Profile 짧은 소개글 분리.
+- CONTENT_SPEC, REQUIREMENTS, DATA_MODEL, CURRENT_STATE, NEXT_ACTIONS, SESSION_LOG를 동기화했다.
+- 문서 대조 및 diff 공백 검사만 수행했다. 실행 기능은 미구현이다.
+- 다음: 이 요구사항으로 데이터 사전/ERD를 작성하고 추천 질문 원문 맥락 전달 등 구현 세부를 정의한다.
+
+## 2026-09-09 — Content Fields and Presentation Refined
+
+- 사용자 텍스트와 첨부 이미지의 표시 구조를 바탕으로 CONTENT_SPEC을 작성했다.
+- Project 기본/대표·비대표 목록/상세 섹션, 공통 Skill 관리, Blog 메타정보, Profile 소개 섹션/스킬 그룹을 정리했다.
+- 이미지의 예시 기술 선택/경력 내용은 결정이나 실제 데이터로 취급하지 않았다. 미언급 기존 기능과 추천 질문 동작 등은 확인 대상으로 남겼다.
+- 변경: CONTENT_SPEC.md, REQUIREMENTS.md, DATA_MODEL.md, CURRENT_STATE.md, NEXT_ACTIONS.md, SESSION_LOG.md.
+- 검증: 요청 항목과 문서 대조 및 diff 공백 검사. 코드/DB 구현과 실행 테스트는 수행하지 않았다.
+- 다음: 확인 항목 해소 후 데이터 사전/ERD 초안 작성.
+
+## 2026-09-09 — RAG Implementation Recommendation Explained
+
+- OpenAI 모델 및 Spring AI ChatClient/PGvector/Chat Memory 공식 문서를 조회했다.
+- RAG_DESIGN에 초기 조합 후보와 라이브러리/애플리케이션 책임, 세션 맥락 비용 조건을 기록했다. CURRENT_STATE/NEXT_ACTIONS도 동기화했다.
+- 새 Accepted 결정이나 구현 없음. 실제 품질/버전 호환성은 미검증이며 문서 변경만 검증했다.
+- 다음: 추천안 채택 후 실제 콘텐츠 기반 PoC 기준 확정.
+
+## 2026-09-09 — RAG Grounding and Session Memory Confirmed
+
+- 공개 콘텐츠만 사용, 출처 표시, 근거 부족 명시와 세션별 대화 기억을 ADR-0004에 Accepted로 기록했다.
+- Requirements, RAG Design, Data Model, RAG Test Cases 및 세션 인계 문서를 동기화했다.
+- 후속 질문/세션 분리/비공개 제외/이력 오정보/타인 접근/원문 발행 취소 평가 사례를 Planned로 추가했다.
+- 검증: 문서 정책 대조 및 diff 공백 검사. 실행 가능한 앱은 없으므로 실제 동작 테스트는 수행하지 않았다.
+- 다음: 생성/임베딩 모델과 세션 보관·복원·컨텍스트 상한 설계. 저장 기술은 미확정이다.
+
+## 2026-09-09 — Initial Deployment Selected
+
+- 사용자 추천안 채택에 따라 Vercel Hobby + 서울 Lightsail 2GB + RDS micro 구성을 ADR-0003에 Accepted로 기록했다.
+- Architecture, 비용 제안서 상태, Current State, Next Actions를 동기화했다. 모델 후보는 자동 확정하지 않았다.
+- 검증: 문서 상태 대조 및 diff 공백 검사. 실제 배포/성능/청구금액은 미검증이다.
+- 다음: RAG 모델/평가 기준, 데이터·발행 정책, API·인증 상세 설계.
+
+## 2026-09-09 — RDS Retained and Compute Options Compared
+
+- 사용자 결정으로 RDS 유지 확정. ADR-0002와 Architecture/Current State/Next Actions에 반영했다.
+- AWS 서울 EC2 공식 가격표를 조회해 Lightsail 2GB와 EC2 t4g/t3a/t3 small을 비교했다. EBS 20GB/IPv4를 포함한 총예산은 각각 약 7.1만/8.5만/8.8만/9.1만 원이다.
+- 비용 제안서에 단가/SKU, 가정, VPC/IAM/ARM 및 CPU 버스트 차이를 기록했다. Decimal 산술 확인, 실제 배포·성능 미검증.
+- 변경: ADR-0002, ARCHITECTURE.md, AWS_COST_PROPOSAL.md, CURRENT_STATE.md, NEXT_ACTIONS.md, SESSION_LOG.md.
+- 다음: 앱 서버 선택 후 상세 배포 구성 확정. 서버/Vercel 선택은 이번 비교로 자동 확정하지 않는다.
+
+## 2026-09-09 — Database Cost Reduction Tradeoffs
+
+- 서울 RDS 가격표의 Single-AZ PostgreSQL 최저 시간당 단가와 공식 최소 저장 공간/인스턴스 사양을 대조했다.
+- Vercel + Lightsail 앱/DB 통합 4GB 약 56,100원, 2GB 약 36,300원을 계산했다. 메모리 경쟁, 백업/복구, 보안 업데이트 및 동시 장애 부담을 문서화했다.
+- 변경: AWS_COST_PROPOSAL.md, CURRENT_STATE.md, NEXT_ACTIONS.md, SESSION_LOG.md. 공식 자료/산술 검증만 수행했으며 배포·성능은 미검증이다. 관리형 DB 선호 변경이나 새 기술 확정 없음.
+- 다음: 비용 절감과 DB 직접 운영 책임 중 사용자 선호를 반영해 구성 채택.
+
+## 2026-09-09 — Vercel Hybrid Cost Comparison
+
+- Vercel 공식 Hobby/한도/이용 조건과 Lightsail 단가를 확인했다.
+- Next.js/React는 Vercel, Spring Boot는 Lightsail 2GB로 분리하는 월 약 70,736원 후보를 비용 제안서와 현재 상태/다음 작업에 반영했다.
+- 기존 2GB 통합안과 비용은 같고 백엔드 메모리 여유를 얻는다는 차이를 명시했다. 1GB 후보는 약 62,486원이지만 성능 미검증이다.
+- 변경 파일: AWS_COST_PROPOSAL.md, CURRENT_STATE.md, NEXT_ACTIONS.md, SESSION_LOG.md. 공식 문서 및 산술 검토만 수행했고 새 Accepted 결정/배포는 없다.
+- 다음 작업: 후보 채택 후 상세 배포/인증 도메인 설계와 부하 검증.
+
+## 2026-09-09 — AWS Monthly Cost Proposal
+
+### Completed
+- AWS 공식 서울 RDS 가격표, Lightsail/피어링/pgvector 자료 및 OpenAI 공식 모델 단가를 확인했다.
+- 전체 비용 포함 약 90,536원 추천안을 `AWS_COST_PROPOSAL.md`에 Proposed로 기록했다. 환율 1,500원, 730시간, 세금 여유 10%, 소규모 사용량 가정이다.
+- 2GB 앱 서버 절약안과 RDS small 증설 비용, 환율 민감도 및 사용 제한 후보를 비교했다.
+
+### Changed Files
+- `docs/02-design/AWS_COST_PROPOSAL.md`
+- `docs/05-session/CURRENT_STATE.md`
+- `docs/05-session/NEXT_ACTIONS.md`
+- `docs/05-session/SESSION_LOG.md`
+
+### Decisions / Validation
+- 사용자 채택 전 추천안이며 새 Accepted 결정은 없다. 배포/결제 작업 없음.
+- 공식 가격표의 SKU/단가를 확인하고 Decimal 계산으로 월 합계와 환율 시나리오를 검증했다.
+- 성능, 실제 사용량 및 청구금액은 미검증이다.
+
+### Next
+- 추천안 채택 후 상세 배포 설계 및 RAG PoC.
+
 ## 2026-09-09 — Operating Conditions Confirmed
 
 ### Completed / Decisions

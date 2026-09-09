@@ -8,6 +8,14 @@ Last Updated: 2026-09-09
 
 ## Confirmed
 
+- 콘텐츠 후속 확인 완료: 공개 상태/대표 여부는 방문자 미노출, 추천 질문은 새 채팅에서 즉시 전송, Blog도 제목+Markdown/추천 질문 블록 사용, Profile 소개글은 별도 짧은 문구로 관리한다.
+
+- 콘텐츠 상세 요구사항을 CONTENT_SPEC에 정리했다: 대표/비대표 목록 구분, Project/Profile 제목+Markdown 섹션, 추천 질문 블록, 공통 기술 목록, Blog 메타정보/내부 글 연결, Profile 스킬 그룹. 추가 확인 항목은 같은 문서에 분리했다.
+
+- RAG 답변 정책은 ADR-0004로 확정했다: 공개 콘텐츠만 사용, 출처 표시, 근거 부족 명시, 세션별 이전 질문/답변 기억 및 세션 간 분리. 저장/보관/복원 방식은 미정이다.
+
+- 배포 구성은 ADR-0003으로 확정했다: Vercel Hobby(Next.js/React), 서울 Lightsail 2GB(Spring Boot), RDS PostgreSQL micro Single-AZ/gp3 20GB. 실제 배포는 시작하지 않았다.
+
 - 핵심 기술 스택: Next.js(Public), React(Admin), Spring Boot(Java 21), JPA/QueryDSL, PostgreSQL/pgvector, OpenAI(LLM), S3. 기준은 ADR-0001이다.
 - 구현의 핵심은 RAG이며 콘텐츠는 프론트엔드·백엔드·AI 경험을 모두 전달한다. 프론트엔드는 익숙한 기술, 백엔드는 학습 목적이다.
 - 월 운영비 예산은 모든 비용을 포함한 100,000원이다. AWS와 AWS 관리형 DB를 선호한다(ADR-0002).
@@ -28,7 +36,7 @@ Last Updated: 2026-09-09
 ## Not Yet Decided
 
 - Authentication session details / allowed GitHub account identifier
-- Specific AWS services / region / deployment
+- Deployment implementation / domains / engine versions
 - LLM model / Embedding provider and model / RAG integration
 - Expected traffic / usage limit thresholds and counting rules
 - Dependency versions / build tools / S3 policy / Markdown storage
@@ -39,11 +47,19 @@ Last Updated: 2026-09-09
 ## Implementation State
 
 - Application code: Not started
-- Project documentation bootstrap: Created
+- Project documentation bootstrap: Created (모든 결정/설계 문서 커밋 완료)
 - Sample portfolio content: Not yet organized
 - RAG PoC: Not started
 
 ## Important Notes
+
+- RAG 구현 후보 설명을 RAG_DESIGN에 추가했다: gpt-4.1-mini + text-embedding-3-small + Spring AI/pgvector, PostgreSQL 세션 저장 후보. 사용자 채택 전이며 공식 API 지원만 확인했고 실제 품질/호환성은 미검증이다.
+
+- DB 추가 절약 비교: Vercel + Lightsail 4GB 앱/DB 직접 운영 약 56,100원, 2GB 통합 약 36,300원(PoC 후보). 운영/백업 책임과 성능 미검증을 비용 제안서에 기록했으며 관리형 DB 선호는 변경하지 않았다.
+
+- Vercel Hobby + Lightsail 2GB + RDS micro 구성을 채택했다. 비용 가정 기준 약 70,736원이며 개인 비상업적 이용/무료 한도 조건이 있다.
+
+- 비용 비교 이력은 `docs/02-design/AWS_COST_PROPOSAL.md`, 최종 채택 구성은 ADR-0003을 따른다. 실제 배포/성능은 미검증이다.
 
 새 세션에서는 기술 스택을 기존 결정처럼 가정하지 말고 ADR 여부를 먼저 확인한다.
 
