@@ -40,10 +40,12 @@ Admin Web
 
 ## 4. Pending Decisions
 
+배포 구성은 [ADR-0003](../03-decisions/ADR-0003-initial-deployment.md)을 따른다: Vercel Hobby, 서울 Lightsail 2GB, RDS PostgreSQL micro Single-AZ/gp3 20GB. 나머지 상세 설계는 Draft이다.
+
 아래 항목은 ADR로 확정해야 한다.
 
 - Authentication session details
-- Specific AWS services / region / Deployment / cost verification
+- Deployment implementation / domains / performance and cost verification
 - API style
 - LLM model / Embedding provider and model / RAG integration
 - Graph library
