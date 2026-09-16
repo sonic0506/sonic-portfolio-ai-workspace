@@ -82,6 +82,8 @@ class DocumentProjectionTest extends ApiTestSupport {
         Map<String, Object> profile = document("PROFILE", profileId);
         assertEquals(true, profile.get("visible"));
         assertEquals("## 소개\n\n안녕하세요", profile.get("content"));
+        assertEquals(1, count("select count(*) from document where document_type = 'PROFILE'"
+                + " and metadata->>'slug' = 'profile'"));
 
         mockMvc.perform(delete("/api/admin/blog/posts/{id}", post).with(admin()).with(csrf()))
                 .andExpect(status().isNoContent());

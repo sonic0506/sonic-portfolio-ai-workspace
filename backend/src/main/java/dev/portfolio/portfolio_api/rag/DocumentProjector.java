@@ -60,12 +60,12 @@ public class DocumentProjector {
                 (Boolean) row.get("published"), (String) row.get("slug"), skills);
     }
 
-    /** The profile is always public. */
+    /** The profile is always public; its slug is the fixed "profile" so clients never get an empty one. */
     public void projectProfile(long profileId) {
         List<String> skills = jdbc.queryForList("""
                 select s.code from profile_skill ps join skill s on s.id = ps.skill_id
                 where ps.profile_id = ? order by ps.display_order, s.code""", String.class, profileId);
-        upsert(Type.PROFILE, profileId, "프로필", content("profile_id", profileId), true, null, skills);
+        upsert(Type.PROFILE, profileId, "프로필", content("profile_id", profileId), true, "profile", skills);
     }
 
     /** Chunks and relations go with it (FK cascade). */
