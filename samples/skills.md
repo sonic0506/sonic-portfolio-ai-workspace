@@ -24,6 +24,25 @@ CONTENT_SPEC의 공통 Skill 목록 검증용 샘플이다. Project / Blog / Pro
 | tts | TTS | viora |
 | egohos | EgoHos | viora |
 | mentraos | MentraOS | viora |
+| javascript | JavaScript | profile |
+| nextjs | Next.js | profile |
+| vuejs | Vue.js | profile |
+| zustand | Zustand | profile |
+| redux-toolkit | Redux Toolkit | profile |
+| recoil | Recoil | profile |
+| tanstack-query | TanStack Query | profile |
+| react-hook-form | React Hook Form | profile |
+| zod | Zod | profile |
+| tailwind-css | Tailwind CSS | profile |
+| styled-components | styled-components | profile |
+| ag-grid | AG Grid | profile |
+| github-actions | GitHub Actions | profile |
+| aws | AWS | profile |
+| spring-boot | Spring Boot | profile |
+| claude-code | Claude Code | profile |
+| codex | Codex | profile |
+
+`profile` 행은 2026-09-16 사용자 프로필 초안(`profile-draft.md`)에서 추가했다.
 
 ## 검증에서 드러난 것
 
