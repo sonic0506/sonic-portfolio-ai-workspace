@@ -355,3 +355,12 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 커밋: 이전 세션부터 미커밋이던 설계 문서(ADR-0008/0009, API_DESIGN, ARCHITECTURE, 계획)와 backend/, 세션 문서를 나눠 커밋했다.
 - 참고: Cowork VM에서 git status를 실행하다 `.git/index.lock`이 남았고, 사용자 승인을 받아 삭제했다.
 - 미해결: 이전 PoC에서 노출된 OpenAI API 키의 폐기 여부는 아직 확인하지 못했다. Task 2 진행 전 Spring Security 기본 차단에 주의한다.
+
+## 2026-09-16 — 첫 백엔드 Task 2: GET /api/skills
+
+- 구현: `skill/Skill`(엔티티), `SkillResponse`(record), `SkillController`(QueryDSL, code 오름차순, 읽기 전용 트랜잭션), `config/QuerydslConfig`, 임시 `config/SecurityConfig`, `SkillApiTest` 4건.
+- 계획과 다른 점: 패키지를 `dev.portfolio.skill`에서 `dev.portfolio.portfolio_api.skill`로 바꿨다. 앱의 컴포넌트·엔티티 스캔 범위 밖이기 때문이다. Spring Security가 기본으로 모든 요청을 막아서, 이 경로만 익명 허용하는 최소 설정을 추가했다(인증 정책 결정 아님).
+- 검증: 사용자 로컬(13:21 KST)에서 `./gradlew clean test bootJar` BUILD SUCCESSFUL, 6건 모두 성공. 테스트 보고서 XML로 확인했다. 테스트와 구현을 함께 작성해 구현 전 404 실패 단계는 관찰하지 못했다.
+- 실행 환경 제약: Cowork VM과 클라우드 작업 공간 모두 Maven Central·Docker Hub에 접근할 수 없어 직접 빌드하지 못했다. 컴퓨터 사용은 터미널 입력이 허용되지 않고, Finder 백그라운드 조작도 실패해 사용자가 직접 실행했다. 사용자 Mac에는 `docker compose`(v2)가 없어 이미 떠 있던 DB로 실행했다.
+- 문서: API_DESIGN(Implemented Endpoints), 구현 계획 Task 2 체크, CURRENT_PLAN, CURRENT_STATE, NEXT_ACTIONS, backend/README.
+- 다음: 프로젝트/블로그/프로필 공개 조회 API 구현 계획 작성.

@@ -4,9 +4,11 @@ Last Updated: 2026-09-16
 
 ## Current Phase
 
-Phase 3 개발 설계를 마치고 첫 백엔드 구현 중이다. [FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md) Task 1(서버 기동·DB 마이그레이션)은 로컬에서 검증·커밋했다. 다음은 Task 2(`GET /api/skills`로 JPA/QueryDSL 조회 검증)다.
+Phase 3 개발 설계를 마치고 구현에 들어왔다. [FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md)의 Task 1(서버 기동·DB 마이그레이션)과 Task 2(`GET /api/skills` JPA/QueryDSL 조회)를 로컬에서 검증하고 커밋했다. 다음은 프로젝트/블로그/프로필 공개 조회 API의 구현 계획이다.
 
 ## Confirmed
+
+- 2026-09-16 Task 2 검증: 로컬 DB에서 `./gradlew clean test bootJar` 성공, 전체 테스트 6건 통과. Hibernate 7 `validate`가 `skill` 엔티티(`Instant` ↔ `timestamptz` 포함)를 실제 스키마와 대조했고, QueryDSL 5.1.0 Jakarta 조회가 Hibernate 7에서 동작했다. 응답 계약은 API_DESIGN의 Implemented Endpoints.
 
 - 2026-09-16 Task 1 검증: 로컬 compose DB(PostgreSQL 17.10/pgvector 0.8.2)에서 전체 테스트 2건 성공. 컨텍스트 기동(API 키 없음), Flyway V1 적용, 테이블 20개·HNSW 1개·`vector(1536)`, 재실행 migrate 0건, bootJar 생성. V1은 DATA_MODEL SQL 10블록과 동일함을 대조했다. 상세는 ADR-0009 마지막 절.
 
@@ -99,8 +101,9 @@ Phase 3 개발 설계를 마치고 첫 백엔드 구현 중이다. [FIRST_BACKEN
 
 ## Implementation State
 
-- Application code: `backend/` — 진입점, `application.properties`/`application-local.properties`, `compose.yaml`, Flyway V1, 테스트 2건(QueryDSL 설정, 스키마·마이그레이션). 도메인 엔티티·API·인증 설정은 아직 없다. OpenAI 모델 자동 구성은 꺼져 있다.
-- 미검증: 엔티티 기반 JPA/QueryDSL 조회, `bootRun` 서버 프로세스, Swagger HTTP, Spring AI 호출, RDS 배포.
+- Application code: `backend/` — 진입점, 설정(`application*.properties`), `compose.yaml`, Flyway V1, `skill` 패키지(엔티티·응답 record·`GET /api/skills`), `config/QuerydslConfig`, 임시 `config/SecurityConfig`(`GET /api/skills`만 익명 허용, 나머지는 인증 필요). 테스트 6건. OpenAI 모델 자동 구성은 꺼져 있다.
+- 미검증: `bootRun` 서버 프로세스, Swagger HTTP(현재 보안 설정상 차단됨), Spring AI 호출, RDS 배포.
+- 로컬 환경 참고: 사용자 Mac의 docker에는 `docker compose`(v2) 명령이 없다. 2026-09-16 테스트는 이미 떠 있던 5433 DB로 실행했다.
 - Project documentation bootstrap: Created. 2026-09-16 기준 미커밋 변경 없음
 - Sample portfolio content: 대표 프로젝트 3건(사용자 제공) + 블로그 3편(AI 샘플 초안, 1편 비공개) + 공통 Skill 목록을 `samples/`에 정리
 - RAG PoC: 구현 및 샘플 평가 완료. pgvector HNSW와 세션 기능은 미검증.
