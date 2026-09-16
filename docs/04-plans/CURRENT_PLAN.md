@@ -37,7 +37,7 @@ Status: Active
 - [x] 콘텐츠 관리 CRUD — ADMIN_CONTENT_CRUD_IMPLEMENTATION.md (테스트 52건)
   - [x] 1단계: Project, Category/Tag 관리 (2026-09-16, 테스트 44건)
   - [x] 2단계: Blog, Profile 관리 (2026-09-16)
-- [ ] 샘플 콘텐츠 시드 — `samples/`를 관리 API로 로컬 DB에 등록
+- [x] 샘플 콘텐츠 시드 — SAMPLE_SEED_IMPLEMENTATION.md (2026-09-16, 테스트 54건, 테스트 DB 분리)
 - [ ] Document 색인 계획 — 원본 → document/chunk 변환, 발행 토글과 visible 동기화
 
 ## Definition of Done for Current Phase

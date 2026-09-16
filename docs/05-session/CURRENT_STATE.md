@@ -4,9 +4,11 @@ Last Updated: 2026-09-16
 
 ## Current Phase
 
-Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 콘텐츠 관리 CRUD(Project, Blog, Profile, Category/Tag)도 완료했다. 다음은 샘플 콘텐츠 시드와 Document 색인이다.
+Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 콘텐츠 관리 CRUD(Project, Blog, Profile, Category/Tag)도 완료했다. 샘플 콘텐츠 시드(프로필 포함)도 완료했다. 다음은 Document 색인이다.
 
 ## Confirmed
+
+- 2026-09-16 샘플 시드: `bootRun --args='--spring.profiles.active=local --app.seed.samples-dir=../samples'`로 기술·카테고리/태그·프로젝트 3·블로그 3·프로필을 관리 서비스 경유로 upsert. 프로필은 사용자 초안(`samples/profile-draft.md`)에서 `samples/profile.md`로 정리(한 줄 소개 A, 기본 소개글, 고객사 실명). 테스트는 별도 DB `portfolio_test`를 쓴다. 전체 54건 통과. 사용자 확인이 필요한 사실 충돌은 SAMPLE_SEED_IMPLEMENTATION 참고.
 
 - 2026-09-16 콘텐츠 관리 2단계: `/api/admin/blog/posts`(카테고리·태그·기술·섹션 전체 교체), `GET/PUT /api/admin/profile`(단일 행 upsert, 경력·스킬 그룹·섹션). 참조 ID 검사 공용화(`IdChecks`). 전체 52건 통과.
 
@@ -111,7 +113,7 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 
 ## Implementation State
 
-- Application code: `backend/` — 진입점, 설정(`application*.properties`), `compose.yaml`, Flyway V1, `skill`·`project`·`blog`·`profile`·`content` 패키지(엔티티는 연관관계 없이 FK id 매핑, QueryDSL 조회 서비스, record 응답), `admin` 패키지(허용 판정, OAuth 사용자 서비스, `/api/admin/me`), Skill 관리 서비스·컨트롤러, Project·Blog·Profile·Category/Tag 관리 서비스·컨트롤러, `content/SectionWriter`·`IdChecks`, `config/QuerydslConfig`, `config/SecurityConfig`(공개 GET·`/error` 익명, local Swagger, `/api/admin/**` 관리자, 쿠키 CSRF, CORS 설정값), `config/ApiExceptionHandler`. 테스트 52건. OpenAI 모델 자동 구성은 꺼져 있다.
+- Application code: `backend/` — 진입점, 설정(`application*.properties`), `compose.yaml`, Flyway V1, `skill`·`project`·`blog`·`profile`·`content` 패키지(엔티티는 연관관계 없이 FK id 매핑, QueryDSL 조회 서비스, record 응답), `admin` 패키지(허용 판정, OAuth 사용자 서비스, `/api/admin/me`), Skill 관리 서비스·컨트롤러, Project·Blog·Profile·Category/Tag 관리 서비스·컨트롤러, `content/SectionWriter`·`IdChecks`, `config/QuerydslConfig`, `config/SecurityConfig`(공개 GET·`/error` 익명, local Swagger, `/api/admin/**` 관리자, 쿠키 CSRF, CORS 설정값), `config/ApiExceptionHandler`. `seed` 패키지(local 전용). 테스트 54건(`portfolio_test` DB). OpenAI 모델 자동 구성은 꺼져 있다.
 - 미검증: `bootRun` 서버 프로세스, Swagger UI 화면, 샘플 콘텐츠 실데이터 적재·조회, Spring AI 호출, RDS 배포.
 - 로컬 환경 참고: 로컬 DB는 Docker로 운영한다(사용자 결정). 사용자 Mac의 docker에는 `docker compose`(v2) 명령이 없어 2026-09-16 테스트는 이미 떠 있던 5433 DB로 실행했다.
 - Project documentation bootstrap: Created. 2026-09-16 기준 미커밋 변경 없음

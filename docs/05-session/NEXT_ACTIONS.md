@@ -6,18 +6,22 @@ Last Updated: 2026-09-16
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
-## Priority 1 — 샘플 콘텐츠 시드
+## Priority 1 — Document 색인
 
-관리 CRUD(Project, Blog, Profile, Category/Tag, Skill)는 2026-09-16 완료·커밋했다. 이제 실데이터로 공개 API를 확인하고, 다음 단계(Document 색인)의 입력을 만든다.
+샘플 시드(SAMPLE_SEED_IMPLEMENTATION)는 2026-09-16 완료·커밋했다. 개발 DB에 샘플이 들어가 있다.
 
-1. `samples/`(프로젝트 3, 블로그 3, `skills.md`)를 읽어 관리 API 요청으로 바꾸는 시드 도구를 만든다. 후보: `backend/`의 local 전용 커맨드(예: `--seed-samples`) 또는 테스트용 SQL. 결정은 사용자에게 확인한다.
-2. front matter → 요청 매핑: `skills`(표시명) → `skill.code`(kebab-case), `categories`/`tags` 생성, `period_start` `YYYY-MM` → 월 1일, `:::questions` 블록은 본문 그대로.
-3. `offline-first-boundary`는 비공개로 등록되는지 확인한다. `related_*`(Relation)는 Document 색인 이후에 연결한다.
-4. 확인: `bootRun` 후 `/api/projects`, `/api/blog/posts`, Swagger 화면. Profile 샘플은 없으므로 필요하면 사용자에게 받는다.
+1. RAG_DESIGN, ADR-0005/0006/0007, `poc/rag_eval.py`(청킹 규칙), RAG_MEASUREMENTS를 읽고 `docs/04-plans/`에 색인 구현 계획을 쓴다.
+2. 계획에 넣을 것:
+   - 원본(Project/Blog/Profile) → `document` upsert(`(document_type, source_id)`), `admin_note`·추천 질문 블록 제외(PoC selftest 규칙)
+   - PoC의 짧은 섹션 병합 청킹을 Java로 이식하고 PoC 결과(46 → 35청크)와 대조
+   - 임베딩: Spring AI + `text-embedding-3-small`, 기존 OpenAI 키(`.env`, 사용자 결정). 테스트는 임베딩을 가짜로 대체
+   - 관리 서비스 create/update/delete와 `document.visible`·색인 상태를 같은 트랜잭션에서 갱신(ADR-0005)
+   - 시드의 `related_*`를 `document_relation`으로 연결
+3. 실제 OpenAI 호출(유료)은 사용자 확인 후 실행한다.
 
-## Priority 2 — Document 색인
+## 사용자 확인 대기 (콘텐츠 사실)
 
-- RAG_DESIGN·ADR-0005/0006을 읽고 구현 계획을 쓴다: 원본(Project/Blog/Profile) → `document` upsert, PoC 청킹 규칙 이식, 임베딩(Spring AI, 기존 OpenAI 키), 발행 토글과 `document.visible` 같은 트랜잭션 갱신(관리 서비스의 create/update/delete에 연결), 색인 실패 상태.
+`samples/profile.md`의 `open_questions`와 SAMPLE_SEED_IMPLEMENTATION "사용자 확인이 필요한 사실" 5건. 답을 받으면 샘플을 고치고 시드를 다시 실행한다.
 
 ## 해당 기능 착수 시
 
@@ -38,4 +42,4 @@ Last Updated: 2026-09-16
 
 ## Recommended Next Session Prompt
 
-> 공통 규칙과 세션 문서를 읽고, samples/의 콘텐츠를 로컬 DB에 등록하는 시드 방식을 사용자와 정한 뒤 구현하자. 이어서 Document 색인 계획을 작성하자.
+> 공통 규칙과 세션 문서를 읽고, RAG_DESIGN·ADR-0005~0007·poc/를 참고해 Document 색인 구현 계획을 작성하자.

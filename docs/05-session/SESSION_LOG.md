@@ -399,3 +399,12 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 검증: 사용자 로컬 52건 통과(15:21 KST). 첫 실행에 통과했다.
 - 문서: API_DESIGN(Blog·Profile 관리), 계획 문서 완료, CURRENT_PLAN, CURRENT_STATE, NEXT_ACTIONS.
 - 다음: 샘플 콘텐츠 시드 → Document 색인 계획.
+
+## 2026-09-16 — 샘플 시드와 테스트 DB 분리
+
+- 사용자 프로필 초안 수신 → `samples/profile-draft.md` 원문 보관, 사용자 선택으로 `samples/profile.md` 작성. 기존 샘플 프로젝트 3건은 프리랜서 프로젝트라는 답변.
+- local 전용 시드(`app.seed.samples-dir`) 구현, `samples/taxonomy.md`·`skills.md` 보강.
+- 발견·수정: viora YAML 오류, CASE 파라미터 타입 추론, JPA 캐시 stale, 테스트·개발 DB 공유 → `portfolio_test` 분리(사용자가 최초 1회 DB 생성).
+- 검증: 사용자 로컬 54건 통과(16:17 KST), 테스트 DB 사용 확인.
+- 확인 대기: 프로필 사실 충돌 5건(SAMPLE_SEED_IMPLEMENTATION).
+- 다음: Document 색인 계획.

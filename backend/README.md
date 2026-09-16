@@ -11,6 +11,14 @@ docker compose up -d --wait   # pgvector 0.8.2 / PostgreSQL 17, 127.0.0.1:5433 (
 ./gradlew bootRun --args='--spring.profiles.active=local'
 ```
 
+### 샘플 콘텐츠 넣기 (local 전용)
+
+```sh
+./gradlew bootRun --args='--spring.profiles.active=local --app.seed.samples-dir=../samples'
+```
+
+`samples/`의 기술 목록·카테고리/태그(`taxonomy.md`)·프로젝트·블로그·프로필(`profile.md`)을 관리 서비스로 등록한 뒤 서버가 계속 실행된다. 같은 code/slug는 교체하므로 여러 번 실행해도 중복되지 않는다. 관련 글(Relation)은 넣지 않는다.
+
 ### 코드 변경 자동 반영 (DevTools)
 
 `spring-boot-devtools`(`developmentOnly`, 실행 JAR에는 포함되지 않음)가 **컴파일된 클래스 변경**을 감지해 앱을 자동 재시작한다. 소스 저장만으로는 반영되지 않으니 컴파일을 함께 돌린다.
@@ -25,14 +33,25 @@ IntelliJ는 "Build project automatically"와 "Allow auto-make to start even if d
 
 - 관리자 로그인: GitHub OAuth App(콜백 `http://localhost:8080/login/oauth2/code/github`)의 값을 `.env`의 `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`에 넣고 `http://localhost:8080/oauth2/authorization/github`로 접속한다. 값이 없어도 서버와 테스트는 동작한다([ADR-0010](../docs/03-decisions/ADR-0010-admin-authentication.md)).
 - `local` 프로필은 `backend/.env`를 읽는다. `.env`는 커밋하지 않는다. `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `DB_PORT`로 바꿀 수 있다.
-- 테스트(`PortfolioApiApplicationTests`)는 코드에서 `local` 프로필을 지정하므로 위 DB가 떠 있어야 한다.
+- 테스트는 `local`+`test` 프로필로 같은 DB 서버의 **별도 데이터베이스 `portfolio_test`**를 쓴다. 개발용 `portfolio` DB의 데이터(시드 포함)와 서로 영향을 주지 않는다.
+
+### 테스트 DB (최초 1회)
+
+새로 만든 DB 볼륨이면 `docker/init-test-db.sql`이 자동으로 만든다. 기존 볼륨이면 한 번만 직접 만든다.
+
+```sh
+docker ps                                   # pgvector 컨테이너 이름 확인
+docker exec -it <컨테이너 이름> psql -U portfolio -d portfolio -c 'create database portfolio_test'
+```
+
+테스트가 처음 실행될 때 Flyway가 `portfolio_test`에 스키마(V1)를 만든다.
 - 서버는 `127.0.0.1`에만 바인딩한다.
 - OpenAI 모델 자동 구성은 모두 `none`이다. API 키 없이 기동하며, 이 단계에서는 생성·임베딩 API를 호출하지 않는다.
 - 스키마는 Flyway(`src/main/resources/db/migration`)로만 바꾼다. Hibernate는 `validate`이며 Flyway clean은 막혀 있다. V1은 [DATA_MODEL](../docs/02-design/DATA_MODEL.md)의 SQL 10블록과 같다. 적용 후 수정하지 말고 새 버전을 추가한다.
 
 ## 검증 결과 — 2026-09-16
 
-로컬 DB에서 전체 테스트 52건이 성공했다(공개 조회·관리자 인증·전체 콘텐츠 관리 포함, 계약은 [API_DESIGN](../docs/02-design/API_DESIGN.md)).
+로컬 테스트 DB에서 전체 테스트 54건이 성공했다(공개 조회·관리자 인증·전체 콘텐츠 관리·샘플 시드 포함, 계약은 [API_DESIGN](../docs/02-design/API_DESIGN.md)).
 
 - `QuerydslSetupTest`: Jakarta Q 타입 생성과 조건식 구성
 - `PortfolioApiApplicationTests`: 컨텍스트 기동, V1 적용(PostgreSQL 17.10), pgvector 0.8.2, 테이블 20개, HNSW 1개, `vector(1536)`, 재실행 시 migrate 0건

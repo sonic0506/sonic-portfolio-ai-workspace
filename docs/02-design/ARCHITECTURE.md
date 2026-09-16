@@ -66,4 +66,6 @@ Admin Web
 
 배포 구성은 ADR-0003으로 정했으나 실제 배포·성능·청구는 미검증이다.
 
+로컬 개발 데이터: `samples/`를 local 전용 시드(`app.seed.samples-dir`)로 등록한다. 테스트는 같은 서버의 별도 DB `portfolio_test`를 쓴다(backend/README).
+
 초기 백엔드 구현은 ADR-0009 검증 결과 및 FIRST_BACKEND_IMPLEMENTATION 계획을 기준으로 시작할 수 있다. 전체 문서의 Draft는 프론트·기능별 상세 미확정을 나타낸다. 실제 제품 기동·JPA/AI 연동은 첫 구현에서 검증한다.
