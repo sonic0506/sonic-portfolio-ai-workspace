@@ -11,6 +11,19 @@ docker compose up -d --wait   # pgvector 0.8.2 / PostgreSQL 17, 127.0.0.1:5433 (
 ./gradlew bootRun --args='--spring.profiles.active=local'
 ```
 
+### 코드 변경 자동 반영 (DevTools)
+
+`spring-boot-devtools`(`developmentOnly`, 실행 JAR에는 포함되지 않음)가 **컴파일된 클래스 변경**을 감지해 앱을 자동 재시작한다. 소스 저장만으로는 반영되지 않으니 컴파일을 함께 돌린다.
+
+```sh
+./gradlew compileJava --continuous                          # 터미널 1: 변경 시 자동 컴파일
+./gradlew bootRun --args='--spring.profiles.active=local'   # 터미널 2: 서버
+```
+
+IntelliJ는 "Build project automatically"와 "Allow auto-make to start even if developed application is currently running"을 켜면 저장 시 반영된다.
+재시작하면 메모리 세션이 사라져 GitHub 로그인을 다시 거친다(ADR-0010).
+
+- 관리자 로그인: GitHub OAuth App(콜백 `http://localhost:8080/login/oauth2/code/github`)의 값을 `.env`의 `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`에 넣고 `http://localhost:8080/oauth2/authorization/github`로 접속한다. 값이 없어도 서버와 테스트는 동작한다([ADR-0010](../docs/03-decisions/ADR-0010-admin-authentication.md)).
 - `local` 프로필은 `backend/.env`를 읽는다. `.env`는 커밋하지 않는다. `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `DB_PORT`로 바꿀 수 있다.
 - 테스트(`PortfolioApiApplicationTests`)는 코드에서 `local` 프로필을 지정하므로 위 DB가 떠 있어야 한다.
 - 서버는 `127.0.0.1`에만 바인딩한다.
@@ -19,11 +32,13 @@ docker compose up -d --wait   # pgvector 0.8.2 / PostgreSQL 17, 127.0.0.1:5433 (
 
 ## 검증 결과 — 2026-09-16
 
-로컬 DB에서 전체 테스트 18건이 성공했다(공개 조회 API 포함, 계약은 [API_DESIGN](../docs/02-design/API_DESIGN.md)).
+로컬 DB에서 전체 테스트 34건이 성공했다(공개 조회·관리자 인증·Skill 관리 포함, 계약은 [API_DESIGN](../docs/02-design/API_DESIGN.md)).
 
 - `QuerydslSetupTest`: Jakarta Q 타입 생성과 조건식 구성
 - `PortfolioApiApplicationTests`: 컨텍스트 기동, V1 적용(PostgreSQL 17.10), pgvector 0.8.2, 테이블 20개, HNSW 1개, `vector(1536)`, 재실행 시 migrate 0건
 - `ProjectApiTest`·`BlogApiTest`·`ProfileApiTest`: 공개 조회, 비공개·관리자 필드 제외, 정렬·페이지·필터
+- `AdminAccessPolicyTest`·`AdminSecurityTest`·`CsrfCookieTest`: 허용 계정 판정, 401/403, 로그인 실패 403, CSRF 쿠키, 로그아웃
+- `SkillAdminApiTest`: 관리자 Skill 생성·수정·삭제, 검증·중복·참조 충돌
 - `SwaggerAccessTest`: local 프로필에서 `/v3/api-docs` 익명 접근
 - `SkillApiTest`(4건): `GET /api/skills` 정렬·응답 필드, 빈 목록, 중복 code 거부, 다른 경로 익명 차단
 
