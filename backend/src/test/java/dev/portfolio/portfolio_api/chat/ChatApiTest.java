@@ -84,6 +84,9 @@ class ChatApiTest extends ApiTestSupport {
         assertTrue(prompt.startsWith("<근거>\n[1] 프로젝트 A — 개요\nA 내용\n\n[2] 보조 "), prompt);
         assertTrue(prompt.contains("\n\n[6] 블로그 B — 개요\nB 내용\n</근거>"), prompt);
         assertTrue(prompt.endsWith("질문: A 경험이 있나요?"));
+        // no history: the PoC prompt unchanged (ADR-0007)
+        assertEquals(AnswerPrompt.SYSTEM, generator.systemPrompts.get(0));
+        assertEquals(List.of("A 경험이 있나요?"), embeddings.texts);
     }
 
     @Test

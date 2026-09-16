@@ -68,8 +68,14 @@ public class DocumentProjector {
         upsert(Type.PROFILE, profileId, "프로필", content("profile_id", profileId), true, "profile", skills);
     }
 
-    /** Chunks and relations go with it (FK cascade). */
+    /**
+     * Chunks and relations go with it (FK cascade). Chat citations use ON DELETE RESTRICT, so they are
+     * removed first: deleted content disappears from stored chat sources.
+     */
     public void remove(Type type, long sourceId) {
+        jdbc.update("""
+                delete from chat_message_source where document_id in
+                  (select id from document where document_type = ? and source_id = ?)""", type.name(), sourceId);
         jdbc.update("delete from document where document_type = ? and source_id = ?", type.name(), sourceId);
     }
 
@@ -78,12 +84,14 @@ public class DocumentProjector {
         jdbc.queryForList("select id from project", Long.class).forEach(this::projectProject);
         jdbc.queryForList("select id from blog_post", Long.class).forEach(this::projectBlogPost);
         jdbc.queryForList("select id from profile", Long.class).forEach(this::projectProfile);
-        jdbc.update("""
-                delete from document d where
+        String orphans = """
+                select d.id from document d where
                   (d.document_type = 'PROJECT' and not exists (select 1 from project p where p.id = d.source_id))
                   or (d.document_type = 'BLOG' and not exists (select 1 from blog_post b where b.id = d.source_id))
                   or (d.document_type = 'PROFILE' and not exists (select 1 from profile f where f.id = d.source_id))
-                  or d.document_type not in ('PROJECT', 'BLOG', 'PROFILE')""");
+                  or d.document_type not in ('PROJECT', 'BLOG', 'PROFILE')""";
+        jdbc.update("delete from chat_message_source where document_id in (" + orphans + ")");
+        jdbc.update("delete from document where id in (" + orphans + ")");
     }
 
     public Long documentId(Type type, long sourceId) {

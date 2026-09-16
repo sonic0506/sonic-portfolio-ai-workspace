@@ -52,7 +52,10 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> {
             auth.requestMatchers("/error").permitAll();
             auth.requestMatchers(HttpMethod.GET, PUBLIC_GET).permitAll();
-            auth.requestMatchers(HttpMethod.POST, "/api/chat").permitAll();
+            auth.requestMatchers(HttpMethod.POST, "/api/chat", "/api/chat/sessions", "/api/chat/sessions/*/messages")
+                    .permitAll();
+            auth.requestMatchers(HttpMethod.GET, "/api/chat/sessions/*").permitAll();
+            auth.requestMatchers(HttpMethod.DELETE, "/api/chat/sessions/*").permitAll();
             if (swaggerPublic) {
                 auth.requestMatchers(HttpMethod.GET, SWAGGER).permitAll();
             }
@@ -75,8 +78,8 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .csrfTokenRequestHandler(csrfHandler)
-                // Anonymous chat does not act on a session, so there is nothing for CSRF to protect.
-                .ignoringRequestMatchers("/api/chat"));
+                // Chat uses no cookies (session key travels in a header), so there is nothing for CSRF to protect.
+                .ignoringRequestMatchers("/api/chat", "/api/chat/**"));
 
         http.logout(logout -> logout
                 .logoutUrl("/api/admin/logout")
@@ -110,7 +113,7 @@ public class SecurityConfig {
             CorsConfiguration config = new CorsConfiguration();
             config.setAllowedOrigins(origins);
             config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
-            config.setAllowedHeaders(List.of("Content-Type", "X-XSRF-TOKEN"));
+            config.setAllowedHeaders(List.of("Content-Type", "X-XSRF-TOKEN", "X-Chat-Session-Key"));
             config.setAllowCredentials(true);
             source.registerCorsConfiguration("/api/**", config);
         }

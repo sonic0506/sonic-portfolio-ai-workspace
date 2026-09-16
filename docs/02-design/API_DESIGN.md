@@ -252,3 +252,16 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 - 관리 API로 콘텐츠를 생성·수정·삭제하면 같은 트랜잭션에서 문서가 갱신되고, 커밋 후 임베딩이 켜져 있으면 백그라운드로 색인된다.
 
 검증: `DocumentProjectionTest`, `DocumentIndexerTest`, `SampleIndexTest` (2026-09-16)
+
+### 채팅 세션 (ADR-0011)
+
+인증 없음, CSRF 제외. 비밀키는 헤더 `X-Chat-Session-Key`. 없는 세션·만료·키 불일치는 모두 `404`.
+
+- `POST /api/chat/sessions` → `201 {sessionId, sessionKey, expiresAt}` — 키는 이때만 받는다. 클라이언트는 localStorage에 둘 다 저장한다.
+- `GET /api/chat/sessions/{sessionId}` → `{sessionId, expiresAt, messages:[{role: USER|ASSISTANT, content, sources:[{type, slug, title, url}], createdAt}]}` — 출처는 현재 공개 문서만
+- `DELETE /api/chat/sessions/{sessionId}` → `204`
+- `POST /api/chat/sessions/{sessionId}/messages` `{question}` → SSE(단일 질문과 같은 이벤트). `400` → `503` → `404` → `409`(질문 30개) → `429`
+- 만료: 마지막 질문 후 24시간. `404`를 받으면 새 세션을 만든다. 1시간마다 만료 세션 삭제.
+- 후속 질문: 검색 질의에 직전 질문을 붙이고, 최근 3턴을 `<이전 대화>`로 프롬프트에 넣는다(이력은 질문 해석에만 사용).
+
+검증: `ChatSessionApiTest` (2026-09-16)

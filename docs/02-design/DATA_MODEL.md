@@ -365,7 +365,8 @@ create index chat_message_source_document_idx on chat_message_source (document_i
 
 - 클라이언트에는 `public_id`(uuid)만 노출한다. 순차 PK를 URL에 노출하면 값을 바꿔 남의 세션을 조회하는 시도가 가능해진다. ADR-0004의 "세션 ID만 바꾸어 타인의 이력에 접근할 수 없어야 한다"를 만족시키려면 추측 불가능한 식별자와 `visitor_key` 대조가 함께 필요하다.
 - `chat_message_source`는 ADR-0004의 출처 표시 요구를 저장한다. `document_id`는 `on delete restrict`로 두어 인용된 문서가 조용히 사라지지 않게 한다. `chunk_id`는 재색인으로 바뀌므로 `set null`이다.
-- 보관 기간·복원·만료 동작은 미정이다. `expires_at`은 자리만 잡아둔 컬럼이며 정책 확정 전까지 사용하지 않는다.
+- 보관·만료는 ADR-0011을 따른다: `visitor_key`에는 서버가 발급한 비밀키의 SHA-256을 저장하고, `expires_at`은 마지막 활동 + 24시간이다.
+- `chat_message_source.document_id`는 `restrict`이므로 원본 삭제 시 애플리케이션(`DocumentProjector.remove`)이 인용 행을 먼저 지운다.
 
 ## 5. 두지 않은 테이블
 

@@ -13,7 +13,33 @@ final class AnswerPrompt {
             - 근거가 질문에 답하기 부족하면 부족하다고 명시하고 추측하지 않는다.
             - 근거에 없는 기술이나 경험을 물으면 해당 내용이 등록되어 있지 않다고 답한다.""";
 
+    /** Extra rule when earlier turns are included (ADR-0004, RAG-008). */
+    static final String HISTORY_RULE = """
+
+            - <이전 대화>는 질문의 뜻을 이해하는 데만 쓴다. 이전 대화에 나온 내용도 <근거>에서 확인되지 않으면 사실로 쓰지 않는다.""";
+
+    /** One earlier question and its answer. */
+    record Turn(String question, String answer) {
+    }
+
     private AnswerPrompt() {
+    }
+
+    static String system(List<Turn> history) {
+        return history.isEmpty() ? SYSTEM : SYSTEM + HISTORY_RULE;
+    }
+
+    /** Without history this is exactly the PoC layout; with history an <이전 대화> block comes first. */
+    static String user(String question, List<Retriever.Hit> evidence, List<Turn> history) {
+        if (history.isEmpty()) {
+            return user(question, evidence);
+        }
+        StringBuilder sb = new StringBuilder("<이전 대화>\n");
+        for (Turn turn : history) {
+            sb.append("사용자: ").append(turn.question()).append('\n')
+                    .append("답변: ").append(turn.answer()).append('\n');
+        }
+        return sb.append("</이전 대화>\n\n").append(user(question, evidence)).toString();
     }
 
     /** Same layout as run_answer() in the PoC: "[n] title — sections\ntext". */

@@ -16,6 +16,7 @@ public class FakeEmbeddingClient implements EmbeddingClient {
     /** When set, decides the vector for each text (null result falls back to the random vector). */
     public volatile java.util.function.Function<String, float[]> vectors;
     public final AtomicInteger calls = new AtomicInteger();
+    public final java.util.List<String> texts = new java.util.concurrent.CopyOnWriteArrayList<>();
 
     public void reset() {
         enabled = true;
@@ -23,6 +24,7 @@ public class FakeEmbeddingClient implements EmbeddingClient {
         beforeReturn = null;
         vectors = null;
         calls.set(0);
+        texts.clear();
     }
 
     @Override
@@ -33,6 +35,7 @@ public class FakeEmbeddingClient implements EmbeddingClient {
     @Override
     public List<float[]> embed(List<String> texts) {
         calls.incrementAndGet();
+        this.texts.addAll(texts);
         if (failure != null) {
             throw failure;
         }

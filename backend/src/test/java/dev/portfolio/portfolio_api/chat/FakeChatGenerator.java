@@ -13,12 +13,14 @@ public class FakeChatGenerator implements ChatGenerator {
     public volatile List<String> deltas = List.of("답변");
     public volatile RuntimeException failure;
     public final List<String> userPrompts = new ArrayList<>();
+    public final List<String> systemPrompts = new ArrayList<>();
 
     public void reset() {
         enabled = true;
         deltas = List.of("답변");
         failure = null;
         userPrompts.clear();
+        systemPrompts.clear();
     }
 
     @Override
@@ -29,6 +31,7 @@ public class FakeChatGenerator implements ChatGenerator {
     @Override
     public void stream(String systemPrompt, String userPrompt, Consumer<String> onDelta) {
         userPrompts.add(userPrompt);
+        systemPrompts.add(systemPrompt);
         if (failure != null) {
             throw failure;
         }
