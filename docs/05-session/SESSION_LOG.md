@@ -421,3 +421,11 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 ## 2026-09-16 — 실제 임베딩 색인 확인
 
 - 사용자가 local에서 `EMBEDDING_PROVIDER=openai`로 `reindex?rebuild=true` 실행, 7건 모두 READY 보고. Spring AI 2.0.1 OpenAI 임베딩 연동이 실제로 동작함.
+
+## 2026-09-16 — 채팅 1차 (단일 질문 검색·답변·SSE)
+
+- 사용자 결정: 단일 질문부터, 질문 제한 IP당 하루 20회(전체 300).
+- 계획 `CHAT_IMPLEMENTATION.md`. 구현: Retriever(pgvector, 공개만, Relation 확장), ChatService, SpringAiChatGenerator, SSE ChatController, ChatRateLimiter, SecurityConfig(익명·CSRF 제외).
+- 발견·수정: 생성자 2개로 인한 컨텍스트 로드 실패(`@Autowired`).
+- 검증: 사용자 로컬 77건 통과(18:27 KST). 실제 생성 호출은 미검증.
+- 문서: API_DESIGN(채팅 계약), RAG_DESIGN, ADR-0002 후속 결정, 계획, 세션 문서, backend/README.

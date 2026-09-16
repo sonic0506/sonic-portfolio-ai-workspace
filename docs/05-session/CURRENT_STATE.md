@@ -4,9 +4,11 @@ Last Updated: 2026-09-16
 
 ## Current Phase
 
-Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 콘텐츠 관리 CRUD(Project, Blog, Profile, Category/Tag)도 완료했다. 샘플 콘텐츠 시드와 Document 색인(가짜 임베딩으로 검증)도 완료했다. 실제 OpenAI 임베딩으로 개발 DB 샘플 7건 READY를 확인했다(사용자 보고). 다음은 검색·답변(채팅) 구현이다.
+Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 콘텐츠 관리 CRUD(Project, Blog, Profile, Category/Tag)도 완료했다. 샘플 콘텐츠 시드와 Document 색인(가짜 임베딩으로 검증)도 완료했다. 실제 OpenAI 임베딩으로 개발 DB 샘플 7건 READY를 확인했다(사용자 보고). 검색·답변(채팅) 1차(단일 질문, SSE, 질문 제한)도 구현했다. 다음은 실제 OpenAI 질문 재현 후 세션 또는 프론트엔드다.
 
 ## Confirmed
+
+- 2026-09-16 채팅 1차: `POST /api/chat`(익명, SSE status/documents/answer_delta/done/error). 공개 문서만 검색·확장, ADR-0007 프롬프트, 인용 번호 기준 출처. 사용자 결정으로 세션 없이 단일 질문, 질문 제한 IP당 하루 20·전체 300(메모리, ADR-0002 후속). 답변 모델은 `CHAT_PROVIDER=openai`일 때만. 전체 77건 통과. 실제 생성 호출은 미검증.
 
 - 2026-09-16 Document 색인: 관리 변경과 같은 트랜잭션에서 `document` 투영(비공개는 visible=false, 관리자 메모·추천 질문 제외), PoC 청킹 Java 이식(샘플 35청크 일치), 임베딩은 트랜잭션 밖·content hash 확인 후 반영, 실패는 FAILED로 기록, `/api/admin/rag/documents`·`/reindex`. 시드가 Relation 4건을 넣는다. 임베딩 기본 꺼짐(`EMBEDDING_PROVIDER`). 전체 68건 통과. 실제 OpenAI 임베딩은 사용자 로컬에서 7건 READY 확인.
 
@@ -107,7 +109,8 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 - Admin 프론트 도메인과 CORS 허용 출처(ADR-0010 4절)
 - Deployment implementation / domains / engine versions
 - Spring AI 버전·연동 검증 및 제품 RAG 통합 방식(생성·임베딩 모델은 확정)
-- Expected traffic / usage limit thresholds and counting rules
+- Expected traffic (질문 제한 초기값은 ADR-0002 후속 결정)
+- 채팅 세션 보관 기간·복원·만료
 - Frontend build tools / S3 policy (백엔드 버전은 ADR-0009, Markdown은 content_section.body_markdown)
 - Graph visualization library
 - Exact DB schema — 초기 스키마는 V1 마이그레이션으로 적용. 세션·사용량 관련 테이블은 정책 결정 후 새 마이그레이션으로 추가
@@ -115,7 +118,7 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 
 ## Implementation State
 
-- Application code: `backend/` — 진입점, 설정(`application*.properties`), `compose.yaml`, Flyway V1, `skill`·`project`·`blog`·`profile`·`content` 패키지(엔티티는 연관관계 없이 FK id 매핑, QueryDSL 조회 서비스, record 응답), `admin` 패키지(허용 판정, OAuth 사용자 서비스, `/api/admin/me`), Skill 관리 서비스·컨트롤러, Project·Blog·Profile·Category/Tag 관리 서비스·컨트롤러, `content/SectionWriter`·`IdChecks`, `config/QuerydslConfig`, `config/SecurityConfig`(공개 GET·`/error` 익명, local Swagger, `/api/admin/**` 관리자, 쿠키 CSRF, CORS 설정값), `config/ApiExceptionHandler`. `seed` 패키지(local 전용), `rag` 패키지(투영·청킹·색인·관리 API). 테스트 68건(`portfolio_test` DB). OpenAI 모델 자동 구성은 꺼져 있다.
+- Application code: `backend/` — 진입점, 설정(`application*.properties`), `compose.yaml`, Flyway V1, `skill`·`project`·`blog`·`profile`·`content` 패키지(엔티티는 연관관계 없이 FK id 매핑, QueryDSL 조회 서비스, record 응답), `admin` 패키지(허용 판정, OAuth 사용자 서비스, `/api/admin/me`), Skill 관리 서비스·컨트롤러, Project·Blog·Profile·Category/Tag 관리 서비스·컨트롤러, `content/SectionWriter`·`IdChecks`, `config/QuerydslConfig`, `config/SecurityConfig`(공개 GET·`/error` 익명, local Swagger, `/api/admin/**` 관리자, 쿠키 CSRF, CORS 설정값), `config/ApiExceptionHandler`. `seed` 패키지(local 전용), `rag` 패키지(투영·청킹·색인·관리 API), `chat` 패키지(검색·생성·SSE·질문 제한). 테스트 77건(`portfolio_test` DB). OpenAI 모델 자동 구성은 꺼져 있다.
 - 미검증: `bootRun` 서버 프로세스, Swagger UI 화면, 샘플 콘텐츠 실데이터 적재·조회, Spring AI 호출, RDS 배포.
 - 로컬 환경 참고: 로컬 DB는 Docker로 운영한다(사용자 결정). 사용자 Mac의 docker에는 `docker compose`(v2) 명령이 없어 2026-09-16 테스트는 이미 떠 있던 5433 DB로 실행했다.
 - Project documentation bootstrap: Created. 2026-09-16 기준 미커밋 변경 없음
