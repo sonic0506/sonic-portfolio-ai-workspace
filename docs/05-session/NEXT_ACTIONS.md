@@ -6,18 +6,19 @@ Last Updated: 2026-09-16
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
-## Priority 1 — Document 색인
+## Priority 1 — 실제 임베딩 1회 확인 (사용자 확인 필요)
 
-샘플 시드(SAMPLE_SEED_IMPLEMENTATION)는 2026-09-16 완료·커밋했다. 개발 DB에 샘플이 들어가 있다.
+Document 색인(DOCUMENT_INDEX_IMPLEMENTATION)은 2026-09-16 구현·커밋했다. 테스트는 가짜 임베딩이다.
 
-1. RAG_DESIGN, ADR-0005/0006/0007, `poc/rag_eval.py`(청킹 규칙), RAG_MEASUREMENTS를 읽고 `docs/04-plans/`에 색인 구현 계획을 쓴다.
-2. 계획에 넣을 것:
-   - 원본(Project/Blog/Profile) → `document` upsert(`(document_type, source_id)`), `admin_note`·추천 질문 블록 제외(PoC selftest 규칙)
-   - PoC의 짧은 섹션 병합 청킹을 Java로 이식하고 PoC 결과(46 → 35청크)와 대조
-   - 임베딩: Spring AI + `text-embedding-3-small`, 기존 OpenAI 키(`.env`, 사용자 결정). 테스트는 임베딩을 가짜로 대체
-   - 관리 서비스 create/update/delete와 `document.visible`·색인 상태를 같은 트랜잭션에서 갱신(ADR-0005)
-   - 시드의 `related_*`를 `document_relation`으로 연결
-3. 실제 OpenAI 호출(유료)은 사용자 확인 후 실행한다.
+1. 사용자 동의 후 `backend/.env`에 `EMBEDDING_PROVIDER=openai`, `OPENAI_API_KEY`를 넣고 `bootRun`(local).
+2. 관리자 로그인 → `POST /api/admin/rag/reindex?rebuild=true`(CSRF 헤더 필요) → `GET /api/admin/rag/documents`로 7건 READY 확인. 샘플 기준 청크 약 40개, 비용 1센트 미만 예상.
+3. DB에서 `vector_dims(embedding) = 1536` 확인. 실패하면 Spring AI 2.0 OpenAI 설정 키부터 확인한다.
+
+## Priority 2 — 검색·답변(채팅) 구현 계획
+
+- RAG_DESIGN 2절, ADR-0004/0006/0007/0008, API_DESIGN Chat Progress Stream을 읽고 `docs/04-plans/`에 계획을 쓴다.
+- 포함: pgvector 코사인 검색(상위 5, `document.visible` 조인), Relation 확장(공개 문서만), ADR-0007 프롬프트로 `gpt-4.1-mini` 생성, SSE(status/documents/answer_delta/done), RAG_TEST_CASES·PoC 질문 7개 재현.
+- 먼저 사용자에게 정할 것: 세션 이력 보관 기간·복원, 질문 제한 수치(ADR-0002). 정하기 전에는 세션 없이 단일 질문부터 구현하는 안을 제안한다.
 
 ## 사용자 확인 대기 (콘텐츠 사실)
 
@@ -42,4 +43,4 @@ Last Updated: 2026-09-16
 
 ## Recommended Next Session Prompt
 
-> 공통 규칙과 세션 문서를 읽고, RAG_DESIGN·ADR-0005~0007·poc/를 참고해 Document 색인 구현 계획을 작성하자.
+> 공통 규칙과 세션 문서를 읽고, 실제 임베딩 색인을 확인한 뒤 검색·답변(채팅) 구현 계획을 작성하자.

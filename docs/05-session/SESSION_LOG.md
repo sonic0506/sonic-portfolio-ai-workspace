@@ -408,3 +408,12 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 검증: 사용자 로컬 54건 통과(16:17 KST), 테스트 DB 사용 확인.
 - 확인 대기: 프로필 사실 충돌 5건(SAMPLE_SEED_IMPLEMENTATION).
 - 다음: Document 색인 계획.
+
+## 2026-09-16 — Document 색인
+
+- 계획: `DOCUMENT_INDEX_IMPLEMENTATION.md`. 구현 전 PoC 청킹에 DB 섹션 형태 본문을 넣어 35청크 일치를 먼저 확인했다.
+- 구현: `rag` 패키지(DocumentProjector, Chunker, EmbeddingClient/SpringAiEmbeddingClient, DocumentIndexer, 커밋 후 비동기 색인, 관리 API), 관리 서비스에 투영 연결, 시드 Relation, 임베딩 설정(기본 꺼짐).
+- 검증: 사용자 로컬 68건 통과(16:44 KST). 샘플 청킹이 PoC 측정과 일치.
+- 발견·수정: 편집 스크립트가 다른 메서드의 선언까지 삭제(컴파일 오류), 테스트 헬퍼 이름이 MockMvc `status()`를 가림.
+- 미검증: 실제 OpenAI 임베딩 호출(사용자 확인 대기).
+- 다음: 실제 임베딩 1회 → 검색·답변 계획.
