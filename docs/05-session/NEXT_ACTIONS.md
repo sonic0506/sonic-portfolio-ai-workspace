@@ -6,18 +6,14 @@ Last Updated: 2026-09-16
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
-## Priority 1 — Project / Blog / Profile 관리 CRUD
+## Priority 1 — 콘텐츠 관리 CRUD 2단계 (Blog, Profile)
 
-관리자 인증과 Skill 관리(ADMIN_AUTH_IMPLEMENTATION)는 2026-09-16 완료·커밋했다.
+1단계(Project, Category/Tag)는 2026-09-16 완료·커밋했다. [ADMIN_CONTENT_CRUD_IMPLEMENTATION](../04-plans/ADMIN_CONTENT_CRUD_IMPLEMENTATION.md)의 "2단계 Tasks"를 진행한다.
 
-1. `docs/04-plans/`에 관리 CRUD 구현 계획을 작성한다. 대상: Project(기본 정보·하이라이트·기술·섹션), Blog(카테고리·태그·기술·섹션), Profile(경력·스킬 그룹·섹션), Category/Tag.
-2. 수용 기준에 넣을 것:
-   - 관리자 조회는 비공개 항목과 `adminNote`를 포함한다(공개 API와 분리된 `/api/admin/...` 응답).
-   - 섹션·하이라이트·기술 연결은 "목록 전체 교체" 방식으로 순서(display_order)까지 저장한다.
-   - `updated_at` 갱신, slug 중복 409, 발행 토글 시 `published_at` 설정 규칙.
-   - 발행 토글과 `document.visible` 동기화(ADR-0005)는 Document 색인 계획과 연결 지점만 적는다.
-3. `SkillAdminService`·`SkillAdminApiTest` 방식(서비스 사전 검사 + `ApiExceptionHandler`, `admin()` + `csrf()`)을 따른다.
-4. 로컬: DB는 Docker, 개발 중 자동 반영은 `compileJava --continuous` + `bootRun`(README).
+1. Blog 관리: `ProjectAdminService` 구조(요청 검증 → JPA 본체 저장·flush → JDBC로 연결 목록 교체 → `SectionWriter`)를 그대로 따른다. `BlogPost.updated_at` 매핑을 쓰기 가능으로 바꾼다.
+2. Profile 수정: 단일 행 upsert(`GET/PUT /api/admin/profile`), 경력·스킬 그룹·섹션 전체 교체. 그룹 값은 `SkillGroup` enum 이름만 허용.
+3. 테스트는 `ProjectAdminApiTest` 방식(`admin()` + `csrf()`, 생성 후 공개 API 반영 확인).
+4. 완료 후 다음 후보: 샘플 콘텐츠 시드(관리 API로 `samples/` 등록) → Document 색인 계획(발행 토글과 `document.visible` 동기화 연결).
 
 ## 해당 기능 착수 시
 
@@ -38,4 +34,4 @@ Last Updated: 2026-09-16
 
 ## Recommended Next Session Prompt
 
-> 공통 규칙과 세션 문서를 읽고, ADR-0005·DATA_MODEL·API_DESIGN(Admin API)을 참고해 Project/Blog/Profile 관리 CRUD 구현 계획을 작성하고 진행하자.
+> 공통 규칙과 세션 문서를 읽고, ADMIN_CONTENT_CRUD_IMPLEMENTATION의 2단계(Blog, Profile 관리)를 1단계 Project 관리 방식대로 진행하자.

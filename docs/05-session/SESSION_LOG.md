@@ -383,3 +383,12 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 검증: 사용자 로컬 34건 통과(14:39 KST). 수동: 본인 로그인 성공, 다른 계정 403.
 - 문서: ADR-0010, ARCHITECTURE, API_DESIGN(Admin API), ADMIN_AUTH_IMPLEMENTATION, CURRENT_PLAN, CURRENT_STATE, NEXT_ACTIONS, backend/README.
 - 다음: Project/Blog/Profile 관리 CRUD 계획.
+
+## 2026-09-16 — 콘텐츠 관리 CRUD 1단계 (Project, Category/Tag)
+
+- 계획: `ADMIN_CONTENT_CRUD_IMPLEMENTATION.md`. 범위가 커서 2단계로 나눴다(1단계 Project·Category/Tag, 2단계 Blog·Profile).
+- 규칙: 관리 대상은 id로 지정, PUT 전체 교체(하위 목록 순서 = 표시 순서), 첫 공개 시 발행일 기록·공개 해제 후 유지, updated_at 갱신.
+- 구현: 공용 `SectionWriter`, Project 관리(목록·상세·생성·수정·삭제), Category/Tag 관리. `project.updated_at` 쓰기 가능 매핑.
+- 검증: 사용자 로컬 44건 통과(15:03 KST). 첫 실행에 통과했다.
+- 미룬 것: 발행 토글과 `document.visible` 동기화(색인 단계), Blog·Profile 관리(2단계).
+- 문서: API_DESIGN(콘텐츠 관리), 계획 문서, CURRENT_PLAN, CURRENT_STATE, NEXT_ACTIONS.

@@ -4,9 +4,11 @@ Last Updated: 2026-09-16
 
 ## Current Phase
 
-Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 다음은 Project/Blog/Profile 관리 CRUD다.
+Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 콘텐츠 관리 CRUD 1단계(Project, Category/Tag)도 완료했다. 다음은 2단계(Blog, Profile 관리)다.
 
 ## Confirmed
+
+- 2026-09-16 콘텐츠 관리 1단계: `/api/admin/projects`(비공개 포함 목록·상세·생성·전체 교체 수정·삭제), `/api/admin/categories`, `/api/admin/tags`. 첫 공개 시 발행일 기록·공개 해제 후 유지, 하위 목록 전체 교체, slug/code 중복·사용 중 카테고리 삭제 409. 전체 44건 통과. 발행 토글의 `document.visible` 동기화는 색인 단계로 미뤘다.
 
 - 2026-09-16 관리자 인증: GitHub OAuth + 서버 세션 + 쿠키 CSRF(ADR-0010). 허용 계정은 GitHub 숫자 ID `159202139`(login `sonic0506`). 로그인 실패는 403. Skill 관리 `POST/PUT/DELETE /api/admin/skills`. 전체 테스트 34건 통과, 본인 로그인·타 계정 거부를 수동 확인. DevTools 추가.
 
@@ -107,7 +109,7 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 
 ## Implementation State
 
-- Application code: `backend/` — 진입점, 설정(`application*.properties`), `compose.yaml`, Flyway V1, `skill`·`project`·`blog`·`profile`·`content` 패키지(엔티티는 연관관계 없이 FK id 매핑, QueryDSL 조회 서비스, record 응답), `admin` 패키지(허용 판정, OAuth 사용자 서비스, `/api/admin/me`), Skill 관리 서비스·컨트롤러, `config/QuerydslConfig`, `config/SecurityConfig`(공개 GET·`/error` 익명, local Swagger, `/api/admin/**` 관리자, 쿠키 CSRF, CORS 설정값), `config/ApiExceptionHandler`. 테스트 34건. OpenAI 모델 자동 구성은 꺼져 있다.
+- Application code: `backend/` — 진입점, 설정(`application*.properties`), `compose.yaml`, Flyway V1, `skill`·`project`·`blog`·`profile`·`content` 패키지(엔티티는 연관관계 없이 FK id 매핑, QueryDSL 조회 서비스, record 응답), `admin` 패키지(허용 판정, OAuth 사용자 서비스, `/api/admin/me`), Skill 관리 서비스·컨트롤러, Project·Category/Tag 관리 서비스·컨트롤러, `content/SectionWriter`, `config/QuerydslConfig`, `config/SecurityConfig`(공개 GET·`/error` 익명, local Swagger, `/api/admin/**` 관리자, 쿠키 CSRF, CORS 설정값), `config/ApiExceptionHandler`. 테스트 44건. OpenAI 모델 자동 구성은 꺼져 있다.
 - 미검증: `bootRun` 서버 프로세스, Swagger UI 화면, 샘플 콘텐츠 실데이터 적재·조회, Spring AI 호출, RDS 배포.
 - 로컬 환경 참고: 로컬 DB는 Docker로 운영한다(사용자 결정). 사용자 Mac의 docker에는 `docker compose`(v2) 명령이 없어 2026-09-16 테스트는 이미 떠 있던 5433 DB로 실행했다.
 - Project documentation bootstrap: Created. 2026-09-16 기준 미커밋 변경 없음
