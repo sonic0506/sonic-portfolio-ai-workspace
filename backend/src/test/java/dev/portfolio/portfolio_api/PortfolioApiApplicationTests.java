@@ -9,7 +9,7 @@ import org.flywaydb.core.Flyway;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
-@ActiveProfiles("local")
+@ActiveProfiles({"local", "test"})
 class PortfolioApiApplicationTests {
     @Autowired JdbcTemplate jdbc;
     @Autowired Flyway flyway;

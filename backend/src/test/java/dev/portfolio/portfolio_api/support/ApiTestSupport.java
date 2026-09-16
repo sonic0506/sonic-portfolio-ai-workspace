@@ -17,7 +17,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 /** Real local PostgreSQL; every test's rows are rolled back. */
 @SpringBootTest
-@ActiveProfiles("local")
+@ActiveProfiles({"local", "test"})
 @Transactional
 public abstract class ApiTestSupport {
 
