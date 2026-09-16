@@ -52,6 +52,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> {
             auth.requestMatchers("/error").permitAll();
             auth.requestMatchers(HttpMethod.GET, PUBLIC_GET).permitAll();
+            auth.requestMatchers(HttpMethod.POST, "/api/chat").permitAll();
             if (swaggerPublic) {
                 auth.requestMatchers(HttpMethod.GET, SWAGGER).permitAll();
             }
@@ -73,7 +74,9 @@ public class SecurityConfig {
         csrfHandler.setCsrfRequestAttributeName(null);
         http.csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .csrfTokenRequestHandler(csrfHandler));
+                .csrfTokenRequestHandler(csrfHandler)
+                // Anonymous chat does not act on a session, so there is nothing for CSRF to protect.
+                .ignoringRequestMatchers("/api/chat"));
 
         http.logout(logout -> logout
                 .logoutUrl("/api/admin/logout")

@@ -23,6 +23,17 @@ docker compose up -d --wait   # pgvector 0.8.2 / PostgreSQL 17, 127.0.0.1:5433 (
 
 기본은 꺼져 있다. 켜려면 `.env`에 `EMBEDDING_PROVIDER=openai`, `OPENAI_API_KEY=...`를 넣는다. 관리자 로그인 후 `POST /api/admin/rag/reindex?rebuild=true`로 전체 색인, `GET /api/admin/rag/documents`로 상태를 본다. 테스트는 OpenAI를 호출하지 않는다.
 
+### 채팅 (답변 생성, 유료)
+
+`.env`에 `CHAT_PROVIDER=openai`(임베딩도 `openai`)를 넣으면 `POST /api/chat`이 동작한다. 꺼져 있으면 `503`.
+
+```sh
+curl -N -X POST http://localhost:8080/api/chat -H 'Content-Type: application/json' \
+  -d '{"question":"폐쇄망에서 실시간 영상을 어떻게 전송했나요?"}'
+```
+
+질문 제한은 IP당 하루 20회·전체 300회이며 `CHAT_LIMIT_ENABLED`, `CHAT_LIMIT_PER_IP`, `CHAT_LIMIT_GLOBAL`로 바꾼다.
+
 ### 코드 변경 자동 반영 (DevTools)
 
 `spring-boot-devtools`(`developmentOnly`, 실행 JAR에는 포함되지 않음)가 **컴파일된 클래스 변경**을 감지해 앱을 자동 재시작한다. 소스 저장만으로는 반영되지 않으니 컴파일을 함께 돌린다.
@@ -55,7 +66,7 @@ docker exec -it <컨테이너 이름> psql -U portfolio -d portfolio -c 'create 
 
 ## 검증 결과 — 2026-09-16
 
-로컬 테스트 DB에서 전체 테스트 68건이 성공했다(공개 조회·관리자 인증·전체 콘텐츠 관리·샘플 시드·RAG 색인 포함, 계약은 [API_DESIGN](../docs/02-design/API_DESIGN.md)).
+로컬 테스트 DB에서 전체 테스트 77건이 성공했다(공개 조회·관리자 인증·전체 콘텐츠 관리·샘플 시드·RAG 색인·채팅 포함, 계약은 [API_DESIGN](../docs/02-design/API_DESIGN.md)).
 
 - `QuerydslSetupTest`: Jakarta Q 타입 생성과 조건식 구성
 - `PortfolioApiApplicationTests`: 컨텍스트 기동, V1 적용(PostgreSQL 17.10), pgvector 0.8.2, 테이블 20개, HNSW 1개, `vector(1536)`, 재실행 시 migrate 0건

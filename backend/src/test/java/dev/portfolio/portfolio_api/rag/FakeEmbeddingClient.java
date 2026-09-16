@@ -13,12 +13,15 @@ public class FakeEmbeddingClient implements EmbeddingClient {
     public volatile boolean enabled = true;
     public volatile RuntimeException failure;
     public volatile Runnable beforeReturn;
+    /** When set, decides the vector for each text (null result falls back to the random vector). */
+    public volatile java.util.function.Function<String, float[]> vectors;
     public final AtomicInteger calls = new AtomicInteger();
 
     public void reset() {
         enabled = true;
         failure = null;
         beforeReturn = null;
+        vectors = null;
         calls.set(0);
     }
 
@@ -37,6 +40,9 @@ public class FakeEmbeddingClient implements EmbeddingClient {
             beforeReturn.run();
         }
         return texts.stream().map(text -> {
+            if (vectors != null && vectors.apply(text) != null) {
+                return vectors.apply(text);
+            }
             Random random = new Random(text.hashCode());
             float[] vector = new float[DIMENSIONS];
             for (int i = 0; i < vector.length; i++) {

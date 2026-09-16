@@ -33,7 +33,7 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 
 ## Chat Progress Stream
 
-서버의 실제 처리 단계에 맞춰 상태와 데이터를 전달한다. 아래 이벤트 이름은 계약 초안이다.
+서버의 실제 처리 단계에 맞춰 상태와 데이터를 전달한다. 1차 구현(단일 질문, 세션 없음)의 계약은 아래 "구현된 계약"을 따른다.
 
 | 이벤트 | UI 동작 |
 |---|---|
@@ -43,6 +43,26 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 | done | 완료 처리 및 최종 인용 출처 표시 |
 
 검색에서 확인한 문서 목록과 최종 인용 출처는 별개다. 검색 결과가 확보된 뒤 제목을 표시하고, 실제 연관 문서 확장이 있을 때만 추가 검색 상태를 표시한다. 비공개 문서의 제목·ID·링크는 전송하지 않는다.
+
+### 구현된 계약 — 2026-09-16 (단일 질문)
+
+`POST /api/chat` — 익명, CSRF 제외. 요청 `{"question": "..."}`(1~500자), 응답 `text/event-stream`.
+
+스트림 시작 전 오류(JSON Problem Detail): `400` 질문 검증, `503` 임베딩·생성 모델 꺼짐, `429` 하루 질문 제한 초과(IP당 20, 전체 300 — `CHAT_LIMIT_*`로 변경·해제).
+
+| 이벤트 | data | 비고 |
+|---|---|---|
+| `status` | `{"stage":"SEARCHING"\|"EXPANDING"\|"ANSWERING"}` | EXPANDING은 공개 연관 문서가 있을 때만 |
+| `documents` | `{"documents":[{type, slug, title, url}]}` | 검색 결과(문서 단위 중복 제거), 확장 시 추가분을 한 번 더 |
+| `answer_delta` | `{"text":"..."}` | 생성 조각 순서대로 |
+| `done` | `{"sources":[{type, slug, title, url}]}` | 답변에 나온 `[n]` 번호의 문서만. 없으면 `[]` |
+| `error` | `{"message":"..."}` | 처리 중 오류. 내부 오류 내용은 넣지 않는다 |
+
+- `url`: `/projects/{slug}`, `/blog/{slug}`, `/profile`. 내부 ID는 보내지 않는다.
+- 검색: 코사인 거리 상위 5청크(공개 문서만), 연관 공개 문서 최대 2건에서 질문과 가장 가까운 청크 1개씩 추가.
+- 근거가 없어도 생성은 호출한다(ADR-0007). 답변의 `[n]`은 근거 청크 번호다.
+
+검증: `ChatApiTest`, `ChatRateLimiterTest` (2026-09-16)
 
 ### 구현 시 구체화 및 검증
 

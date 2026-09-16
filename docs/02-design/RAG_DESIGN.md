@@ -27,7 +27,7 @@ Profile, Career, Project, Blog 등 서로 다른 원본 데이터를 공통 검�
 - 투영·청킹·임베딩 저장·상태 관리는 구현했다([DOCUMENT_INDEX_IMPLEMENTATION](../04-plans/DOCUMENT_INDEX_IMPLEMENTATION.md)). Java 청킹이 PoC 측정(35청크)과 일치한다.
 - Document 타입은 `PROJECT`, `BLOG`, `PROFILE`을 쓴다. 경력은 프로필 섹션에 포함하며 `CAREER` 문서는 만들지 않는다.
 - metadata 실사용 필드: `slug`, `skills`(code 목록), `contentHash`. 아래 4절 후보 중 나머지는 검색 구현 때 필요에 따라 추가한다.
-- 검색(pgvector 질의)·Relation 확장·답변 생성은 아직 없다.
+- 2026-09-16 단일 질문 검색·답변 구현: pgvector 코사인 상위 5, 공개 연관 문서 최대 2건 확장(문서당 최근접 청크 1개), ADR-0007 프롬프트, SSE([CHAT_IMPLEMENTATION](../04-plans/CHAT_IMPLEMENTATION.md)). 세션·후속 질문 해석·Reranking은 아직 없다.
 
 ## 2. Pipeline
 
