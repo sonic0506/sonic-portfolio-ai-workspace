@@ -21,7 +21,7 @@ Status: Active
   - [x] 모델 — ADR-0006 / ADR-0007
   - [ ] 인증 상세 — 허용 GitHub 계정 식별자, 세션/CORS/CSRF 정책
   - [ ] 비용 검증 — 계산만 완료. 실제 배포·청구 미검증
-  - [ ] 호환성 검증 — 컴파일·컨텍스트 기동·Flyway 마이그레이션 완료(ADR-0009), 엔티티 조회·AI 연동·검색 성능은 남음
+  - [ ] 호환성 검증 — 컴파일·컨텍스트 기동·Flyway·JPA/QueryDSL 조회 완료(ADR-0009), AI 연동·pgvector 검색 성능은 남음
 - [x] 초기 백엔드 아키텍처 기준 확정 — ADR-0008/0009. 전체 ARCHITECTURE는 프론트 도구 및 기능별 상세가 남아 Draft 유지
 - [x] DB ERD 초안 작성 — DATA_MODEL.md (샘플 콘텐츠 기준, 공백 8건 반영)
 - [x] Document / Relation 상세 모델 확정 — ADR-0005 Accepted (2026-09-09 사용자 채택)
@@ -31,7 +31,8 @@ Status: Active
 - [x] API Style 확정 — ADR-0008, REST + JSON 및 채팅 진행 상태/문서 목록/답변 SSE
 - [x] 첫 구현 계획 작성 — FIRST_BACKEND_IMPLEMENTATION.md
 - [x] 첫 백엔드 Task 1 — 로컬 PostgreSQL에서 컨텍스트 기동·V1 마이그레이션·재실행 미적용 검증 (2026-09-16)
-- [ ] 첫 백엔드 Task 2 — `GET /api/skills`로 JPA/QueryDSL 실제 조회 검증
+- [x] 첫 백엔드 Task 2 — `GET /api/skills`로 JPA/QueryDSL 실제 조회 검증 (2026-09-16)
+- [ ] 다음 구현 계획 작성 — 프로젝트/블로그/프로필 공개 조회 API
 
 ## Definition of Done for Current Phase
 

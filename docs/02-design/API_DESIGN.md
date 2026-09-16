@@ -50,3 +50,20 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 - 오류/취소/연결 끊김의 종료 처리와 재시도 시 중복 생성 방지 정책을 정한다.
 - 배포 경로에서 버퍼링 없이 이벤트가 도착하는지 확인한다.
 - 상태 → 문서 목록 → 답변 → 완료의 순서, 근거 없음, 비공개 문서 미노출을 검증한다.
+
+## Implemented Endpoints
+
+실제 구현과 테스트가 있는 계약만 적는다. 구현 코드는 `backend/`에 있다.
+
+### GET /api/skills — 공통 기술 목록 (Public, 익명)
+
+- 응답 `200`, JSON 배열. `code` 오름차순.
+- 항목: `id`(number), `code`(string, 참조 키), `name`(string, 표시명), `iconKey`(string 또는 `null`)
+- `created_at` 등 내부 필드는 노출하지 않는다. 데이터가 없으면 `[]`.
+
+```json
+[{"id":1,"code":"java","name":"Java","iconKey":null}]
+```
+
+- 검증: `SkillApiTest` (2026-09-16)
+- 인증: 현재 `SecurityConfig`는 이 경로만 익명 허용하고 나머지는 모두 인증을 요구하는 임시 기준이다. 관리자 인증 정책은 해당 기능 착수 시 정한다.

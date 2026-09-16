@@ -73,7 +73,7 @@ public class PortfolioApiApplication {
 
 **Interfaces:** `GET /api/skills` → `[{"id":1,"code":"java","name":"Java","iconKey":null}]`. 빈 목록은 `200 []`. Entity를 응답으로 직접 노출하지 않고 record DTO를 사용한다.
 
-- [ ] 테스트 DB에 `java`와 `react` 두 기술을 삽입하고 GET 요청 결과의 필드와 code 오름차순을 검증한다. 요청 전 각 테스트의 데이터를 트랜잭션으로 격리한다. 구현 전 404로 실패하는지 확인한다.
+- [x] 테스트 DB에 `java`와 `react` 두 기술을 삽입하고 GET 요청 결과의 필드와 code 오름차순을 검증한다. 요청 전 각 테스트의 데이터를 트랜잭션으로 격리한다. 구현 전 404로 실패하는지 확인한다. (구현: `SkillApiTest`. 테스트와 구현을 함께 작성해 404 실패 단계는 관찰하지 못했다)
 
 ```java
 mockMvc.perform(get("/api/skills"))
@@ -83,7 +83,7 @@ mockMvc.perform(get("/api/skills"))
     .andExpect(jsonPath("$[0].createdAt").doesNotExist());
 ```
 
-- [ ] Skill은 DATA_MODEL의 id/code/name/icon_key/created_at에 맞춘 Jakarta entity로 작성한다. 생성된 QSkill로 조회한다. 단순 조회를 위해 별도 인터페이스와 구현체 쌍을 만들지 않는다.
+- [x] Skill은 DATA_MODEL의 id/code/name/icon_key/created_at에 맞춘 Jakarta entity로 작성한다. 생성된 QSkill로 조회한다. 단순 조회를 위해 별도 인터페이스와 구현체 쌍을 만들지 않는다. (구현: 패키지는 컴포넌트 스캔 범위에 맞춰 `dev.portfolio.portfolio_api.skill`. `created_at`은 `Instant`, 읽기 전용 매핑. `JPAQueryFactory`는 `config/QuerydslConfig` 빈으로 주입)
 
 ```java
 var skill = QSkill.skill;
@@ -91,9 +91,9 @@ var rows = new JPAQueryFactory(entityManager)
     .selectFrom(skill).orderBy(skill.code.asc()).fetch();
 ```
 
-- [ ] Controller의 read-only 트랜잭션 안에서 조회 결과를 `SkillResponse(Long id, String code, String name, String iconKey)`로 매핑한다. 익명 조회만 만들고 관리 변경 API는 인증 기능 단계로 둔다.
-- [ ] `./gradlew clean test bootJar`로 Q 타입 생성, 스키마 검사, API 테스트를 함께 통과시킨다. 빈 테이블 응답과 중복 code 삽입 거부도 검증한다.
-- [ ] API_DESIGN에 응답 계약을 기록하고 `feat: expose skill catalog with QueryDSL` 단위로 커밋한다.
+- [x] Controller의 read-only 트랜잭션 안에서 조회 결과를 `SkillResponse(Long id, String code, String name, String iconKey)`로 매핑한다. 익명 조회만 만들고 관리 변경 API는 인증 기능 단계로 둔다. (구현: Spring Security 기본 차단을 피하려고 임시 `config/SecurityConfig`를 두었다. `GET /api/skills`만 익명 허용하고 나머지는 인증을 요구한다. 관리자 인증 정책 결정은 아니다)
+- [x] `./gradlew clean test bootJar`로 Q 타입 생성, 스키마 검사, API 테스트를 함께 통과시킨다. 빈 테이블 응답과 중복 code 삽입 거부도 검증한다. (2026-09-16 13:21 KST 사용자 로컬 실행: BUILD SUCCESSFUL, 전체 6건 성공. SkillApiTest 4건 = 정렬·필드, 빈 목록, 중복 거부, 다른 경로 익명 차단)
+- [x] API_DESIGN에 응답 계약을 기록하고 `feat: expose skill catalog with QueryDSL` 단위로 커밋한다.
 
 ## 완료 기준과 후속 순서
 
