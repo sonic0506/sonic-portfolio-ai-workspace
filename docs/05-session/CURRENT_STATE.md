@@ -1,12 +1,22 @@
 # Current State
 
-Last Updated: 2026-09-09
+Last Updated: 2026-09-16
 
 ## Current Phase
 
-프로젝트 정의 및 요구사항 초안이 완료되었고, 개발 설계에 들어가기 직전이다.
+Phase 3 개발 설계를 마치고 첫 백엔드 구현 중이다. [FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md) Task 1(서버 기동·DB 마이그레이션)은 로컬에서 검증·커밋했다. 다음은 Task 2(`GET /api/skills`로 JPA/QueryDSL 조회 검증)다.
 
 ## Confirmed
+
+- 2026-09-16 Task 1 검증: 로컬 compose DB(PostgreSQL 17.10/pgvector 0.8.2)에서 전체 테스트 2건 성공. 컨텍스트 기동(API 키 없음), Flyway V1 적용, 테이블 20개·HNSW 1개·`vector(1536)`, 재실행 migrate 0건, bootJar 생성. V1은 DATA_MODEL SQL 10블록과 동일함을 대조했다. 상세는 ADR-0009 마지막 절.
+
+- 현재 서버 기준: 사용자 생성 backend/, Boot 4.1.1 + Gradle Groovy Wrapper 9.7.1 + Java 21 + Spring AI 2.0.1. Swagger 3.1.1 및 QueryDSL 5.1.0 Jakarta 설정. 기존 Maven 검증과 구분한다.
+
+- 2026-09-16: ADR-0009 백엔드 버전 기준 확정. Java 21/Maven 3.9.11/Boot 3.5.16/AI 1.1.8/QueryDSL 5.1.0 컴파일 및 Q 타입 생성 성공. PostgreSQL 17.10/pgvector 0.8.2에서 설계 SQL 20테이블·HNSW 생성 성공. 제품 기동·JPA/AI 실행·RDS 배포는 미검증. 이전 재현용 poc/java-compat는 사용자 요청으로 제거되었다. 이 항목은 Boot 3.5 검증 이력이다.
+
+- 2026-09-16: REST + JSON 및 채팅 SSE를 확정했다(ADR-0008). SSE로 실제 처리 상태, 공개 문서 제목 목록, 답변 조각 및 완료를 표시한다. 상세 API 계약은 Draft다.
+
+- 2026-09-16: 학습 목적으로 Spring AI를 채택하고 Java 21 호환 버전을 사용한다(ADR-0001 추가 결정). Boot 3.5.x / AI 1.1.x를 초기 검토 기준으로 두며 패치 고정과 실제 빌드는 남아 있다.
 
 - 콘텐츠 후속 확인 완료: 공개 상태/대표 여부는 방문자 미노출, 추천 질문은 새 채팅에서 즉시 전송, Blog도 제목+Markdown/추천 질문 블록 사용, Profile 소개글은 별도 짧은 문구로 관리한다.
 
@@ -38,17 +48,17 @@ Last Updated: 2026-09-09
 - 사용자가 대표 프로젝트 3건(비오라 / 유진로봇 / 싱크마스터)의 상세 기술서를 제공했다. `samples/projects/`에 CONTENT_SPEC 형식으로 저장했다.
 - 블로그 3편은 프로젝트 내용에서 파생한 AI 작성 샘플 초안이다(`sample: true`). 사용자 문체와 사실 확인 전이며 실제 발행분이 아니다.
 - `blog/offline-first-boundary.md`는 RAG 공개 범위 필터 검증(RAG-007)을 위해 의도적으로 비공개(Draft)로 뒀다. 공개 글이 이 글을 Relation으로 참조한다.
-- 추천 질문 블록 저장 문법은 remark-directive 컨테이너(`:::questions`)를 후보로 사용했다. 확정 아님.
+- 추천 질문 블록은 `:::questions` 본문 인라인 문법으로 확정했다(ADR-0005).
 - 샘플로 확인된 데이터 모델 공백 8건은 `samples/README.md`에 정리했다. 소속 필드, 기여도 주석, 진행 중 상태, 목록 정렬 키, 관리자 전용 메모, 공개→비공개 링크 필터 시점, 섹션-청크 불일치, Skill 참조 키 분리이다.
 
 ## Data Model — 2026-09-09
 
-- 샘플 콘텐츠 기준 ERD 초안을 DATA_MODEL에 작성했다. 17개 테이블이며 샘플에서 식별한 공백 8건을 모두 반영했다.
+- 샘플 콘텐츠 기준 ERD 초안을 DATA_MODEL에 작성했다. 테이블 구성에 샘플에서 식별한 공백 8건을 모두 반영했다.
 - 두지 않기로 한 테이블과 이유를 함께 기록했다: `admin_user`(허용 계정 1개는 설정값), `suggested_question`(본문 인라인), `chat_usage`(집계 규칙 미정), `document_index_job`(상태 컬럼으로 충분).
 - `TROUBLESHOOTING`을 document_type에서 제외했다. 샘플에서 독립 원본이 아니라 프로젝트의 한 섹션이었다.
-- ADR-0005(Proposed)에 세 결정을 분리했다: 섹션 단일 테이블 + 추천 질문 본문 인라인, Relation 기준 = Document ID, 공개 범위 필터 = 조회 시점.
+- ADR-0005(Accepted)에 세 결정을 기록했다: 섹션 단일 테이블 + 추천 질문 본문 인라인, Relation 기준 = Document ID, 공개 범위 필터 = 조회 시점.
 - ADR-0005는 2026-09-09 사용자가 그대로 채택해 **Accepted**다.
-- `vector(1536)`은 text-embedding-3-small 후보 기준값이며 모델 확정 전까지 고정이 아니다.
+- `vector(1536)`과 `text-embedding-3-small`은 ADR-0006으로 확정했다.
 
 ## RAG PoC — 2026-09-09
 
@@ -61,18 +71,18 @@ Last Updated: 2026-09-09
 - 비공개 문서가 7개 질문의 상위 결과에 한 번도 등장하지 않았다. ADR-0005의 조회 시점 필터가 검색 단계에서 검증됐다(RAG-007).
 - **근거 부족은 유사도 임계값으로 판정할 수 없다.** 근거 있는 질문 최저 0.372 대 근거 없는 질문 0.342로 간격이 0.030이다. 생성 단계가 판단해야 한다.
 - 기술명 조회("React Native" 0.372)가 가장 약해 Hybrid search를 검토 대상으로 올렸다.
-- 위 내용을 ADR-0006에 **Proposed**로 기록했다. 사용자 확정 전이다.
+- 위 내용은 ADR-0006(Accepted)에 기록했다.
 - 2026-09-10 답변 생성까지 측정했다. `gpt-4.1-mini` / `temperature 0` / 상위 5건 전달로 질문 7개 모두 기대대로 동작했다.
 - OAuth 질문에서 근거 5건을 받고도 "근거에 등록되어 있지 않습니다"로 거부했다. ADR-0006 결정 3(임계값 대신 생성 단계 판정)의 전제가 검증됐다.
 - 비공개 글 주제와 거의 같은 질문에서도 답변이 공개 원본만 사용했다. RAG-007이 생성 단계까지 통과했다.
 - viora 원문의 "단독 담당" / "논의 참여" 구분이 답변에서 보존됐다.
-- 생성 모델과 프롬프트 정책을 ADR-0007에 **Proposed**로 기록했다. 사용자 확정 전이다.
+- 생성 모델과 프롬프트 정책은 ADR-0007(Accepted)에 기록했다.
 - **ADR-0006과 ADR-0007은 2026-09-10 사용자가 채택해 Accepted다.** RAG 파이프라인의 모델·검색·답변 정책이 모두 측정 근거와 함께 확정됐다.
 - ADR-0001~0007이 모두 Accepted다. 다만 **이것이 개발 설계 완료를 뜻하지는 않는다.**
-- ARCHITECTURE / DATA_MODEL / RAG_DESIGN / API_DESIGN / GRAPH_DESIGN이 모두 아직 `Draft`다. CURRENT_PLAN의 Definition of Done은 앞의 셋이 `Accepted` 수준일 것을 요구한다.
-- 미확정으로 남은 것: 인증 상세(허용 GitHub 계정 식별자, 세션/CORS/CSRF), API Style, Graph 라이브러리, S3 정책/Markdown 저장, PostgreSQL·pgvector 버전과 빌드 도구, Spring AI 채택 여부.
+- ARCHITECTURE / DATA_MODEL / RAG_DESIGN / API_DESIGN / GRAPH_DESIGN이 모두 아직 `Draft`다. CURRENT_PLAN은 구현 착수 전 남은 빌드/버전 해소를 요구하며 인증·Graph·S3 상세는 해당 기능 착수 시 정한다.
+- 미확정으로 남은 것: 인증 상세(허용 GitHub 계정 식별자, 세션/CORS/CSRF), Graph 라이브러리, S3 이미지 정책, Spring AI 연동 검증. 백엔드 버전·빌드 도구는 ADR-0009로 확정했다.
 - 비용은 계산만 했고 실제 배포·청구는 미검증이다. Spring AI/pgvector 버전 호환성도 미검증이다.
-- 다만 Hybrid search는 검토 대상 승격까지이며 도입 확정이 아니다. Spring AI 사용 여부와 버전 호환성도 미검증이다.
+- 다만 Hybrid search는 검토 대상 승격까지이며 도입 확정이 아니다. Spring AI 채택은 확정되었고 버전 호환성은 실제 빌드에서 검증해야 한다.
 - 실측값은 `docs/06-testing/RAG_MEASUREMENTS.md`가 기준 문서다. 다른 문서는 수치를 복제하지 않고 링크한다.
 - 하네스에 `--save`를 추가해 이후 실행은 `poc/results/<날짜>-<명령>.json`에 원본을 남긴다. 측정 2·3은 도입 전 실행이라 로그에서 옮긴 값이다.
 
@@ -80,23 +90,24 @@ Last Updated: 2026-09-09
 
 - Authentication session details / allowed GitHub account identifier
 - Deployment implementation / domains / engine versions
-- LLM model / Embedding provider and model / RAG integration
+- Spring AI 버전·연동 검증 및 제품 RAG 통합 방식(생성·임베딩 모델은 확정)
 - Expected traffic / usage limit thresholds and counting rules
-- Dependency versions / build tools / S3 policy / Markdown storage
+- Frontend build tools / S3 policy (백엔드 버전은 ADR-0009, Markdown은 content_section.body_markdown)
 - Graph visualization library
-- Exact DB schema
+- Exact DB schema — 초기 스키마는 V1 마이그레이션으로 적용. 세션·사용량 관련 테이블은 정책 결정 후 새 마이그레이션으로 추가
 - Exact API contract
 
 ## Implementation State
 
-- Application code: Not started
-- Project documentation bootstrap: Created (모든 결정/설계 문서 커밋 완료)
+- Application code: `backend/` — 진입점, `application.properties`/`application-local.properties`, `compose.yaml`, Flyway V1, 테스트 2건(QueryDSL 설정, 스키마·마이그레이션). 도메인 엔티티·API·인증 설정은 아직 없다. OpenAI 모델 자동 구성은 꺼져 있다.
+- 미검증: 엔티티 기반 JPA/QueryDSL 조회, `bootRun` 서버 프로세스, Swagger HTTP, Spring AI 호출, RDS 배포.
+- Project documentation bootstrap: Created. 2026-09-16 기준 미커밋 변경 없음
 - Sample portfolio content: 대표 프로젝트 3건(사용자 제공) + 블로그 3편(AI 샘플 초안, 1편 비공개) + 공통 Skill 목록을 `samples/`에 정리
-- RAG PoC: Not started
+- RAG PoC: 구현 및 샘플 평가 완료. pgvector HNSW와 세션 기능은 미검증.
 
 ## Important Notes
 
-- RAG 구현 후보 설명을 RAG_DESIGN에 추가했다: gpt-4.1-mini + text-embedding-3-small + Spring AI/pgvector, PostgreSQL 세션 저장 후보. 사용자 채택 전이며 공식 API 지원만 확인했고 실제 품질/호환성은 미검증이다.
+- 생성 모델 gpt-4.1-mini와 임베딩 text-embedding-3-small은 확정했다. Spring AI 버전·연동 검증, 제품 버전 호환성, 세션 보관 정책은 미정이다. 샘플 품질 측정은 RAG_MEASUREMENTS를 따른다.
 
 - DB 추가 절약 비교: Vercel + Lightsail 4GB 앱/DB 직접 운영 약 56,100원, 2GB 통합 약 36,300원(PoC 후보). 운영/백업 책임과 성능 미검증을 비용 제안서에 기록했으며 관리형 DB 선호는 변경하지 않았다.
 
@@ -106,7 +117,7 @@ Last Updated: 2026-09-09
 
 새 세션에서는 기술 스택을 기존 결정처럼 가정하지 말고 ADR 여부를 먼저 확인한다.
 
-## Latest Analysis — 2026-09-09
+## Initial Analysis — 2026-09-09 (과거 이력)
 
 - 저장소 파일과 요구사항/설계/계획/테스트 문서를 대조했다. 애플리케이션 코드와 실행 가능한 테스트는 없다. 이후 사용자 기술 선택을 ADR-0001에 기록했다.
 - 구현 전 검토할 설계 공백: Draft/비공개 데이터의 검색·Graph·Relation 확장 제외 정책, 삭제/발행 취소와 색인의 동기화 및 실패 복구, Relation 기준 ID와 방향/중복 정책.

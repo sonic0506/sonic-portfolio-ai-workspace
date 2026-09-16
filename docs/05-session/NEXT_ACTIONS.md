@@ -1,58 +1,43 @@
 # Next Actions
 
-Last Updated: 2026-09-09
+Last Updated: 2026-09-16
 
-## MVP 범위 — 확정
+## 현재 기준
 
-REQUIREMENTS의 전체 기능을 1차 배포에 포함한다. Graph View와 RAG Playground도 포함하며 기존 Out of Scope는 유지한다. 범위를 다시 축소하지 않고 기능별 상세 정책과 수용 기준을 구체화한다.
+전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0008은 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
-## Priority 1 — 구현 착수 (Roadmap Phase 5)
+## Priority 1 — 첫 백엔드 구현
 
-- RAG 모델 조합은 ADR-0006/0007로 확정했다. 남은 것은 Spring AI 채택 여부와 버전 호환성 검증이며 구현 단계에서 확인한다.
+ADR-0009 버전 기준과 FIRST_BACKEND_IMPLEMENTATION.md를 따른다.
 
-배포는 ADR-0003으로 확정했다. 전체 MVP와 기존 예산을 유지한다.
+Task 1(서버 기동·Flyway V1)은 2026-09-16 완료·커밋했다. 다음은 **Task 2**다.
 
-- RAG 답변/세션 정책은 ADR-0004로 확정했다. 이력 저장 위치·보관 기간·새로고침/재방문 복원·삭제/만료·컨텍스트 상한을 후속 설계한다.
+1. `cd backend && docker compose up -d --wait`로 로컬 DB를 띄운다(`.env`는 `.env.example` 참고). 실행 방법은 backend/README.
+2. `SkillApiTest`를 먼저 작성해 `GET /api/skills`가 404로 실패하는지 확인한다. `java`, `react` 삽입 후 code 오름차순·`createdAt` 미노출, 빈 목록 `200 []`, 중복 code 거부까지 검증한다.
+3. DATA_MODEL의 `skill` 테이블(id/code/name/icon_key/created_at)에 맞춘 `Skill` 엔티티와 `SkillController`를 만든다. 생성된 `QSkill`로 조회하고 `SkillResponse` record로 매핑한다. `ddl-auto=validate`가 엔티티 매핑을 실제 스키마와 대조한다.
+4. Spring Security가 기본으로 요청을 막을 수 있다. 익명 조회 허용 범위는 이번 API에 한정하고, 관리자 인증 정책은 정하지 않는다(해당 기능 착수 시 결정).
+5. `./gradlew clean test bootJar` 통과 후 API_DESIGN에 응답 계약을 기록하고 `feat: expose skill catalog with QueryDSL`로 커밋한다.
+6. 가능하면 `bootRun`으로 서버를 띄워 `/api/skills`와 Swagger 접근을 한 번 확인하고 결과를 기록한다.
 
-- 생성 모델, Embedding 모델, RAG 통합 방식의 후보를 비교한다. 기존 비용 산정의 gpt-4.1-mini/text-embedding-3-small은 아직 후보이다.
-- 실제 콘텐츠와 질문으로 기대 출처, 답변 품질, 지연, 비용 기준을 정한다.
-- API/스트리밍, GitHub 세션, 도메인/CORS/CSRF 정책을 설계한다. 실제 허용 GitHub 계정은 인증 구현 전 확인한다.
-- 챗봇 제한의 기준/기간/수치 및 해제 설정을 정의한다.
-- PostgreSQL/pgvector 버전, Graph/Markdown 도구, 빌드 도구를 확정한다.
-- 배포 시 Vercel 무료 조건/저장소 연결, Lightsail와 RDS 사설 연결 및 메모리 부하를 검증한다.
+이전 Boot 3.5의 컴파일 및 임시 DB 스키마 생성 이력은 ADR-0009를 참고한다. OpenAI 호출, Spring AI의 기존 document_chunk 연동, RDS 배포는 별도 검증 대상이다. 프론트 패키지 관리/빌드 도구는 프론트 착수 시 정한다.
 
-## Priority 2 — 데이터 설계
+## 해당 기능 착수 시
 
-- CONTENT_SPEC의 최신 입력 항목으로 필드/관계 초안을 작성한다. 추천 질문은 새 세션 생성 후 즉시 전송, Blog는 섹션형 Markdown, 상태 배지는 방문자 미노출, Profile 소개글은 별도 짧은 문구로 확정했다. 추천 질문의 원문 맥락 전달과 기존 미언급 항목의 유지 여부를 후속 설계한다.
+- Admin 인증: 허용 GitHub 계정 식별자와 세션/CORS/CSRF 정책. 계정은 그때 확인한다.
+- Chat: 질문 제한 집계 기준/기간/수치/해제 설정, 이력 보관·복원·만료·삭제 및 컨텍스트 상한. 정책 결정 후 관련 스키마를 확정한다.
+- Graph: 라이브러리와 Skill/Category 노드 매핑. Document Relation 기준 ID·방향성은 ADR-0005를 유지한다.
+- 이미지 업로드: S3 접근 정책과 리전. Markdown 본문 저장 위치는 이미 content_section.body_markdown으로 정했다.
+- 색인: 원본 변경/삭제 시 동기화, 실패 재시도 및 중복 실행을 검증한다. 공개 범위는 ADR-0005의 조회 시점 필터를 유지한다.
+- 배포: Vercel 무료 조건과 저장소 연결, Lightsail/RDS 사설 연결, 메모리 부하와 실제 비용을 검증한다.
 
-- [x] 실제 프로젝트 3건을 샘플로 확보했다(`samples/projects/`).
-- [x] 블로그 3편 샘플을 작성했다(`samples/blog/`, AI 초안이며 사용자 확인 전).
-- [x] 샘플로 Project / Blog / Skill / Relation 모델의 공백 8건을 식별했다(`samples/README.md`).
-- [x] 식별된 공백 8건을 해소하는 ERD 초안을 작성했다(DATA_MODEL).
-- [x] Document와 DocumentChunk 상세 필드 초안을 작성했다. 섹션 1개 = 청크 1개가 성립하지 않음을 반영했다.
-- [x] ADR-0005의 세 결정을 사용자가 채택했다(Accepted).
-- [x] 청킹 경계를 실측했다. 결과를 `poc/README.md`와 DATA_MODEL에 반영했다.
-- [x] 검색 품질을 측정했다. 기대 출처 7/7, 임베딩 차원 실측 1536.
-- [x] 근거 없음 질문의 유사도 분포를 확인했다. 임계값 판정은 불가하며 생성 단계 책임으로 정리했다.
-- [x] 생성 모델을 측정했다. 질문 7개 모두 기대대로 동작했고 ADR-0007(Proposed)에 기록했다.
-- [x] ADR-0006과 ADR-0007을 확정했다(Accepted).
-- **Spring Boot 프로젝트를 만들고 DATA_MODEL의 ERD를 마이그레이션으로 옮긴다. 현재 최우선 항목이며 Roadmap Phase 5 진입이다.**
-- 구현 착수 전 확인이 필요한 항목: 허용 GitHub 계정 식별자, PostgreSQL/pgvector 버전, 빌드 도구, Spring AI 채택 여부.
-- 챗봇 질문 제한의 집계 기준과 세션 이력 보관·복원·만료 정책을 설계한다. 두 항목 모두 스키마에 영향을 준다.
-- 세션 기능 관련 평가 사례(RAG-005/006/008/009/010)는 구현 후에 측정한다.
-- 콘텐츠가 늘거나 블로그를 실제 원고로 교체하면 `--save`로 재측정하고 RAG_MEASUREMENTS에 추가한다. 점수 분포와 Hybrid search 필요성이 재검토 대상이다.
-- **PoC에 사용한 OpenAI API 키를 폐기하고 재발급한다. 대화에 노출됐다.**
-- 비오라의 측정 수치, 싱크마스터의 모델 불일치 검증 유무 등 각 샘플 front matter의 `open_questions`를 사용자에게 확인한다.
-- 블로그 샘플을 사용자 문체와 사실 기준으로 검토하거나 실제 원고로 교체한다.
+## 남은 검증과 콘텐츠 확인
 
-## 분석에서 확인한 설계 검토 항목 — 미확정
-
-- 전체 MVP 기능의 수용 기준과 구현 순서를 정한다. Graph View와 RAG Playground의 1차 배포 포함은 확정되었다.
-- 공개/비공개/Draft 정책을 Public 조회, Vector Search, Relation 확장, Graph에 공통 적용하도록 정의한다.
-- 원본 수정/삭제/발행 취소 시 색인 무효화 시점, 재색인 실패 상태, 재시도 및 중복 실행 정책을 정한다.
-- Relation 기준 ID, 방향성, 중복/자기 연결 정책과 Skill/Category의 Document 매핑 여부를 확정한다.
-- 샘플 콘텐츠별 기대 출처를 지정하고, 근거 없음·비공개 제외·수정/삭제 반영을 검증할 RAG 평가 사례를 구체화한다.
+- pgvector HNSW 검색은 PoC의 메모리 코사인 검색과 별도로 검증한다.
+- 세션 평가 RAG-005/006/008/009/010은 구현 후 측정한다.
+- 콘텐츠 변경 시 --save로 재측정하고 RAG_MEASUREMENTS에 기록한다. Hybrid search는 도입 확정이 아니다.
+- 샘플 front matter의 open_questions와 AI 블로그 초안의 사실·문체를 사용자에게 확인한다.
+- 이전 PoC 대화에 노출된 OpenAI API 키의 폐기·재발급 여부는 확인되지 않았다. API 재실행 전 확인한다.
 
 ## Recommended Next Session Prompt
 
-> `AGENTS.md` 또는 `CLAUDE.md`와 `docs/05-session` 문서를 먼저 읽고, ADR-0001의 확정 스택과 모든 비용 포함 월 10만 원 예산을 기준으로 남은 배포/인증/모델 결정을 진행하자. 미확인 운영 조건은 임의 확정하지 말아줘.
+> 공통 규칙과 세션 문서를 읽고, ARCHITECTURE 4절의 ADR-0009와 FIRST_BACKEND_IMPLEMENTATION을 읽고 첫 백엔드 구현을 진행하자. ADR-0001~0008의 확정 사항을 유지하고 실제 호환성을 확인한 뒤 첫 구현 계획으로 이어가자.

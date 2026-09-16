@@ -306,3 +306,52 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - MVP 범위 확정
 - 기술 스택 비교 및 ADR 작성
 - 실제 샘플 데이터를 이용한 데이터 모델 검증
+
+## 2026-09-16 — 작업 재개 및 인계 상태 정합성 복구
+
+- 기존 ERD와 ADR-0005~0007 Accepted, RAG PoC 구현을 확인했다. 중복 설계는 추가하지 않았다.
+- CURRENT_STATE의 미시작/모델 후보/이전 완료 기준을 수정하고 NEXT_ACTIONS를 기존 CURRENT_PLAN·ARCHITECTURE의 구현 전 결정 2건에 맞췄다.
+- 기존 미커밋 ARCHITECTURE와 CURRENT_PLAN 변경은 보존했다. 새 기술 결정이나 제품 구현은 수행하지 않았다.
+- 검증: ADR 상태와 문서 참조 대조, git diff --check. API 유료 재평가와 DB 실행 검증은 하지 않았다.
+- 다음: 빌드 도구/버전 호환성 및 API Style 결정안 작성 후 첫 구현 계획 구체화.
+
+## 2026-09-16 — Spring AI 채택
+
+- 사용자 결정: Java 21 유지, 학습 목적으로 Spring AI 사용. ADR-0001과 세션 문서에 반영했다.
+- Boot 3.5.x / AI 1.1.x의 공식 지원 관계를 확인했다. 패치 버전 고정과 실제 빌드·DB 검증은 남아 있다.
+- API 방식은 REST/JSON 및 채팅 SSE를 설명하는 단계이며 확정으로 처리하지 않았다.
+- 검증: 공식 문서 대조 및 git diff --check. 제품 코드는 변경하지 않았다.
+
+## 2026-09-16 — API 방식 확정
+
+- 사용자 채택: REST + JSON, 채팅 진행 상태·공개 문서 목록·답변의 SSE 전달.
+- ADR-0008을 Accepted로 작성하고 API_DESIGN, ARCHITECTURE, CURRENT_PLAN 및 세션 상태/다음 작업을 동기화했다.
+- 검색 문서와 최종 인용 출처의 구분, 비공개 문서 메타정보 미노출을 기록했다.
+- 검증: 문서 참조 및 git diff --check. 런타임 스트리밍 검증은 구현 후 수행한다.
+- 다음: Java 21/Spring AI 기준 빌드 도구·버전 검증과 첫 구현 계획.
+
+## 2026-09-16 — 백엔드 호환성 검증 및 첫 구현 계획
+
+- Maven Central에서 AI 1.1.8 배포를 확인하고 Java 21/Maven 3.9.11/Boot 3.5.16/QueryDSL 5.1.0 조합을 실제 컴파일했다. BUILD SUCCESS와 QArticle 생성·참조를 확인했다.
+- 임시 PostgreSQL 17.10/pgvector 0.8.2에 DATA_MODEL SQL 10블록을 적용해 20테이블 및 HNSW 생성을 확인했다. 검증 컨테이너는 종료·삭제했다.
+- ADR-0009, poc/java-compat 재현 프로젝트, FIRST_BACKEND_IMPLEMENTATION을 추가했다. 아키텍처/계획/인계 문서를 갱신했다.
+- Spring AI 기본 스키마를 기존 document_chunk와 동일시하지 않도록 기록했다. 실제 AI 호출과 RDS 배포는 수행하지 않았다.
+- 다음: 계획 Task 1 서버 기동·Flyway부터 실행. 변경은 기능 단위로 나눠 커밋한다.
+
+## 2026-09-16 — Initializr backend 의존성 설정
+
+- 사용자 생성 Boot 4.1.1/Gradle Groovy Wrapper 9.7.1/AI 2.0.1 프로젝트를 유지했다. 패키지는 dev.portfolio.portfolio_api.
+- Swagger springdoc 3.1.1 및 QueryDSL 5.1.0 Jakarta runtime/annotation processor를 추가했다. 테스트 processor는 본 설정을 상속한다.
+- QuerydslSetupTest로 생성 Q 타입 참조와 조건식 구성을 검증했다. `clean test --tests '*QuerydslSetupTest' bootJar` BUILD SUCCESSFUL, 테스트 1건 성공. git diff --check 통과.
+- 기존 contextLoads는 DB·AI 설정 전이므로 실행하지 않았다. 테스트를 삭제하거나 비활성화하지 않았다. 실제 JPA 조회 및 Swagger HTTP 접근은 후속 검증이다.
+- ADR-0009, 아키텍처, 첫 구현 계획, 세션 상태와 backend README를 현재 생성 프로젝트 기준으로 갱신했다.
+
+## 2026-09-16 — 첫 백엔드 Task 1 검증 기록 및 커밋 정리
+
+- 진행 상황을 분석하다가 문서와 코드가 어긋난 것을 발견했다. 문서에는 "contextLoads 미실행, DB 설정 없음"으로 적혀 있었으나, backend/에는 이미 Flyway V1, local 프로필, compose.yaml, 스키마 검증 테스트가 있었다. 11:38 KST 사용자 로컬 실행 보고서에서도 테스트 2건이 성공했다.
+- 검증(이번 세션): 테스트 보고서 XML과 로그(PostgreSQL 17.10, V1 적용, 재검증 성공, 컨텍스트 기동)를 확인했다. 주석을 빼고 공백을 정규화해 V1과 DATA_MODEL SQL 10블록을 대조했더니 같았다(extension 1줄 추가). `.env`가 git에서 제외되고 `.env.example`만 추적되는지도 확인했다.
+- 이번 세션 환경(사용자 PC의 Cowork VM)에는 Docker와 Java 21이 없어 테스트를 재실행하지 못했다. 위 결과는 사용자 로컬 실행 보고서에 근거한다.
+- 문서 동기화: FIRST_BACKEND_IMPLEMENTATION Task 1에 체크하고 계획과 달라진 구현(application.properties, 기존 테스트 클래스 활용)을 적었다. ADR-0009에 DB 검증 절을 추가하고, ADR-0001의 Boot 3.5 문장에는 후속 안내를 달았다. backend/README, CURRENT_PLAN, CURRENT_STATE, NEXT_ACTIONS도 갱신했다.
+- 커밋: 이전 세션부터 미커밋이던 설계 문서(ADR-0008/0009, API_DESIGN, ARCHITECTURE, 계획)와 backend/, 세션 문서를 나눠 커밋했다.
+- 참고: Cowork VM에서 git status를 실행하다 `.git/index.lock`이 남았고, 사용자 승인을 받아 삭제했다.
+- 미해결: 이전 PoC에서 노출된 OpenAI API 키의 폐기 여부는 아직 확인하지 못했다. Task 2 진행 전 Spring Security 기본 차단에 주의한다.
