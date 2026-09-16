@@ -6,13 +6,9 @@ Last Updated: 2026-09-16
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
-## Priority 1 — 실제 OpenAI로 채팅 확인 (사용자 확인 필요)
+## Priority 1 — 프로필 slug 수정 반영 확인
 
-채팅 1차(CHAT_IMPLEMENTATION)는 2026-09-16 구현·커밋했다. 테스트는 가짜 모델이다.
-
-1. 사용자 동의 후 `.env`에 `CHAT_PROVIDER=openai`(임베딩도 openai) → `bootRun`(local).
-2. `curl -N -X POST localhost:8080/api/chat -H 'Content-Type: application/json' -d '{"question":"..."}'`로 PoC 질문 7개(poc/rag_eval.py EVAL)를 확인한다. 비용은 질문당 1센트 미만 예상.
-3. 기대: 출처가 PoC 기대 출처를 포함, OAuth 질문은 근거 부족 답변, 오프라인 동기화 질문에 비공개 글(`offline-first-boundary`) 미노출. 결과를 RAG_MEASUREMENTS에 "측정 4 — 제품 파이프라인"으로 기록한다.
+실제 채팅 7/7 확인(2026-09-16). 프로필 문서 slug가 비어 출처가 빈 문자열로 나오던 결함을 고쳤다. 개발 DB에는 `POST /api/admin/rag/reindex?rebuild=true` 한 번으로 반영된다(본문 hash가 같아 재임베딩 없음).
 
 ## Priority 2 — 다음 기능 선택 (사용자에게 확인)
 
@@ -43,4 +39,4 @@ Last Updated: 2026-09-16
 
 ## Recommended Next Session Prompt
 
-> 공통 규칙과 세션 문서를 읽고, 실제 OpenAI로 채팅 PoC 질문을 재현해 RAG_MEASUREMENTS에 기록한 뒤, 다음 기능(프론트엔드 또는 채팅 세션)을 사용자와 정하자.
+> 공통 규칙과 세션 문서를 읽고, 다음 기능(프론트엔드 또는 채팅 세션)을 사용자와 정한 뒤 계획을 작성하자.

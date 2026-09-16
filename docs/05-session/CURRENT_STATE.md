@@ -4,11 +4,11 @@ Last Updated: 2026-09-16
 
 ## Current Phase
 
-Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 콘텐츠 관리 CRUD(Project, Blog, Profile, Category/Tag)도 완료했다. 샘플 콘텐츠 시드와 Document 색인(가짜 임베딩으로 검증)도 완료했다. 실제 OpenAI 임베딩으로 개발 DB 샘플 7건 READY를 확인했다(사용자 보고). 검색·답변(채팅) 1차(단일 질문, SSE, 질문 제한)도 구현했다. 다음은 실제 OpenAI 질문 재현 후 세션 또는 프론트엔드다.
+Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 콘텐츠 관리 CRUD(Project, Blog, Profile, Category/Tag)도 완료했다. 샘플 콘텐츠 시드와 Document 색인(가짜 임베딩으로 검증)도 완료했다. 실제 OpenAI 임베딩으로 개발 DB 샘플 7건 READY를 확인했다(사용자 보고). 검색·답변(채팅) 1차(단일 질문, SSE, 질문 제한)도 구현했다. 실제 OpenAI로 PoC 질문 7개를 재현해 기대 출처 7/7, 근거 부족 거부, 비공개 미노출을 확인했다(RAG_MEASUREMENTS 측정 4). 다음 기능(프론트엔드 또는 채팅 세션)은 사용자 선택 대기다.
 
 ## Confirmed
 
-- 2026-09-16 채팅 1차: `POST /api/chat`(익명, SSE status/documents/answer_delta/done/error). 공개 문서만 검색·확장, ADR-0007 프롬프트, 인용 번호 기준 출처. 사용자 결정으로 세션 없이 단일 질문, 질문 제한 IP당 하루 20·전체 300(메모리, ADR-0002 후속). 답변 모델은 `CHAT_PROVIDER=openai`일 때만. 전체 77건 통과. 실제 생성 호출은 미검증.
+- 2026-09-16 채팅 1차: `POST /api/chat`(익명, SSE status/documents/answer_delta/done/error). 공개 문서만 검색·확장, ADR-0007 프롬프트, 인용 번호 기준 출처. 사용자 결정으로 세션 없이 단일 질문, 질문 제한 IP당 하루 20·전체 300(메모리, ADR-0002 후속). 답변 모델은 `CHAT_PROVIDER=openai`일 때만. 전체 77건 통과. 실제 생성 호출은 사용자 로컬에서 7/7 확인.
 
 - 2026-09-16 Document 색인: 관리 변경과 같은 트랜잭션에서 `document` 투영(비공개는 visible=false, 관리자 메모·추천 질문 제외), PoC 청킹 Java 이식(샘플 35청크 일치), 임베딩은 트랜잭션 밖·content hash 확인 후 반영, 실패는 FAILED로 기록, `/api/admin/rag/documents`·`/reindex`. 시드가 Relation 4건을 넣는다. 임베딩 기본 꺼짐(`EMBEDDING_PROVIDER`). 전체 68건 통과. 실제 OpenAI 임베딩은 사용자 로컬에서 7건 READY 확인.
 
