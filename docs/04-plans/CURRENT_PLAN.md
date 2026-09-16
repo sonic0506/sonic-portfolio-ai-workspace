@@ -38,7 +38,9 @@ Status: Active
   - [x] 1단계: Project, Category/Tag 관리 (2026-09-16, 테스트 44건)
   - [x] 2단계: Blog, Profile 관리 (2026-09-16)
 - [x] 샘플 콘텐츠 시드 — SAMPLE_SEED_IMPLEMENTATION.md (2026-09-16, 테스트 54건, 테스트 DB 분리)
-- [ ] Document 색인 계획 — 원본 → document/chunk 변환, 발행 토글과 visible 동기화
+- [x] Document 색인 — DOCUMENT_INDEX_IMPLEMENTATION.md (2026-09-16, 테스트 68건, PoC 청킹 일치)
+  - [ ] 실제 OpenAI 임베딩으로 샘플 색인 1회 (사용자 확인 후)
+- [ ] 검색·답변(채팅) 계획 — pgvector 검색, 공개 필터, Relation 확장, 생성, SSE, 세션
 
 ## Definition of Done for Current Phase
 

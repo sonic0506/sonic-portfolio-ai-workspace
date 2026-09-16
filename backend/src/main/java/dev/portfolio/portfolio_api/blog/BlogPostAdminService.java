@@ -7,6 +7,7 @@ import dev.portfolio.portfolio_api.content.IdChecks;
 import dev.portfolio.portfolio_api.content.IdChecks.RefTable;
 import dev.portfolio.portfolio_api.content.SectionQuery;
 import dev.portfolio.portfolio_api.content.SectionWriter;
+import dev.portfolio.portfolio_api.rag.DocumentProjector;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.time.Clock;
@@ -30,19 +31,22 @@ public class BlogPostAdminService {
     private final IdChecks idChecks;
     private final SectionWriter sectionWriter;
     private final SectionQuery sectionQuery;
+    private final DocumentProjector projector;
     private final Clock clock = Clock.systemUTC();
 
     @PersistenceContext
     private EntityManager entityManager;
 
     public BlogPostAdminService(BlogPostRepository posts, JPAQueryFactory queryFactory, JdbcTemplate jdbc,
-                                IdChecks idChecks, SectionWriter sectionWriter, SectionQuery sectionQuery) {
+                                IdChecks idChecks, SectionWriter sectionWriter, SectionQuery sectionQuery,
+                                DocumentProjector projector) {
         this.posts = posts;
         this.queryFactory = queryFactory;
         this.jdbc = jdbc;
         this.idChecks = idChecks;
         this.sectionWriter = sectionWriter;
         this.sectionQuery = sectionQuery;
+        this.projector = projector;
     }
 
     /** Drafts (no published_at) first, then newest. */
@@ -70,6 +74,7 @@ public class BlogPostAdminService {
         BlogPost saved = posts.saveAndFlush(BlogPost.create(request, Instant.now(clock)));
         entityManager.refresh(saved); // load DB-generated created_at
         replaceChildren(saved.getId(), request);
+        projector.projectBlogPost(saved.getId());
         return toDetail(saved);
     }
 
@@ -82,6 +87,7 @@ public class BlogPostAdminService {
         existing.apply(request, Instant.now(clock));
         posts.saveAndFlush(existing);
         replaceChildren(id, request);
+        projector.projectBlogPost(id);
         return toDetail(existing);
     }
 
@@ -89,6 +95,7 @@ public class BlogPostAdminService {
     public void delete(long id) {
         posts.delete(find(id));
         posts.flush();
+        projector.remove(DocumentProjector.Type.BLOG, id);
     }
 
     private void validate(BlogPostAdminRequest request) {

@@ -5,6 +5,7 @@ import dev.portfolio.portfolio_api.content.SectionQuery;
 import dev.portfolio.portfolio_api.content.SectionWriter;
 import dev.portfolio.portfolio_api.project.ProjectAdminResponses.AdminProjectDetail;
 import dev.portfolio.portfolio_api.project.ProjectAdminResponses.AdminProjectItem;
+import dev.portfolio.portfolio_api.rag.DocumentProjector;
 import dev.portfolio.portfolio_api.skill.SkillRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -30,19 +31,22 @@ public class ProjectAdminService {
     private final JdbcTemplate jdbc;
     private final SectionWriter sectionWriter;
     private final SectionQuery sectionQuery;
+    private final DocumentProjector projector;
     private final Clock clock = Clock.systemUTC();
 
     @PersistenceContext
     private EntityManager entityManager;
 
     public ProjectAdminService(ProjectRepository projects, SkillRepository skills, JPAQueryFactory queryFactory,
-                               JdbcTemplate jdbc, SectionWriter sectionWriter, SectionQuery sectionQuery) {
+                               JdbcTemplate jdbc, SectionWriter sectionWriter, SectionQuery sectionQuery,
+                               DocumentProjector projector) {
         this.projects = projects;
         this.skills = skills;
         this.queryFactory = queryFactory;
         this.jdbc = jdbc;
         this.sectionWriter = sectionWriter;
         this.sectionQuery = sectionQuery;
+        this.projector = projector;
     }
 
     @Transactional(readOnly = true)
@@ -70,6 +74,7 @@ public class ProjectAdminService {
         Project saved = projects.saveAndFlush(Project.create(request, Instant.now(clock)));
         entityManager.refresh(saved); // load DB-generated created_at
         replaceChildren(saved.getId(), request);
+        projector.projectProject(saved.getId());
         return toDetail(saved);
     }
 
@@ -82,13 +87,15 @@ public class ProjectAdminService {
         existing.apply(request, Instant.now(clock));
         projects.saveAndFlush(existing);
         replaceChildren(id, request);
+        projector.projectProject(id);
         return toDetail(existing);
     }
 
-    /** Highlights, skill links and sections are removed by FK cascade. */
+    /** Highlights, skill links and sections are removed by FK cascade; the RAG document is removed too. */
     public void delete(long id) {
         projects.delete(find(id));
         projects.flush();
+        projector.remove(DocumentProjector.Type.PROJECT, id);
     }
 
     private void validate(ProjectAdminRequest request) {

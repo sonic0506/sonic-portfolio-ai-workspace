@@ -17,7 +17,11 @@ docker compose up -d --wait   # pgvector 0.8.2 / PostgreSQL 17, 127.0.0.1:5433 (
 ./gradlew bootRun --args='--spring.profiles.active=local --app.seed.samples-dir=../samples'
 ```
 
-`samples/`의 기술 목록·카테고리/태그(`taxonomy.md`)·프로젝트·블로그·프로필(`profile.md`)을 관리 서비스로 등록한 뒤 서버가 계속 실행된다. 같은 code/slug는 교체하므로 여러 번 실행해도 중복되지 않는다. 관련 글(Relation)은 넣지 않는다.
+`samples/`의 기술 목록·카테고리/태그(`taxonomy.md`)·프로젝트·블로그·프로필(`profile.md`)을 관리 서비스로 등록한 뒤 서버가 계속 실행된다. 같은 code/slug는 교체하므로 여러 번 실행해도 중복되지 않는다. 관련 글은 `document_relation`으로 연결한다. RAG 문서는 시드와 함께 투영되며, 임베딩은 아래 설정이 켜져 있을 때만 만든다.
+
+### RAG 색인 (임베딩, 유료)
+
+기본은 꺼져 있다. 켜려면 `.env`에 `EMBEDDING_PROVIDER=openai`, `OPENAI_API_KEY=...`를 넣는다. 관리자 로그인 후 `POST /api/admin/rag/reindex?rebuild=true`로 전체 색인, `GET /api/admin/rag/documents`로 상태를 본다. 테스트는 OpenAI를 호출하지 않는다.
 
 ### 코드 변경 자동 반영 (DevTools)
 
@@ -51,7 +55,7 @@ docker exec -it <컨테이너 이름> psql -U portfolio -d portfolio -c 'create 
 
 ## 검증 결과 — 2026-09-16
 
-로컬 테스트 DB에서 전체 테스트 54건이 성공했다(공개 조회·관리자 인증·전체 콘텐츠 관리·샘플 시드 포함, 계약은 [API_DESIGN](../docs/02-design/API_DESIGN.md)).
+로컬 테스트 DB에서 전체 테스트 68건이 성공했다(공개 조회·관리자 인증·전체 콘텐츠 관리·샘플 시드·RAG 색인 포함, 계약은 [API_DESIGN](../docs/02-design/API_DESIGN.md)).
 
 - `QuerydslSetupTest`: Jakarta Q 타입 생성과 조건식 구성
 - `PortfolioApiApplicationTests`: 컨텍스트 기동, V1 적용(PostgreSQL 17.10), pgvector 0.8.2, 테이블 20개, HNSW 1개, `vector(1536)`, 재실행 시 migrate 0건

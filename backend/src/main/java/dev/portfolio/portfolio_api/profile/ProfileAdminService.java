@@ -7,6 +7,7 @@ import dev.portfolio.portfolio_api.content.SectionWriter;
 import dev.portfolio.portfolio_api.profile.ProfileAdminRequest.CareerRequest;
 import dev.portfolio.portfolio_api.profile.ProfileAdminRequest.SkillEntry;
 import dev.portfolio.portfolio_api.profile.ProfileAdminResponses.AdminProfileDetail;
+import dev.portfolio.portfolio_api.rag.DocumentProjector;
 import java.sql.Date;
 import java.time.Clock;
 import java.time.Instant;
@@ -26,15 +27,18 @@ public class ProfileAdminService {
     private final IdChecks idChecks;
     private final SectionWriter sectionWriter;
     private final SectionQuery sectionQuery;
+    private final DocumentProjector projector;
     private final Clock clock = Clock.systemUTC();
 
     public ProfileAdminService(ProfileRepository profiles, JdbcTemplate jdbc, IdChecks idChecks,
-                               SectionWriter sectionWriter, SectionQuery sectionQuery) {
+                               SectionWriter sectionWriter, SectionQuery sectionQuery,
+                               DocumentProjector projector) {
         this.profiles = profiles;
         this.jdbc = jdbc;
         this.idChecks = idChecks;
         this.sectionWriter = sectionWriter;
         this.sectionQuery = sectionQuery;
+        this.projector = projector;
     }
 
     @Transactional(readOnly = true)
@@ -55,6 +59,7 @@ public class ProfileAdminService {
                 .orElseGet(() -> Profile.create(request, now));
         profiles.saveAndFlush(profile);
         replaceChildren(profile.getId(), request);
+        projector.projectProfile(profile.getId());
         return toDetail(profile);
     }
 

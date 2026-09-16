@@ -218,3 +218,17 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 - 배열 순서가 경력·스킬(그룹 안)·섹션의 표시 순서다.
 
 검증: `BlogPostAdminApiTest`, `ProfileAdminApiTest` (2026-09-16)
+
+### RAG 색인 관리
+
+색인 규칙은 [DOCUMENT_INDEX_IMPLEMENTATION](../04-plans/DOCUMENT_INDEX_IMPLEMENTATION.md)을 따른다.
+
+- `GET /api/admin/rag/documents` → `[{id, type, sourceId, title, visible, indexStatus, indexError, indexedAt, chunkCount}]`
+  - `type`: `PROJECT | BLOG | PROFILE`, `indexStatus`: `PENDING | INDEXING | READY | FAILED`
+- `POST /api/admin/rag/reindex` → `{embeddingEnabled, indexed, failed, skipped, documents[]}`
+  - `PENDING`/`FAILED` 문서를 색인한다. `?rebuild=true`면 모든 원본을 다시 투영하고 전부 다시 색인한다.
+  - 임베딩이 꺼져 있으면(`embeddingEnabled: false`) 투영만 하고 색인은 하지 않는다.
+  - 동기 실행이다(현재 문서 수십 건 규모).
+- 관리 API로 콘텐츠를 생성·수정·삭제하면 같은 트랜잭션에서 문서가 갱신되고, 커밋 후 임베딩이 켜져 있으면 백그라운드로 색인된다.
+
+검증: `DocumentProjectionTest`, `DocumentIndexerTest`, `SampleIndexTest` (2026-09-16)

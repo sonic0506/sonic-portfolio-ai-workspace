@@ -11,6 +11,7 @@ import dev.portfolio.portfolio_api.profile.ProfileAdminRequest.SkillEntry;
 import dev.portfolio.portfolio_api.profile.ProfileAdminService;
 import dev.portfolio.portfolio_api.project.ProjectAdminRequest;
 import dev.portfolio.portfolio_api.project.ProjectAdminService;
+import dev.portfolio.portfolio_api.rag.DocumentProjector;
 import dev.portfolio.portfolio_api.skill.SkillAdminService;
 import dev.portfolio.portfolio_api.skill.SkillRequest;
 import jakarta.persistence.EntityManager;
@@ -34,12 +35,13 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Loads samples/ into the database through the admin services, so the same validation applies.
  * Idempotent: rows are matched by skill/category/tag code and project/blog slug and replaced.
- * Relations (related_*) are not loaded; they need the Document layer.
+ * related_projects/related_blogs become document_relation rows (one direction per pair, ADR-0005).
  */
 @Component
 public class SampleSeeder {
 
-    public record Result(int skills, int categories, int tags, int projects, int blogPosts, boolean profile) {
+    public record Result(int skills, int categories, int tags, int projects, int blogPosts, boolean profile,
+                         int relations) {
     }
 
     private final SkillAdminService skills;
@@ -48,18 +50,21 @@ public class SampleSeeder {
     private final BlogPostAdminService blogPosts;
     private final ProfileAdminService profiles;
     private final JdbcTemplate jdbc;
+    private final DocumentProjector projector;
 
     @PersistenceContext
     private EntityManager entityManager;
 
     public SampleSeeder(SkillAdminService skills, TaxonomyAdminService taxonomy, ProjectAdminService projects,
-                        BlogPostAdminService blogPosts, ProfileAdminService profiles, JdbcTemplate jdbc) {
+                        BlogPostAdminService blogPosts, ProfileAdminService profiles, JdbcTemplate jdbc,
+                        DocumentProjector projector) {
         this.skills = skills;
         this.taxonomy = taxonomy;
         this.projects = projects;
         this.blogPosts = blogPosts;
         this.profiles = profiles;
         this.jdbc = jdbc;
+        this.projector = projector;
     }
 
     @Transactional
@@ -85,13 +90,26 @@ public class SampleSeeder {
         }
 
         List<Path> projectFiles = markdownFiles(dir.resolve("projects"));
+        List<SampleMarkdown> projectDocs = new ArrayList<>();
         for (int i = 0; i < projectFiles.size(); i++) {
-            seedProject(SampleMarkdown.read(projectFiles.get(i)), i, skillIdsByName);
+            SampleMarkdown md = SampleMarkdown.read(projectFiles.get(i));
+            seedProject(md, i, skillIdsByName);
+            projectDocs.add(md);
         }
         List<Path> blogFiles = markdownFiles(dir.resolve("blog"));
+        List<SampleMarkdown> blogDocs = new ArrayList<>();
         for (Path file : blogFiles) {
-            seedBlogPost(SampleMarkdown.read(file), skillIdsByName, categoryIds, tagIds);
+            SampleMarkdown md = SampleMarkdown.read(file);
+            seedBlogPost(md, skillIdsByName, categoryIds, tagIds);
+            blogDocs.add(md);
         }
+        for (SampleMarkdown md : projectDocs) {
+            linkRelated(md, "project");
+        }
+        for (SampleMarkdown md : blogDocs) {
+            linkRelated(md, "blog_post");
+        }
+        Integer relations = jdbc.queryForObject("select count(*) from document_relation", Integer.class);
 
         Path profileFile = dir.resolve("profile.md");
         boolean profile = Files.exists(profileFile);
@@ -99,7 +117,7 @@ public class SampleSeeder {
             seedProfile(SampleMarkdown.read(profileFile), skillIdsByCode);
         }
         return new Result(skillRows.size(), categoryRows.size(), tagRows.size(),
-                projectFiles.size(), blogFiles.size(), profile);
+                projectFiles.size(), blogFiles.size(), profile, relations == null ? 0 : relations);
     }
 
     private void seedProject(SampleMarkdown md, int order, Map<String, Long> skillIds) {
@@ -176,6 +194,38 @@ public class SampleSeeder {
                 md.requiredText("headline"), md.requiredText("short_bio"),
                 md.text("image_url"), md.text("github_url"), md.text("email"),
                 careers, skillEntries, md.sections()));
+    }
+
+    private void linkRelated(SampleMarkdown md, String ownTable) {
+        long source = documentIdBySlug(md, ownTable, md.requiredText("id"));
+        List<Long> targets = new ArrayList<>();
+        for (String slug : md.list("related_projects")) {
+            targets.add(documentIdBySlug(md, "project", slug));
+        }
+        for (String slug : md.list("related_blogs")) {
+            targets.add(documentIdBySlug(md, "blog_post", slug));
+        }
+        for (Long target : targets) {
+            jdbc.update("""
+                    insert into document_relation (source_document_id, target_document_id)
+                    select ?, ? where not exists (
+                      select 1 from document_relation
+                      where relation_type = 'RELATED_TO'
+                        and ((source_document_id = ? and target_document_id = ?)
+                          or (source_document_id = ? and target_document_id = ?)))""",
+                    source, target, source, target, target, source);
+        }
+    }
+
+    private long documentIdBySlug(SampleMarkdown md, String table, String slug) {
+        Long sourceId = idBySlug(table, slug);
+        DocumentProjector.Type type = "project".equals(table) ? DocumentProjector.Type.PROJECT
+                : DocumentProjector.Type.BLOG;
+        Long documentId = sourceId == null ? null : projector.documentId(type, sourceId);
+        if (documentId == null) {
+            throw new IllegalStateException(md.path() + ": related " + table + " '" + slug + "' not found");
+        }
+        return documentId;
     }
 
     private long upsertSkill(String code, String name) {
