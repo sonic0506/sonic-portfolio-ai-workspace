@@ -32,7 +32,8 @@ Status: Active
 - [x] 첫 구현 계획 작성 — FIRST_BACKEND_IMPLEMENTATION.md
 - [x] 첫 백엔드 Task 1 — 로컬 PostgreSQL에서 컨텍스트 기동·V1 마이그레이션·재실행 미적용 검증 (2026-09-16)
 - [x] 첫 백엔드 Task 2 — `GET /api/skills`로 JPA/QueryDSL 실제 조회 검증 (2026-09-16)
-- [ ] 다음 구현 계획 작성 — 프로젝트/블로그/프로필 공개 조회 API
+- [x] 공개 조회 API — PUBLIC_READ_API_IMPLEMENTATION.md (2026-09-16, 테스트 18건)
+- [ ] 다음 구현 계획 — 관리자 인증 + CRUD (인증 상세 결정 필요)
 
 ## Definition of Done for Current Phase
 

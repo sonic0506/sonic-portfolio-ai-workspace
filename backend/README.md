@@ -19,10 +19,12 @@ docker compose up -d --wait   # pgvector 0.8.2 / PostgreSQL 17, 127.0.0.1:5433 (
 
 ## 검증 결과 — 2026-09-16
 
-로컬 DB에서 전체 테스트 6건이 성공했다.
+로컬 DB에서 전체 테스트 18건이 성공했다(공개 조회 API 포함, 계약은 [API_DESIGN](../docs/02-design/API_DESIGN.md)).
 
 - `QuerydslSetupTest`: Jakarta Q 타입 생성과 조건식 구성
 - `PortfolioApiApplicationTests`: 컨텍스트 기동, V1 적용(PostgreSQL 17.10), pgvector 0.8.2, 테이블 20개, HNSW 1개, `vector(1536)`, 재실행 시 migrate 0건
+- `ProjectApiTest`·`BlogApiTest`·`ProfileApiTest`: 공개 조회, 비공개·관리자 필드 제외, 정렬·페이지·필터
+- `SwaggerAccessTest`: local 프로필에서 `/v3/api-docs` 익명 접근
 - `SkillApiTest`(4건): `GET /api/skills` 정렬·응답 필드, 빈 목록, 중복 code 거부, 다른 경로 익명 차단
 
 실행 JAR도 생성됐다. 생성 코드는 `build/generated/` 아래에 두며 커밋하지 않는다.
@@ -30,5 +32,5 @@ docker compose up -d --wait   # pgvector 0.8.2 / PostgreSQL 17, 127.0.0.1:5433 (
 ## 아직 검증하지 않은 것
 
 - `bootRun`으로 띄운 서버 프로세스(테스트 컨텍스트 기동만 확인)
-- Swagger UI(`/swagger-ui.html`, `/v3/api-docs`) HTTP 접근. 현재 `SecurityConfig`는 `GET /api/skills` 외 모든 경로에 인증을 요구하므로 Swagger도 막혀 있다
+- Swagger UI 화면(`bootRun` 후 `/swagger-ui.html`). local 프로필에서만 켜지고 익명 허용된다
 - Spring AI 호출과 기존 `document_chunk` 연동, S3·PGvector 모듈, RDS 배포

@@ -66,4 +66,45 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 ```
 
 - 검증: `SkillApiTest` (2026-09-16)
-- 인증: 현재 `SecurityConfig`는 이 경로만 익명 허용하고 나머지는 모두 인증을 요구하는 임시 기준이다. 관리자 인증 정책은 해당 기능 착수 시 정한다.
+
+### 공통 규칙 (Public 조회)
+
+- 공개 식별자는 `slug`다. 내부 PK, `published`/`featured` 값, `admin_note`, `created_at`은 응답에 넣지 않는다.
+- 비공개(`published = false`) 프로젝트·블로그는 목록에서 제외하고 상세는 `404`(Problem Detail JSON)다.
+- 날짜는 `YYYY-MM-DD`, 시각은 ISO-8601 UTC. 기간의 `periodEnd: null`은 진행 중·재직 중이다.
+- 섹션은 `sections[{title, bodyMarkdown}]`이며 `:::questions` 블록을 포함한 Markdown 원문 그대로다.
+- 관련 문서(Relation)는 아직 응답에 없다. Document 색인 구현 시 공개 문서만 추가한다(ADR-0005).
+- 인증: `SecurityConfig`는 아래 공개 GET 경로와 `/error`만 익명 허용하고 나머지는 인증을 요구하는 임시 기준이다. 관리자 인증 정책은 해당 기능 착수 시 정한다.
+- Swagger: `local` 프로필에서만 `/swagger-ui.html`, `/v3/api-docs`를 켜고 익명 허용한다(2026-09-16 사용자 결정). 기본 설정은 꺼짐.
+
+### GET /api/projects
+
+`{featured: [...], others: [...]}`. 정렬은 `display_order` → `period_start desc` → `id desc`, 기술은 `project_skill.display_order` 순.
+
+- 공통 필드: `slug, title, summary, periodStart, periodEnd, position, contribution, contributionNote, skills[]`
+- `featured` 항목에만 `highlights[]`, `thumbnailUrl`이 있다(CONTENT_SPEC 1절 목록 표).
+
+### GET /api/projects/{slug}
+
+목록 필드 전부 + `organization, githubUrl, serviceUrl, sections[]`.
+
+### GET /api/blog/posts
+
+쿼리: `page`(0부터), `size`(기본 20, 1~50으로 보정), `category`(code), `tag`(code). 둘 다 주면 AND.
+응답: `{items: [...], page, size, totalElements}`. 정렬은 `published_at desc nulls last` → `id desc`.
+
+- 항목: `slug, title, summary, thumbnailUrl, publishedAt, updatedAt, categories[{code,name}], tags[{code,name}], skills[]`
+- 카테고리는 `display_order` 순, 태그·기술은 code 순.
+
+### GET /api/blog/posts/{slug}
+
+목록 항목 필드 + `sections[]`.
+
+### GET /api/profile
+
+`headline, shortBio, imageUrl, githubUrl, email, careers[], skillGroups[], sections[]`. 프로필이 없으면 `404`.
+
+- `careers[{company, role, periodStart, periodEnd, description}]`: `display_order` → `period_start desc`
+- `skillGroups[{group, skills[]}]`: `PRIMARY` → `PROJECT_EXPERIENCE` → `LEARNING` → `COLLABORATION` 고정 순서, 빈 그룹 생략. 표시명은 프론트에서 정한다.
+
+검증: `ProjectApiTest`, `BlogApiTest`, `ProfileApiTest`, `SwaggerAccessTest` (2026-09-16)
