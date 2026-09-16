@@ -6,15 +6,9 @@ Last Updated: 2026-09-16
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
-## Priority 1 — 실제 임베딩 1회 확인 (사용자 확인 필요)
+## Priority 1 — 검색·답변(채팅) 구현 계획
 
-Document 색인(DOCUMENT_INDEX_IMPLEMENTATION)은 2026-09-16 구현·커밋했다. 테스트는 가짜 임베딩이다.
-
-1. 사용자 동의 후 `backend/.env`에 `EMBEDDING_PROVIDER=openai`, `OPENAI_API_KEY`를 넣고 `bootRun`(local).
-2. 관리자 로그인 → `POST /api/admin/rag/reindex?rebuild=true`(CSRF 헤더 필요) → `GET /api/admin/rag/documents`로 7건 READY 확인. 샘플 기준 청크 약 40개, 비용 1센트 미만 예상.
-3. DB에서 `vector_dims(embedding) = 1536` 확인. 실패하면 Spring AI 2.0 OpenAI 설정 키부터 확인한다.
-
-## Priority 2 — 검색·답변(채팅) 구현 계획
+실제 임베딩 색인은 2026-09-16 사용자가 확인했다(개발 DB 7건 READY).
 
 - RAG_DESIGN 2절, ADR-0004/0006/0007/0008, API_DESIGN Chat Progress Stream을 읽고 `docs/04-plans/`에 계획을 쓴다.
 - 포함: pgvector 코사인 검색(상위 5, `document.visible` 조인), Relation 확장(공개 문서만), ADR-0007 프롬프트로 `gpt-4.1-mini` 생성, SSE(status/documents/answer_delta/done), RAG_TEST_CASES·PoC 질문 7개 재현.
@@ -43,4 +37,4 @@ Document 색인(DOCUMENT_INDEX_IMPLEMENTATION)은 2026-09-16 구현·커밋했�
 
 ## Recommended Next Session Prompt
 
-> 공통 규칙과 세션 문서를 읽고, 실제 임베딩 색인을 확인한 뒤 검색·답변(채팅) 구현 계획을 작성하자.
+> 공통 규칙과 세션 문서를 읽고, 세션·질문 제한 결정을 확인한 뒤 검색·답변(채팅) 구현 계획을 작성하자.

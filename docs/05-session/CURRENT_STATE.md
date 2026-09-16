@@ -4,11 +4,11 @@ Last Updated: 2026-09-16
 
 ## Current Phase
 
-Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 콘텐츠 관리 CRUD(Project, Blog, Profile, Category/Tag)도 완료했다. 샘플 콘텐츠 시드와 Document 색인(가짜 임베딩으로 검증)도 완료했다. 다음은 실제 OpenAI 임베딩 1회 확인 후 검색·답변(채팅) 구현이다.
+Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 콘텐츠 관리 CRUD(Project, Blog, Profile, Category/Tag)도 완료했다. 샘플 콘텐츠 시드와 Document 색인(가짜 임베딩으로 검증)도 완료했다. 실제 OpenAI 임베딩으로 개발 DB 샘플 7건 READY를 확인했다(사용자 보고). 다음은 검색·답변(채팅) 구현이다.
 
 ## Confirmed
 
-- 2026-09-16 Document 색인: 관리 변경과 같은 트랜잭션에서 `document` 투영(비공개는 visible=false, 관리자 메모·추천 질문 제외), PoC 청킹 Java 이식(샘플 35청크 일치), 임베딩은 트랜잭션 밖·content hash 확인 후 반영, 실패는 FAILED로 기록, `/api/admin/rag/documents`·`/reindex`. 시드가 Relation 4건을 넣는다. 임베딩 기본 꺼짐(`EMBEDDING_PROVIDER`). 전체 68건 통과. 실제 OpenAI 호출은 미검증.
+- 2026-09-16 Document 색인: 관리 변경과 같은 트랜잭션에서 `document` 투영(비공개는 visible=false, 관리자 메모·추천 질문 제외), PoC 청킹 Java 이식(샘플 35청크 일치), 임베딩은 트랜잭션 밖·content hash 확인 후 반영, 실패는 FAILED로 기록, `/api/admin/rag/documents`·`/reindex`. 시드가 Relation 4건을 넣는다. 임베딩 기본 꺼짐(`EMBEDDING_PROVIDER`). 전체 68건 통과. 실제 OpenAI 임베딩은 사용자 로컬에서 7건 READY 확인.
 
 - 2026-09-16 샘플 시드: `bootRun --args='--spring.profiles.active=local --app.seed.samples-dir=../samples'`로 기술·카테고리/태그·프로젝트 3·블로그 3·프로필을 관리 서비스 경유로 upsert. 프로필은 사용자 초안(`samples/profile-draft.md`)에서 `samples/profile.md`로 정리(한 줄 소개 A, 기본 소개글, 고객사 실명). 테스트는 별도 DB `portfolio_test`를 쓴다. 전체 54건 통과. 사용자 확인이 필요한 사실 충돌은 SAMPLE_SEED_IMPLEMENTATION 참고.
 

@@ -417,3 +417,7 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 발견·수정: 편집 스크립트가 다른 메서드의 선언까지 삭제(컴파일 오류), 테스트 헬퍼 이름이 MockMvc `status()`를 가림.
 - 미검증: 실제 OpenAI 임베딩 호출(사용자 확인 대기).
 - 다음: 실제 임베딩 1회 → 검색·답변 계획.
+
+## 2026-09-16 — 실제 임베딩 색인 확인
+
+- 사용자가 local에서 `EMBEDDING_PROVIDER=openai`로 `reindex?rebuild=true` 실행, 7건 모두 READY 보고. Spring AI 2.0.1 OpenAI 임베딩 연동이 실제로 동작함.

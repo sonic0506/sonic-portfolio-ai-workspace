@@ -1,6 +1,6 @@
 # Document Index Implementation
 
-Status: Active — 구현·테스트 완료(2026-09-16), 실제 OpenAI 색인 1회 남음
+Status: Done (2026-09-16)
 Date: 2026-09-16
 
 **Goal:** 원본 콘텐츠(Project / Blog / Profile)를 RAG Document Layer(`document`, `document_chunk`, `document_relation`)로 변환·색인하고, 관리 변경과 공개 상태가 색인에 정확히 반영되는 것을 실제 DB에서 검증한다. 검색·답변(채팅)은 다음 계획이다.
@@ -52,7 +52,7 @@ Date: 2026-09-16
 - [x] 설정: `spring.ai.model.embedding=${EMBEDDING_PROVIDER:none}`, OpenAI 키·모델, 비동기 실행
 - [x] 시드: 투영 후 Relation 4건
 - [x] 테스트: `ChunkerTest`(PoC 35청크 대조), `DocumentProjectionTest`(투영·상태·공개 토글·삭제·관리자 필드 제외), `DocumentIndexerTest`(가짜 임베딩으로 READY·1536차원·section_titles·실패 FAILED·rebuild), 시드 Relation
-- [ ] (사용자 확인 후) 실제 OpenAI로 샘플 색인 1회 — 샘플 기준 청크 35개 수준, 비용은 1센트 미만 예상
+- [x] (사용자 확인 후) 실제 OpenAI로 샘플 색인 1회 — 2026-09-16 사용자가 `reindex?rebuild=true` 실행, 7건 모두 READY 확인(사용자 보고) — 샘플 기준 청크 35개 수준, 비용은 1센트 미만 예상
 
 ## 범위 밖
 
@@ -64,7 +64,7 @@ Date: 2026-09-16
 - **PoC 대조 일치:** 샘플 6건 문서별 청크 5/6/5/4/8/7, 합계 35, 길이 최소 205·중앙 367·최대 821, 병합 청크 9. 구현 전 Python으로 "DB 섹션 → 조립한 content"를 PoC 청킹에 넣어 같은 결과가 나오는 것도 확인했다.
 - 투영 결과: 문서 7건(프로젝트 3, 블로그 3, 프로필 1), 비공개 블로그는 `visible = false`, 관리자 메모·추천 질문 블록 미포함, Relation 4건.
 - 구현 메모: `DocumentProjector`는 `Propagation.MANDATORY`(관리 트랜잭션 밖 호출 금지). 색인 완료는 content hash가 선점 시점과 같을 때만 반영한다. 백그라운드 색인은 커밋 후 `@Async`.
-- 임베딩 기본값 꺼짐(`EMBEDDING_PROVIDER=none`). Spring AI OpenAI 실제 호출은 아직 검증하지 않았다.
+- 임베딩 기본값 꺼짐(`EMBEDDING_PROVIDER=none`). 실제 OpenAI 호출은 사용자 로컬에서 7건 READY로 확인했다(사용자 보고, 청크 수·차원은 DB에서 직접 확인하지 않음).
 - 계획과 다른 점: 추천 질문 블록 제거 결과는 PoC 정규식과 같게 빈 줄 하나가 남는다(테스트에 명시).
 - 발견·수정: 편집 스크립트가 같은 선언문을 두 곳에서 지워 컴파일 실패, 테스트의 `status()` 헬퍼가 MockMvc `status()`를 가림 → `indexStatus()`로 변경.
 
