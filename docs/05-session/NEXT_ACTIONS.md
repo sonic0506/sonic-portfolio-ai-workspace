@@ -6,14 +6,18 @@ Last Updated: 2026-09-16
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
-## Priority 1 — 콘텐츠 관리 CRUD 2단계 (Blog, Profile)
+## Priority 1 — 샘플 콘텐츠 시드
 
-1단계(Project, Category/Tag)는 2026-09-16 완료·커밋했다. [ADMIN_CONTENT_CRUD_IMPLEMENTATION](../04-plans/ADMIN_CONTENT_CRUD_IMPLEMENTATION.md)의 "2단계 Tasks"를 진행한다.
+관리 CRUD(Project, Blog, Profile, Category/Tag, Skill)는 2026-09-16 완료·커밋했다. 이제 실데이터로 공개 API를 확인하고, 다음 단계(Document 색인)의 입력을 만든다.
 
-1. Blog 관리: `ProjectAdminService` 구조(요청 검증 → JPA 본체 저장·flush → JDBC로 연결 목록 교체 → `SectionWriter`)를 그대로 따른다. `BlogPost.updated_at` 매핑을 쓰기 가능으로 바꾼다.
-2. Profile 수정: 단일 행 upsert(`GET/PUT /api/admin/profile`), 경력·스킬 그룹·섹션 전체 교체. 그룹 값은 `SkillGroup` enum 이름만 허용.
-3. 테스트는 `ProjectAdminApiTest` 방식(`admin()` + `csrf()`, 생성 후 공개 API 반영 확인).
-4. 완료 후 다음 후보: 샘플 콘텐츠 시드(관리 API로 `samples/` 등록) → Document 색인 계획(발행 토글과 `document.visible` 동기화 연결).
+1. `samples/`(프로젝트 3, 블로그 3, `skills.md`)를 읽어 관리 API 요청으로 바꾸는 시드 도구를 만든다. 후보: `backend/`의 local 전용 커맨드(예: `--seed-samples`) 또는 테스트용 SQL. 결정은 사용자에게 확인한다.
+2. front matter → 요청 매핑: `skills`(표시명) → `skill.code`(kebab-case), `categories`/`tags` 생성, `period_start` `YYYY-MM` → 월 1일, `:::questions` 블록은 본문 그대로.
+3. `offline-first-boundary`는 비공개로 등록되는지 확인한다. `related_*`(Relation)는 Document 색인 이후에 연결한다.
+4. 확인: `bootRun` 후 `/api/projects`, `/api/blog/posts`, Swagger 화면. Profile 샘플은 없으므로 필요하면 사용자에게 받는다.
+
+## Priority 2 — Document 색인
+
+- RAG_DESIGN·ADR-0005/0006을 읽고 구현 계획을 쓴다: 원본(Project/Blog/Profile) → `document` upsert, PoC 청킹 규칙 이식, 임베딩(Spring AI, 기존 OpenAI 키), 발행 토글과 `document.visible` 같은 트랜잭션 갱신(관리 서비스의 create/update/delete에 연결), 색인 실패 상태.
 
 ## 해당 기능 착수 시
 
@@ -34,4 +38,4 @@ Last Updated: 2026-09-16
 
 ## Recommended Next Session Prompt
 
-> 공통 규칙과 세션 문서를 읽고, ADMIN_CONTENT_CRUD_IMPLEMENTATION의 2단계(Blog, Profile 관리)를 1단계 Project 관리 방식대로 진행하자.
+> 공통 규칙과 세션 문서를 읽고, samples/의 콘텐츠를 로컬 DB에 등록하는 시드 방식을 사용자와 정한 뒤 구현하자. 이어서 Document 색인 계획을 작성하자.

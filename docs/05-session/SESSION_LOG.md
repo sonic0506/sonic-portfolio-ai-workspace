@@ -392,3 +392,10 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 검증: 사용자 로컬 44건 통과(15:03 KST). 첫 실행에 통과했다.
 - 미룬 것: 발행 토글과 `document.visible` 동기화(색인 단계), Blog·Profile 관리(2단계).
 - 문서: API_DESIGN(콘텐츠 관리), 계획 문서, CURRENT_PLAN, CURRENT_STATE, NEXT_ACTIONS.
+
+## 2026-09-16 — 콘텐츠 관리 CRUD 2단계 (Blog, Profile)
+
+- 구현: Blog 관리(카테고리·태그·기술·섹션 전체 교체, 발행일 규칙 동일), Profile 단일 행 upsert(경력·스킬 그룹·섹션), 공용 참조 ID 검사 `IdChecks`.
+- 검증: 사용자 로컬 52건 통과(15:21 KST). 첫 실행에 통과했다.
+- 문서: API_DESIGN(Blog·Profile 관리), 계획 문서 완료, CURRENT_PLAN, CURRENT_STATE, NEXT_ACTIONS.
+- 다음: 샘플 콘텐츠 시드 → Document 색인 계획.
