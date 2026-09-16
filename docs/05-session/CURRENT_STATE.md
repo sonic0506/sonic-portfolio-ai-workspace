@@ -4,7 +4,7 @@ Last Updated: 2026-09-16
 
 ## Current Phase
 
-Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 콘텐츠 관리 CRUD(Project, Blog, Profile, Category/Tag)도 완료했다. 샘플 콘텐츠 시드와 Document 색인(가짜 임베딩으로 검증)도 완료했다. 실제 OpenAI 임베딩으로 개발 DB 샘플 7건 READY를 확인했다(사용자 보고). 검색·답변(채팅) 1차(단일 질문, SSE, 질문 제한)도 구현했다. 실제 OpenAI로 PoC 질문 7개를 재현해 기대 출처 7/7, 근거 부족 거부, 비공개 미노출을 확인했다(RAG_MEASUREMENTS 측정 4). 다음 기능(프론트엔드 또는 채팅 세션)은 사용자 선택 대기다.
+Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 콘텐츠 관리 CRUD(Project, Blog, Profile, Category/Tag)도 완료했다. 샘플 콘텐츠 시드와 Document 색인(가짜 임베딩으로 검증)도 완료했다. 실제 OpenAI 임베딩으로 개발 DB 샘플 7건 READY를 확인했다(사용자 보고). 검색·답변(채팅) 1차(단일 질문, SSE, 질문 제한)도 구현했다. 실제 OpenAI로 PoC 질문 7개를 재현해 기대 출처 7/7, 근거 부족 거부, 비공개 미노출을 확인했다(RAG_MEASUREMENTS 측정 4). 프로필 slug 결함도 수정했다(77건 통과). 채팅 세션 정책은 ADR-0011(Proposed)에 정리했다. 다음 기능(채팅 세션 또는 프론트엔드)은 사용자 선택 대기다.
 
 ## Confirmed
 
@@ -110,7 +110,8 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 - Deployment implementation / domains / engine versions
 - Spring AI 버전·연동 검증 및 제품 RAG 통합 방식(생성·임베딩 모델은 확정)
 - Expected traffic (질문 제한 초기값은 ADR-0002 후속 결정)
-- 채팅 세션 보관 기간·복원·만료
+- 채팅 세션 세부(ADR-0011 3~5번 제안 확인 대기). 사용자 결정: localStorage로 유지, 서버 보관 하루
+- 프론트 도구: 포트폴리오 Next.js, 어드민 React(사용자 확인). 어드민 빌드 도구·패키지 매니저는 미정(Vite + pnpm 제안)
 - Frontend build tools / S3 policy (백엔드 버전은 ADR-0009, Markdown은 content_section.body_markdown)
 - Graph visualization library
 - Exact DB schema — 초기 스키마는 V1 마이그레이션으로 적용. 세션·사용량 관련 테이블은 정책 결정 후 새 마이그레이션으로 추가

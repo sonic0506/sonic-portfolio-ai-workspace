@@ -436,3 +436,9 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 발견: 프로필 문서 slug가 비어 출처가 빈 문자열 → slug `profile` 고정, 테스트 추가.
 - 개선 후보: "AI 프로젝트" 질문에 AI 도구 사용 사례가 함께 묶여 제시됨(콘텐츠·프롬프트).
 - 문서: RAG_MEASUREMENTS 측정 4, RAG_TEST_CASES, 계획·세션 문서.
+
+## 2026-09-16 — 프로필 slug 수정, 세션·프론트 방향
+
+- 프로필 문서 slug `profile` 고정, 사용자 로컬 77건 통과.
+- 사용자 결정: 포트폴리오 Next.js, 어드민 React. 채팅 세션은 localStorage로 유지하고 서버 보관은 하루.
+- ADR-0011(Proposed): 위 결정 + Claude 제안(슬라이딩 24시간, 서버 발급 ID·비밀키 해시, 상한). 사용자 확인 대기.
