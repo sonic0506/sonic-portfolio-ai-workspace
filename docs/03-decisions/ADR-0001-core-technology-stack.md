@@ -38,3 +38,16 @@
 - [Project Overview](../00-project/PROJECT_OVERVIEW.md)
 - [Architecture](../02-design/ARCHITECTURE.md)
 - [Next Actions](../05-session/NEXT_ACTIONS.md)
+
+## 2026-09-16 추가 결정 — Spring AI
+
+사용자가 학습 목적으로 Spring AI 채택을 확정했다. Java 21을 유지하고 의존성 버전은 이에 호환되는 조합을 사용한다.
+
+초기 검토 기준은 Spring Boot 3.5.x + Spring AI 1.1.x이다. 공식 Spring AI 지원표와 Boot Java 지원 범위에서 호환되는 계열임을 확인했다. 정확한 패치 버전과 QueryDSL annotation processing, DB 드라이버 및 pgvector 연동은 첫 빌드에서 검증 후 고정한다. 이 문서 확인은 실제 빌드 성공을 뜻하지 않는다.
+
+- https://docs.spring.io/spring-boot/3.5/system-requirements.html
+- https://github.com/spring-projects/spring-ai/blob/main/README.md
+
+API Style은 설명/추천 단계이며 아직 사용자 확정 전이다.
+
+> 2026-09-16 후속: 위 Boot 3.5.x / AI 1.1.x 기준과 API Style 미확정 문장은 당시 기록이다. 현재 버전 기준은 [ADR-0009](ADR-0009-backend-build-baseline.md)(Boot 4.1.1 / AI 2.0.1), API Style은 [ADR-0008](ADR-0008-rest-and-chat-sse.md)을 따른다.
