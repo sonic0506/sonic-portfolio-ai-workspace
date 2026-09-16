@@ -32,6 +32,18 @@ public class Skill {
     protected Skill() {
     }
 
+    public Skill(String code, String name, String iconKey) {
+        this.code = code;
+        this.name = name;
+        this.iconKey = iconKey;
+    }
+
+    public void update(String code, String name, String iconKey) {
+        this.code = code;
+        this.name = name;
+        this.iconKey = iconKey;
+    }
+
     public Long getId() {
         return id;
     }
