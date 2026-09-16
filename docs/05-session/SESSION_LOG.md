@@ -442,3 +442,9 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 프로필 문서 slug `profile` 고정, 사용자 로컬 77건 통과.
 - 사용자 결정: 포트폴리오 Next.js, 어드민 React. 채팅 세션은 localStorage로 유지하고 서버 보관은 하루.
 - ADR-0011(Proposed): 위 결정 + Claude 제안(슬라이딩 24시간, 서버 발급 ID·비밀키 해시, 상한). 사용자 확인 대기.
+
+## 2026-09-16 — ADR-0011/0012 확정, 채팅 세션, 미답변 질문 요청
+
+- 사용자: ADR-0011 제안 채택, 어드민 Vite + pnpm(ADR-0012), 채팅 세션 먼저.
+- 구현: ChatSessionService/Controller, ChatStreams, 이력 반영 ChatService, 인용 문서 삭제 허용. 사용자 로컬 89건 통과(첫 실행).
+- 사용자 요청: 근거 부족 시 부드러운 안내 문구 + 답하지 못한 질문 보관·관리자 확인. 결정(표시+출처 없음 판정, 설정 템플릿, 90일 자동 삭제+관리자 삭제)을 UNANSWERED_QUESTIONS_IMPLEMENTATION에 기록.

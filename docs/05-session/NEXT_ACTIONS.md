@@ -6,16 +6,13 @@ Last Updated: 2026-09-16
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
-## Priority 1 — 사용자 확인
+## Priority 1 — 답하지 못한 질문 보관·안내 문구
 
-- ADR-0011 제안(3~5번: 슬라이딩 24시간, 서버 발급 ID+비밀키, 질문 30개·최근 3턴)을 확인받아 Accepted로 바꾼다.
-- 어드민 빌드 도구·패키지 매니저(Vite + pnpm 제안)를 확인받아 ADR로 기록한다.
-- 다음 구현을 채팅 세션과 프론트엔드 중에서 고른다.
+UNANSWERED_QUESTIONS_IMPLEMENTATION(사용자 결정 완료)을 구현한다. 채팅 세션은 2026-09-16 완료·커밋.
 
 ## Priority 2 — 다음 기능 선택 (사용자에게 확인)
 
 - **프론트엔드(Public Next.js / Admin React):** 백엔드 API가 공개 조회·관리·채팅까지 갖춰졌다. 프론트 도구(패키지 매니저·빌드) 결정이 먼저 필요하다(ARCHITECTURE).
-- **채팅 세션:** RAG-005/006/008/009. 보관 기간·새로고침 복원·만료 결정 필요.
 - **Relation 편집 API와 공개 상세의 관련 문서 표시**, RAG Playground, Graph API.
 
 ## 사용자 확인 대기 (콘텐츠 사실)

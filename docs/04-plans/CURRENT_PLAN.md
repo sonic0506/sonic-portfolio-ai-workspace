@@ -42,7 +42,9 @@ Status: Active
   - [x] 실제 OpenAI 임베딩으로 샘플 색인 1회 — 7건 READY (사용자 보고)
 - [x] 검색·답변(채팅) 1차 — CHAT_IMPLEMENTATION.md (2026-09-16, 단일 질문, 테스트 77건)
   - [x] 실제 OpenAI로 PoC 질문 7개 재현 — 7/7 (RAG_MEASUREMENTS 측정 4)
-- [ ] 채팅 세션(대화 이력) — 보관·복원 정책 결정 필요
+- [x] 채팅 세션(대화 이력) — ADR-0011, CHAT_SESSION_IMPLEMENTATION.md (2026-09-16, 테스트 89건)
+- [ ] 답하지 못한 질문 보관·안내 문구 — UNANSWERED_QUESTIONS_IMPLEMENTATION.md
+- [ ] 프론트엔드 — ADR-0012(Next.js, React+Vite, pnpm)
 
 ## Definition of Done for Current Phase
 
