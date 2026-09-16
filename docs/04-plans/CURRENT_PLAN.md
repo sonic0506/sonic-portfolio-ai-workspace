@@ -19,7 +19,7 @@ Status: Active
 - [ ] 배포/인증/모델 등 남은 기술 결정 및 비용·호환성 검증
   - [x] 배포 — ADR-0003
   - [x] 모델 — ADR-0006 / ADR-0007
-  - [ ] 인증 상세 — 허용 GitHub 계정 식별자, 세션/CORS/CSRF 정책
+  - [x] 인증 상세 — ADR-0010 (Admin 도메인/CORS 값은 도메인 결정 시)
   - [ ] 비용 검증 — 계산만 완료. 실제 배포·청구 미검증
   - [ ] 호환성 검증 — 컴파일·컨텍스트 기동·Flyway·JPA/QueryDSL 조회 완료(ADR-0009), AI 연동·pgvector 검색 성능은 남음
 - [x] 초기 백엔드 아키텍처 기준 확정 — ADR-0008/0009. 전체 ARCHITECTURE는 프론트 도구 및 기능별 상세가 남아 Draft 유지
@@ -33,7 +33,8 @@ Status: Active
 - [x] 첫 백엔드 Task 1 — 로컬 PostgreSQL에서 컨텍스트 기동·V1 마이그레이션·재실행 미적용 검증 (2026-09-16)
 - [x] 첫 백엔드 Task 2 — `GET /api/skills`로 JPA/QueryDSL 실제 조회 검증 (2026-09-16)
 - [x] 공개 조회 API — PUBLIC_READ_API_IMPLEMENTATION.md (2026-09-16, 테스트 18건)
-- [ ] 다음 구현 계획 — 관리자 인증 + CRUD (인증 상세 결정 필요)
+- [x] 관리자 인증 + Skill 관리 — ADMIN_AUTH_IMPLEMENTATION.md (2026-09-16, 테스트 34건)
+- [ ] 다음 구현 계획 — Project/Blog/Profile 관리 CRUD와 발행 토글
 
 ## Definition of Done for Current Phase
 

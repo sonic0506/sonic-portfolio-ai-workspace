@@ -374,3 +374,12 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 미룬 것: Relation 표시(Document 색인 필요), 시드 데이터, Admin CRUD.
 - 문서: API_DESIGN 계약, 계획 문서 결과, CURRENT_PLAN, CURRENT_STATE, NEXT_ACTIONS, backend/README.
 - 다음: 관리자 인증 결정 확인 → Admin 인증 + CRUD 계획.
+
+## 2026-09-16 — 관리자 인증(ADR-0010)과 Skill 관리
+
+- 사용자 결정: 허용 계정 GitHub `sonic0506`, 세션은 추천안(서버 세션 쿠키), Admin 도메인 미정. ADR-0010 작성.
+- 구현: GitHub OAuth 로그인, 허용 판정(숫자 ID 우선, 실제 로그인으로 `159202139` 확인해 기본값 설정), `/api/admin/me`, 로그아웃, 쿠키 CSRF, `/api/**` 401, CORS 설정값(기본 꺼짐), Skill 관리 API, DevTools.
+- 발견·수정한 문제: 다른 계정 로그인 시 무한 리다이렉트 루프(실패 시 403으로 수정, 회귀 테스트 추가), 로그아웃 200→204, 삭제 flush 누락, csrf() 테스트 도구가 공유 CSRF 저장소를 바꾸는 문제(`CsrfCookieTest` 분리), 다른 패키지 테스트 헬퍼 접근 오류(`ApiTestSupport.admin()`으로 이동).
+- 검증: 사용자 로컬 34건 통과(14:39 KST). 수동: 본인 로그인 성공, 다른 계정 403.
+- 문서: ADR-0010, ARCHITECTURE, API_DESIGN(Admin API), ADMIN_AUTH_IMPLEMENTATION, CURRENT_PLAN, CURRENT_STATE, NEXT_ACTIONS, backend/README.
+- 다음: Project/Blog/Profile 관리 CRUD 계획.

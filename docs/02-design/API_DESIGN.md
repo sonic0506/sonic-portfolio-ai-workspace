@@ -74,7 +74,7 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 - 날짜는 `YYYY-MM-DD`, 시각은 ISO-8601 UTC. 기간의 `periodEnd: null`은 진행 중·재직 중이다.
 - 섹션은 `sections[{title, bodyMarkdown}]`이며 `:::questions` 블록을 포함한 Markdown 원문 그대로다.
 - 관련 문서(Relation)는 아직 응답에 없다. Document 색인 구현 시 공개 문서만 추가한다(ADR-0005).
-- 인증: `SecurityConfig`는 아래 공개 GET 경로와 `/error`만 익명 허용하고 나머지는 인증을 요구하는 임시 기준이다. 관리자 인증 정책은 해당 기능 착수 시 정한다.
+- 인증: 아래 공개 GET 경로와 `/error`만 익명 허용한다. `/api/admin/**`는 관리자(`ROLE_ADMIN`)만 가능하다([ADR-0010](../03-decisions/ADR-0010-admin-authentication.md)).
 - Swagger: `local` 프로필에서만 `/swagger-ui.html`, `/v3/api-docs`를 켜고 익명 허용한다(2026-09-16 사용자 결정). 기본 설정은 꺼짐.
 
 ### GET /api/projects
@@ -108,3 +108,39 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 - `skillGroups[{group, skills[]}]`: `PRIMARY` → `PROJECT_EXPERIENCE` → `LEARNING` → `COLLABORATION` 고정 순서, 빈 그룹 생략. 표시명은 프론트에서 정한다.
 
 검증: `ProjectApiTest`, `BlogApiTest`, `ProfileApiTest`, `SwaggerAccessTest` (2026-09-16)
+
+## Admin API
+
+인증·세션 규칙은 [ADR-0010](../03-decisions/ADR-0010-admin-authentication.md)을 따른다.
+
+- 로그인: 브라우저로 `GET /oauth2/authorization/github` → GitHub → `/login/oauth2/code/github` → 성공 시 `/api/admin/me`(설정 `app.admin.login-success-url`). 허용되지 않은 계정은 `403`.
+- 세션: `JSESSIONID` 쿠키. 변경 요청(POST/PUT/DELETE)은 `XSRF-TOKEN` 쿠키 값을 `X-XSRF-TOKEN` 헤더로 보낸다.
+- 오류: 미로그인 `401`, 권한 없음·CSRF 누락 `403`, 입력 검증 실패 `400`, 없음 `404`, 중복·참조 충돌 `409`. 본문은 Problem Detail JSON.
+
+### GET /api/admin/me
+
+`{login, name, avatarUrl}`. `name`은 GitHub 프로필에 이름이 없으면 `null`. 이 요청이 `XSRF-TOKEN` 쿠키를 발급한다.
+
+### POST /api/admin/logout
+
+세션 종료 → `204`.
+
+### Skill 관리
+
+목록은 공개 `GET /api/skills`를 그대로 쓴다.
+
+- `POST /api/admin/skills` → `201` + `SkillResponse`
+- `PUT /api/admin/skills/{id}` → `200` + `SkillResponse`
+- `DELETE /api/admin/skills/{id}` → `204`. 프로젝트·블로그·프로필에서 참조 중이면 `409`
+
+요청 본문:
+
+```json
+{"code":"web-serial","name":"Web Serial API","iconKey":null}
+```
+
+- `code`: 필수, 60자 이하, 소문자·숫자와 하이픈(`[a-z0-9]+(-[a-z0-9]+)*`). 다른 기술과 중복이면 `409`
+- `name`: 필수, 100자 이하, 앞뒤 공백 제거
+- `iconKey`: 선택, 100자 이하, 공백만 있으면 `null`
+
+검증: `AdminAccessPolicyTest`, `AdminSecurityTest`, `CsrfCookieTest`, `SkillAdminApiTest` (2026-09-16)

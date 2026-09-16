@@ -4,9 +4,11 @@ Last Updated: 2026-09-16
 
 ## Current Phase
 
-Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 다음은 관리자 인증과 CRUD다.
+Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 다음은 Project/Blog/Profile 관리 CRUD다.
 
 ## Confirmed
+
+- 2026-09-16 관리자 인증: GitHub OAuth + 서버 세션 + 쿠키 CSRF(ADR-0010). 허용 계정은 GitHub 숫자 ID `159202139`(login `sonic0506`). 로그인 실패는 403. Skill 관리 `POST/PUT/DELETE /api/admin/skills`. 전체 테스트 34건 통과, 본인 로그인·타 계정 거부를 수동 확인. DevTools 추가.
 
 - 2026-09-16 공개 조회 API: `GET /api/projects`, `/api/projects/{slug}`, `/api/blog/posts`, `/api/blog/posts/{slug}`, `/api/profile`. 비공개 제외·관리자 필드 미노출·정렬·페이지·필터를 테스트했다. 전체 18건 통과. 계약은 API_DESIGN. Relation(관련 문서) 표시는 Document 색인 이후로 미뤘다.
 
@@ -86,7 +88,7 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 - **ADR-0006과 ADR-0007은 2026-09-10 사용자가 채택해 Accepted다.** RAG 파이프라인의 모델·검색·답변 정책이 모두 측정 근거와 함께 확정됐다.
 - ADR-0001~0007이 모두 Accepted다. 다만 **이것이 개발 설계 완료를 뜻하지는 않는다.**
 - ARCHITECTURE / DATA_MODEL / RAG_DESIGN / API_DESIGN / GRAPH_DESIGN이 모두 아직 `Draft`다. CURRENT_PLAN은 구현 착수 전 남은 빌드/버전 해소를 요구하며 인증·Graph·S3 상세는 해당 기능 착수 시 정한다.
-- 미확정으로 남은 것: 인증 상세(허용 GitHub 계정 식별자, 세션/CORS/CSRF), Graph 라이브러리, S3 이미지 정책, Spring AI 연동 검증. 백엔드 버전·빌드 도구는 ADR-0009로 확정했다.
+- 미확정으로 남은 것: Admin 도메인/CORS 값, Graph 라이브러리, S3 이미지 정책, Spring AI 연동 검증. 백엔드 버전·빌드 도구는 ADR-0009로 확정했다.
 - 비용은 계산만 했고 실제 배포·청구는 미검증이다. Spring AI/pgvector 버전 호환성도 미검증이다.
 - 다만 Hybrid search는 검토 대상 승격까지이며 도입 확정이 아니다. Spring AI 채택은 확정되었고 버전 호환성은 실제 빌드에서 검증해야 한다.
 - 실측값은 `docs/06-testing/RAG_MEASUREMENTS.md`가 기준 문서다. 다른 문서는 수치를 복제하지 않고 링크한다.
@@ -94,7 +96,7 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 
 ## Not Yet Decided
 
-- Authentication session details / allowed GitHub account identifier
+- Admin 프론트 도메인과 CORS 허용 출처(ADR-0010 4절)
 - Deployment implementation / domains / engine versions
 - Spring AI 버전·연동 검증 및 제품 RAG 통합 방식(생성·임베딩 모델은 확정)
 - Expected traffic / usage limit thresholds and counting rules
@@ -105,7 +107,7 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 
 ## Implementation State
 
-- Application code: `backend/` — 진입점, 설정(`application*.properties`), `compose.yaml`, Flyway V1, `skill`·`project`·`blog`·`profile`·`content` 패키지(엔티티는 연관관계 없이 FK id 매핑, QueryDSL 조회 서비스, record 응답), `config/QuerydslConfig`, 임시 `config/SecurityConfig`(공개 GET·`/error` 익명 허용, local에서 Swagger 허용, 나머지는 인증 필요). 테스트 18건. OpenAI 모델 자동 구성은 꺼져 있다.
+- Application code: `backend/` — 진입점, 설정(`application*.properties`), `compose.yaml`, Flyway V1, `skill`·`project`·`blog`·`profile`·`content` 패키지(엔티티는 연관관계 없이 FK id 매핑, QueryDSL 조회 서비스, record 응답), `admin` 패키지(허용 판정, OAuth 사용자 서비스, `/api/admin/me`), Skill 관리 서비스·컨트롤러, `config/QuerydslConfig`, `config/SecurityConfig`(공개 GET·`/error` 익명, local Swagger, `/api/admin/**` 관리자, 쿠키 CSRF, CORS 설정값), `config/ApiExceptionHandler`. 테스트 34건. OpenAI 모델 자동 구성은 꺼져 있다.
 - 미검증: `bootRun` 서버 프로세스, Swagger UI 화면, 샘플 콘텐츠 실데이터 적재·조회, Spring AI 호출, RDS 배포.
 - 로컬 환경 참고: 로컬 DB는 Docker로 운영한다(사용자 결정). 사용자 Mac의 docker에는 `docker compose`(v2) 명령이 없어 2026-09-16 테스트는 이미 떠 있던 5433 DB로 실행했다.
 - Project documentation bootstrap: Created. 2026-09-16 기준 미커밋 변경 없음
