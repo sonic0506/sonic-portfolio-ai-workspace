@@ -6,15 +6,16 @@ Last Updated: 2026-09-16
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
-## Priority 1 — 공개 조회 API 구현 계획
+## Priority 1 — 관리자 인증과 CRUD
 
-첫 백엔드 계획(FIRST_BACKEND_IMPLEMENTATION)의 Task 1·2는 2026-09-16 완료·커밋했다. 계획 문서의 후속 순서를 따른다.
+공개 조회 API(PUBLIC_READ_API_IMPLEMENTATION)는 2026-09-16 완료·커밋했다. Roadmap Phase 5 순서상 다음은 "기반 프로젝트 / 인증 → Admin CRUD"다.
 
-1. DATA_MODEL, CONTENT_SPEC, ADR-0005와 `samples/`를 읽고 **프로젝트/블로그/프로필 공개 조회 API** 구현 계획을 `docs/04-plans/`에 새로 작성한다. 목록/상세 응답 필드, 대표 여부 구분, 정렬 키, 공개 범위 필터(비공개 제외, 공개→비공개 링크 필터)를 수용 기준으로 적는다.
-2. 테스트 데이터는 `samples/`의 프로젝트·블로그를 SQL 또는 테스트 픽스처로 넣는다. 비공개 블로그(`offline-first-boundary`)가 목록·상세·연관 문서에 나오지 않는지 검증한다.
-3. `skill` 구현 방식(엔티티 + QueryDSL + record 응답, `@Transactional` 테스트 격리)을 따르고 `SecurityConfig`의 익명 허용 목록에 공개 GET 경로만 추가한다.
-4. 로컬 실행: DB가 5433에 떠 있는지 `docker ps`로 확인한 뒤 `./gradlew clean test bootJar`를 실행한다. 사용자 Mac에는 `docker compose`(v2)가 없으니 DB 기동 방법은 사용자에게 확인한다.
-5. 선택: `bootRun` 기동 확인, Swagger 경로의 익명 허용 여부 결정(현재 차단).
+1. **먼저 사용자에게 확인한다:** 허용할 GitHub 계정 식별자(로그인 ID 또는 숫자 ID), 세션 방식(서버 세션 쿠키 권장 여부), Admin 프론트 도메인과 CORS/CSRF 정책. 결정은 ADR로 기록한다(COMMON_RULES 8절).
+2. GitHub OAuth App 등록은 사용자가 직접 한다. Client ID/Secret은 `backend/.env`에만 둔다.
+3. 결정 후 `docs/04-plans/`에 Admin 인증 + Skill/Project CRUD 구현 계획을 작성한다. 발행 토글 시 `document.visible` 동기화(ADR-0005)는 Document 색인 계획에서 다루되, CRUD 계획에 연결 지점을 적는다.
+4. 대안(인증 결정이 늦어질 때): 샘플 콘텐츠(`samples/`)를 로컬 DB에 넣는 시드 스크립트를 만들어 공개 API와 Swagger 화면을 실데이터로 확인한다.
+
+로컬 실행: DB는 Docker(`docker ps`로 5433 확인) → `./gradlew clean test bootJar`. Swagger는 `bootRun --args='--spring.profiles.active=local'` 후 `/swagger-ui.html`.
 
 ## 해당 기능 착수 시
 
@@ -31,8 +32,8 @@ Last Updated: 2026-09-16
 - 세션 평가 RAG-005/006/008/009/010은 구현 후 측정한다.
 - 콘텐츠 변경 시 --save로 재측정하고 RAG_MEASUREMENTS에 기록한다. Hybrid search는 도입 확정이 아니다.
 - 샘플 front matter의 open_questions와 AI 블로그 초안의 사실·문체를 사용자에게 확인한다.
-- 이전 PoC 대화에 노출된 OpenAI API 키의 폐기·재발급 여부는 확인되지 않았다. API 재실행 전 확인한다.
+- OpenAI API 키는 기존 키를 사용한다(2026-09-16 사용자 결정). 사용량 이상 시 재발급을 검토한다.
 
 ## Recommended Next Session Prompt
 
-> 공통 규칙과 세션 문서를 읽고, DATA_MODEL·CONTENT_SPEC·ADR-0005와 backend/의 skill 구현을 참고해 프로젝트/블로그/프로필 공개 조회 API 구현 계획을 작성하고 진행하자.
+> 공통 규칙과 세션 문서를 읽고, 관리자 인증 결정 사항을 사용자에게 확인한 뒤 Admin 인증 + CRUD 구현 계획을 작성하고 진행하자.

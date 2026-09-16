@@ -364,3 +364,13 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 실행 환경 제약: Cowork VM과 클라우드 작업 공간 모두 Maven Central·Docker Hub에 접근할 수 없어 직접 빌드하지 못했다. 컴퓨터 사용은 터미널 입력이 허용되지 않고, Finder 백그라운드 조작도 실패해 사용자가 직접 실행했다. 사용자 Mac에는 `docker compose`(v2)가 없어 이미 떠 있던 DB로 실행했다.
 - 문서: API_DESIGN(Implemented Endpoints), 구현 계획 Task 2 체크, CURRENT_PLAN, CURRENT_STATE, NEXT_ACTIONS, backend/README.
 - 다음: 프로젝트/블로그/프로필 공개 조회 API 구현 계획 작성.
+
+## 2026-09-16 — 공개 조회 API와 개발용 Swagger
+
+- 사용자 결정: 개발 시 Swagger 공개, Docker 유지, OpenAI API 키는 기존 키 사용.
+- 계획: `docs/04-plans/PUBLIC_READ_API_IMPLEMENTATION.md` 작성 후 구현.
+- 구현: 프로젝트(대표/비대표 구분 목록, 상세), 블로그(페이지·카테고리·태그 필터, 상세), 프로필(경력, 스킬 그룹, 섹션), 공용 섹션 조회. local 프로필에서만 Swagger를 켜고 익명 허용. `spring.mvc.problemdetails.enabled=true`.
+- 검증: 사용자 로컬 실행(13:46 KST)으로 18건 모두 통과. 비공개 샘플 글(offline-first-boundary 상황)이 목록·필터·상세에 나오지 않음을 확인했다. 테스트와 구현을 함께 작성해 실패 단계는 관찰하지 못했다.
+- 미룬 것: Relation 표시(Document 색인 필요), 시드 데이터, Admin CRUD.
+- 문서: API_DESIGN 계약, 계획 문서 결과, CURRENT_PLAN, CURRENT_STATE, NEXT_ACTIONS, backend/README.
+- 다음: 관리자 인증 결정 확인 → Admin 인증 + CRUD 계획.

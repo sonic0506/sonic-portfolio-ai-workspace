@@ -4,9 +4,13 @@ Last Updated: 2026-09-16
 
 ## Current Phase
 
-Phase 3 개발 설계를 마치고 구현에 들어왔다. [FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md)의 Task 1(서버 기동·DB 마이그레이션)과 Task 2(`GET /api/skills` JPA/QueryDSL 조회)를 로컬에서 검증하고 커밋했다. 다음은 프로젝트/블로그/프로필 공개 조회 API의 구현 계획이다.
+Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 다음은 관리자 인증과 CRUD다.
 
 ## Confirmed
+
+- 2026-09-16 공개 조회 API: `GET /api/projects`, `/api/projects/{slug}`, `/api/blog/posts`, `/api/blog/posts/{slug}`, `/api/profile`. 비공개 제외·관리자 필드 미노출·정렬·페이지·필터를 테스트했다. 전체 18건 통과. 계약은 API_DESIGN. Relation(관련 문서) 표시는 Document 색인 이후로 미뤘다.
+
+- 2026-09-16 사용자 결정: 개발(local 프로필)에서 Swagger 공개, 로컬 DB는 Docker 유지, OpenAI API 키는 기존 키 사용(이전 대화 노출 이력은 인지된 상태).
 
 - 2026-09-16 Task 2 검증: 로컬 DB에서 `./gradlew clean test bootJar` 성공, 전체 테스트 6건 통과. Hibernate 7 `validate`가 `skill` 엔티티(`Instant` ↔ `timestamptz` 포함)를 실제 스키마와 대조했고, QueryDSL 5.1.0 Jakarta 조회가 Hibernate 7에서 동작했다. 응답 계약은 API_DESIGN의 Implemented Endpoints.
 
@@ -101,9 +105,9 @@ Phase 3 개발 설계를 마치고 구현에 들어왔다. [FIRST_BACKEND_IMPLEM
 
 ## Implementation State
 
-- Application code: `backend/` — 진입점, 설정(`application*.properties`), `compose.yaml`, Flyway V1, `skill` 패키지(엔티티·응답 record·`GET /api/skills`), `config/QuerydslConfig`, 임시 `config/SecurityConfig`(`GET /api/skills`만 익명 허용, 나머지는 인증 필요). 테스트 6건. OpenAI 모델 자동 구성은 꺼져 있다.
-- 미검증: `bootRun` 서버 프로세스, Swagger HTTP(현재 보안 설정상 차단됨), Spring AI 호출, RDS 배포.
-- 로컬 환경 참고: 사용자 Mac의 docker에는 `docker compose`(v2) 명령이 없다. 2026-09-16 테스트는 이미 떠 있던 5433 DB로 실행했다.
+- Application code: `backend/` — 진입점, 설정(`application*.properties`), `compose.yaml`, Flyway V1, `skill`·`project`·`blog`·`profile`·`content` 패키지(엔티티는 연관관계 없이 FK id 매핑, QueryDSL 조회 서비스, record 응답), `config/QuerydslConfig`, 임시 `config/SecurityConfig`(공개 GET·`/error` 익명 허용, local에서 Swagger 허용, 나머지는 인증 필요). 테스트 18건. OpenAI 모델 자동 구성은 꺼져 있다.
+- 미검증: `bootRun` 서버 프로세스, Swagger UI 화면, 샘플 콘텐츠 실데이터 적재·조회, Spring AI 호출, RDS 배포.
+- 로컬 환경 참고: 로컬 DB는 Docker로 운영한다(사용자 결정). 사용자 Mac의 docker에는 `docker compose`(v2) 명령이 없어 2026-09-16 테스트는 이미 떠 있던 5433 DB로 실행했다.
 - Project documentation bootstrap: Created. 2026-09-16 기준 미커밋 변경 없음
 - Sample portfolio content: 대표 프로젝트 3건(사용자 제공) + 블로그 3편(AI 샘플 초안, 1편 비공개) + 공통 Skill 목록을 `samples/`에 정리
 - RAG PoC: 구현 및 샘플 평가 완료. pgvector HNSW와 세션 기능은 미검증.
