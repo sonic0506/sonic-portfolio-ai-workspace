@@ -144,3 +144,43 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 - `iconKey`: 선택, 100자 이하, 공백만 있으면 `null`
 
 검증: `AdminAccessPolicyTest`, `AdminSecurityTest`, `CsrfCookieTest`, `SkillAdminApiTest` (2026-09-16)
+
+### 콘텐츠 관리 공통 규칙
+
+- 대상은 내부 `id`로 지정한다(slug는 수정 가능한 값).
+- `PUT`은 전체 교체다. 하위 목록(`highlights`, `skillIds`, `sections` 등)은 필수이며 통째로 교체되고, 배열 순서가 표시 순서다. 빈 배열은 모두 삭제.
+- 처음 공개(`published: true`)될 때 `publishedAt`이 비어 있으면 현재 시각을 넣는다. 공개 해제 후에도 유지되어 재공개 시 원래 발행일이 남는다.
+- 생성·수정 시 `updatedAt`을 현재 시각으로 갱신한다.
+- 관리자 응답은 비공개 항목과 `adminNote`, `published`, `featured`, `displayOrder`를 포함한다.
+
+### Project 관리
+
+- `GET /api/admin/projects` → 비공개 포함 목록 `[{id, slug, title, featured, published, displayOrder, periodStart, periodEnd, publishedAt, updatedAt}]`. 정렬은 공개 목록과 같다.
+- `GET /api/admin/projects/{id}` → 모든 필드 + `adminNote, publishedAt, createdAt, updatedAt, highlights[], skillIds[], sections[]`
+- `POST /api/admin/projects` → `201`, `PUT /api/admin/projects/{id}` → `200`, 둘 다 상세 응답
+- `DELETE /api/admin/projects/{id}` → `204`. 하이라이트·기술 연결·섹션도 삭제된다.
+
+요청 본문:
+
+```json
+{"slug":"viora","title":"...","summary":"...","organization":null,"position":"개발",
+ "contribution":30,"contributionNote":null,"periodStart":"2026-07-01","periodEnd":null,
+ "thumbnailUrl":null,"githubUrl":null,"serviceUrl":null,
+ "featured":true,"published":false,"displayOrder":0,"adminNote":null,
+ "highlights":["..."],"skillIds":[1,2],"sections":[{"title":"개요","bodyMarkdown":"..."}]}
+```
+
+- `slug`: 필수, 소문자·숫자·하이픈, 중복 `409`
+- `title`·`summary`·`periodStart`: 필수. `contribution`: 0~100
+- URL 필드: `http(s)://`로 시작
+- `periodEnd`가 `periodStart`보다 이르면 `400`. `skillIds`에 없는 ID나 중복이 있으면 `400`
+
+### Category / Tag 관리
+
+- `GET /api/admin/categories` (`displayOrder`, code 순), `POST` → `201`, `PUT /{id}`, `DELETE /{id}` → `204`
+  - 본문 `{code, name, displayOrder}`. 블로그가 사용 중인 카테고리 삭제는 `409`
+- `GET /api/admin/tags` (code 순), `POST` → `201`, `PUT /{id}`, `DELETE /{id}` → `204`
+  - 본문 `{code, name}`. 사용 중인 태그도 삭제되며 글과의 연결이 함께 지워진다
+- code 형식·중복 규칙은 Skill과 같다
+
+검증: `ProjectAdminApiTest`, `TaxonomyAdminApiTest` (2026-09-16)

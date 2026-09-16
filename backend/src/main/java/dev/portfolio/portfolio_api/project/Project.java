@@ -69,10 +69,47 @@ public class Project {
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
     protected Project() {
+    }
+
+    static Project create(ProjectAdminRequest request, Instant now) {
+        Project project = new Project();
+        project.apply(request, now);
+        return project;
+    }
+
+    /**
+     * Full replacement of scalar fields. The first switch to published stamps published_at;
+     * unpublishing keeps it so a later republish shows the original date.
+     */
+    void apply(ProjectAdminRequest r, Instant now) {
+        this.slug = r.slug();
+        this.title = r.title().trim();
+        this.summary = r.summary().trim();
+        this.organization = blankToNull(r.organization());
+        this.position = blankToNull(r.position());
+        this.contribution = r.contribution();
+        this.contributionNote = blankToNull(r.contributionNote());
+        this.periodStart = r.periodStart();
+        this.periodEnd = r.periodEnd();
+        this.thumbnailUrl = blankToNull(r.thumbnailUrl());
+        this.githubUrl = blankToNull(r.githubUrl());
+        this.serviceUrl = blankToNull(r.serviceUrl());
+        this.featured = r.featured();
+        if (r.published() && this.publishedAt == null) {
+            this.publishedAt = now;
+        }
+        this.published = r.published();
+        this.displayOrder = r.displayOrder();
+        this.adminNote = blankToNull(r.adminNote());
+        this.updatedAt = now;
+    }
+
+    private static String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 
     public Long getId() { return id; }

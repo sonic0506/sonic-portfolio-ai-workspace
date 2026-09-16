@@ -27,6 +27,16 @@ public class Category {
     protected Category() {
     }
 
+    Category(String code, String name, int displayOrder) {
+        update(code, name, displayOrder);
+    }
+
+    void update(String code, String name, int displayOrder) {
+        this.code = code;
+        this.name = name;
+        this.displayOrder = displayOrder;
+    }
+
     public Long getId() { return id; }
     public String getCode() { return code; }
     public String getName() { return name; }

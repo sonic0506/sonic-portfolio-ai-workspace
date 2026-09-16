@@ -24,6 +24,15 @@ public class Tag {
     protected Tag() {
     }
 
+    Tag(String code, String name) {
+        update(code, name);
+    }
+
+    void update(String code, String name) {
+        this.code = code;
+        this.name = name;
+    }
+
     public Long getId() { return id; }
     public String getCode() { return code; }
     public String getName() { return name; }
