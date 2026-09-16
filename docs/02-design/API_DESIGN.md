@@ -184,3 +184,37 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 - code 형식·중복 규칙은 Skill과 같다
 
 검증: `ProjectAdminApiTest`, `TaxonomyAdminApiTest` (2026-09-16)
+
+### Blog 관리
+
+- `GET /api/admin/blog/posts` → 비공개 포함 `[{id, slug, title, published, publishedAt, updatedAt}]`. 초안(`publishedAt` 없음) 먼저, 이후 최신순.
+- `GET /api/admin/blog/posts/{id}` → 모든 필드 + `adminNote, publishedAt, createdAt, updatedAt, categoryIds[], tagIds[], skillIds[], sections[]`
+- `POST` → `201`, `PUT /{id}` → `200`, `DELETE /{id}` → `204`(연결·섹션도 삭제)
+
+```json
+{"slug":"websocket-binary-video","title":"...","summary":null,"thumbnailUrl":null,
+ "published":false,"adminNote":null,
+ "categoryIds":[1],"tagIds":[2,3],"skillIds":[4],"sections":[{"title":"...","bodyMarkdown":"..."}]}
+```
+
+- slug 규칙·중복 `409`와 발행일 규칙은 Project와 같다.
+- `categoryIds`·`tagIds`·`skillIds`에 없는 ID나 중복이 있으면 `400`.
+
+### Profile 관리
+
+- `GET /api/admin/profile` → 프로필이 없으면 `404`
+- `PUT /api/admin/profile` → 첫 호출이 프로필을 만들고 이후에는 같은 행을 교체한다(항상 1건). `200` + 상세
+
+```json
+{"headline":"...","shortBio":"...","imageUrl":null,"githubUrl":"https://github.com/sonic0506","email":null,
+ "careers":[{"company":"...","role":"...","periodStart":"2021-02-01","periodEnd":null,"description":null}],
+ "skills":[{"skillId":1,"group":"PRIMARY"}],
+ "sections":[{"title":"소개","bodyMarkdown":"..."}]}
+```
+
+- 응답은 위 요청 모양에 `id, updatedAt`을 더한 것이다.
+- `headline`·`shortBio` 필수. `email` 형식 검증.
+- 경력 기간 역전 `400`. `group`은 `PRIMARY | PROJECT_EXPERIENCE | LEARNING | COLLABORATION`만 허용. 없는 기술 ID나 같은 기술 중복은 `400`.
+- 배열 순서가 경력·스킬(그룹 안)·섹션의 표시 순서다.
+
+검증: `BlogPostAdminApiTest`, `ProfileAdminApiTest` (2026-09-16)

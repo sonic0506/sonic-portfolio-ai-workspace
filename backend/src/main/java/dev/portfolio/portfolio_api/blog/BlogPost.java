@@ -40,10 +40,34 @@ public class BlogPost {
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
     protected BlogPost() {
+    }
+
+    static BlogPost create(BlogPostAdminRequest request, Instant now) {
+        BlogPost post = new BlogPost();
+        post.apply(request, now);
+        return post;
+    }
+
+    /** Same publish rule as Project: first publish stamps published_at, unpublishing keeps it. */
+    void apply(BlogPostAdminRequest r, Instant now) {
+        this.slug = r.slug();
+        this.title = r.title().trim();
+        this.summary = blankToNull(r.summary());
+        this.thumbnailUrl = blankToNull(r.thumbnailUrl());
+        if (r.published() && this.publishedAt == null) {
+            this.publishedAt = now;
+        }
+        this.published = r.published();
+        this.adminNote = blankToNull(r.adminNote());
+        this.updatedAt = now;
+    }
+
+    private static String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 
     public Long getId() { return id; }

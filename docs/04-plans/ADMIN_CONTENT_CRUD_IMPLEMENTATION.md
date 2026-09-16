@@ -1,6 +1,6 @@
 # Admin Content CRUD Implementation
 
-Status: Active — 1단계 완료(2026-09-16), 2단계 남음
+Status: Done (2026-09-16)
 Date: 2026-09-16
 
 **Goal:** 관리자가 Project / Blog / Profile / Category / Tag를 API로 등록·수정·삭제하고, 공개 API가 그 결과를 규칙대로(비공개 제외) 보여주는 것을 실제 DB에서 검증한다.
@@ -53,6 +53,14 @@ Date: 2026-09-16
 
 ## 2단계 Tasks (다음)
 
-- [ ] Blog 관리 `/api/admin/blog/posts` — 1단계 Project와 같은 규칙. 요청: `slug, title, summary, thumbnailUrl, published, adminNote, categoryIds[], tagIds[], skillIds[], sections[]`. 없는 카테고리·태그·기술 ID는 400.
-- [ ] Profile 수정 `GET/PUT /api/admin/profile` — 단일 행 upsert. 요청: `headline, shortBio, imageUrl, githubUrl, email, careers[], skills[{skillId, group}], sections[]`. 경력 기간 역전 400, 그룹 값 검증 400.
-- [ ] `BlogAdminApiTest`, `ProfileAdminApiTest`
+- [x] Blog 관리 `/api/admin/blog/posts` — 1단계 Project와 같은 규칙. 요청: `slug, title, summary, thumbnailUrl, published, adminNote, categoryIds[], tagIds[], skillIds[], sections[]`. 없는 카테고리·태그·기술 ID는 400.
+- [x] Profile 수정 `GET/PUT /api/admin/profile` — 단일 행 upsert. 요청: `headline, shortBio, imageUrl, githubUrl, email, careers[], skills[{skillId, group}], sections[]`. 경력 기간 역전 400, 그룹 값 검증 400.
+- [x] `BlogAdminApiTest`, `ProfileAdminApiTest`
+
+## 2단계 결과 — 2026-09-16
+
+- 사용자 로컬 실행(15:21 KST): 전체 52건 통과. 추가: BlogPostAdminApiTest 4, ProfileAdminApiTest 4. 첫 실행에 통과했다.
+- 구현: `blog/BlogPostAdminService`(카테고리·태그·기술 연결과 섹션 전체 교체), `profile/ProfileAdminService`(단일 행 upsert, 경력·스킬 그룹·섹션 전체 교체), 공용 `content/IdChecks`(참조 ID 중복·존재 검사 → 400).
+- 관리자 블로그 목록은 초안(`publishedAt` 없음)을 먼저, 이후 최신순으로 정렬한다.
+- Profile 관리 응답은 요청과 같은 모양(`careers[]`, `skills[{skillId, group}]`)이라 받은 그대로 수정해 다시 보낼 수 있다.
+- `blog_post.updated_at`, `profile.updated_at`을 쓰기 가능 매핑으로 바꿨다.

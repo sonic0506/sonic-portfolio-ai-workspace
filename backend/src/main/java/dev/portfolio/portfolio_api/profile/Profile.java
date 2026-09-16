@@ -30,10 +30,29 @@ public class Profile {
 
     private String email;
 
-    @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
     protected Profile() {
+    }
+
+    static Profile create(ProfileAdminRequest request, Instant now) {
+        Profile profile = new Profile();
+        profile.apply(request, now);
+        return profile;
+    }
+
+    void apply(ProfileAdminRequest r, Instant now) {
+        this.headline = r.headline().trim();
+        this.shortBio = r.shortBio().trim();
+        this.imageUrl = blankToNull(r.imageUrl());
+        this.githubUrl = blankToNull(r.githubUrl());
+        this.email = blankToNull(r.email());
+        this.updatedAt = now;
+    }
+
+    private static String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 
     public Long getId() { return id; }

@@ -34,9 +34,11 @@ Status: Active
 - [x] 첫 백엔드 Task 2 — `GET /api/skills`로 JPA/QueryDSL 실제 조회 검증 (2026-09-16)
 - [x] 공개 조회 API — PUBLIC_READ_API_IMPLEMENTATION.md (2026-09-16, 테스트 18건)
 - [x] 관리자 인증 + Skill 관리 — ADMIN_AUTH_IMPLEMENTATION.md (2026-09-16, 테스트 34건)
-- [ ] 콘텐츠 관리 CRUD — ADMIN_CONTENT_CRUD_IMPLEMENTATION.md
+- [x] 콘텐츠 관리 CRUD — ADMIN_CONTENT_CRUD_IMPLEMENTATION.md (테스트 52건)
   - [x] 1단계: Project, Category/Tag 관리 (2026-09-16, 테스트 44건)
-  - [ ] 2단계: Blog, Profile 관리
+  - [x] 2단계: Blog, Profile 관리 (2026-09-16)
+- [ ] 샘플 콘텐츠 시드 — `samples/`를 관리 API로 로컬 DB에 등록
+- [ ] Document 색인 계획 — 원본 → document/chunk 변환, 발행 토글과 visible 동기화
 
 ## Definition of Done for Current Phase
 

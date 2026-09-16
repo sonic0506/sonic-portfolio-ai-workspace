@@ -32,14 +32,14 @@ IntelliJ는 "Build project automatically"와 "Allow auto-make to start even if d
 
 ## 검증 결과 — 2026-09-16
 
-로컬 DB에서 전체 테스트 44건이 성공했다(공개 조회·관리자 인증·Skill/Project/Category/Tag 관리 포함, 계약은 [API_DESIGN](../docs/02-design/API_DESIGN.md)).
+로컬 DB에서 전체 테스트 52건이 성공했다(공개 조회·관리자 인증·전체 콘텐츠 관리 포함, 계약은 [API_DESIGN](../docs/02-design/API_DESIGN.md)).
 
 - `QuerydslSetupTest`: Jakarta Q 타입 생성과 조건식 구성
 - `PortfolioApiApplicationTests`: 컨텍스트 기동, V1 적용(PostgreSQL 17.10), pgvector 0.8.2, 테이블 20개, HNSW 1개, `vector(1536)`, 재실행 시 migrate 0건
 - `ProjectApiTest`·`BlogApiTest`·`ProfileApiTest`: 공개 조회, 비공개·관리자 필드 제외, 정렬·페이지·필터
 - `AdminAccessPolicyTest`·`AdminSecurityTest`·`CsrfCookieTest`: 허용 계정 판정, 401/403, 로그인 실패 403, CSRF 쿠키, 로그아웃
 - `SkillAdminApiTest`: 관리자 Skill 생성·수정·삭제, 검증·중복·참조 충돌
-- `ProjectAdminApiTest`·`TaxonomyAdminApiTest`: Project·Category·Tag 관리, 발행일 규칙, 하위 목록 교체, 충돌·검증
+- `ProjectAdminApiTest`·`BlogPostAdminApiTest`·`ProfileAdminApiTest`·`TaxonomyAdminApiTest`: 콘텐츠 관리, 발행일 규칙, 하위 목록 교체, 충돌·검증
 - `SwaggerAccessTest`: local 프로필에서 `/v3/api-docs` 익명 접근
 - `SkillApiTest`(4건): `GET /api/skills` 정렬·응답 필드, 빈 목록, 중복 code 거부, 다른 경로 익명 차단
 
