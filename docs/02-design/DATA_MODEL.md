@@ -329,7 +329,8 @@ create index document_relation_target_idx on document_relation (target_document_
 ```
 
 - 기준 ID는 **Document ID**다. Graph View와 RAG Relation Expansion이 같은 소스를 쓰기 위한 조건이다(ARCHITECTURE 2절).
-- 저장은 방향이 있고, 탐색은 양방향이다. Admin에서 "프로젝트 → 관련 블로그"로 등록해도 블로그 상세에서 역방향으로 보인다. 반대 방향 행을 따로 만들지 않는다.
+- 저장은 방향이 있고, 탐색은 양방향이다. 한 행은 "source가 target을 참고한다"는 뜻이다(ADR-0005 후속 결정, 2026-09-17). 상세 화면은 나가는 연결을 **참고 문서**, 들어오는 연결을 **이 문서를 참고한 문서**로 나눠 보여준다. 서로 참고하면 두 행을 둔다.
+- 연결 대상은 PROJECT·BLOG 문서만이다(관리 API가 검사한다). RAG 확장·Graph는 방향과 무관하게 양방향으로 읽는다.
 - 자기 연결은 CHECK으로, 중복은 unique로 막는다.
 - 확장 시 `relation_type`에 `PART_OF` / `USED_IN` / `REFERENCES` 등을 추가한다. MVP는 `RELATED_TO` 하나로 시작한다.
 

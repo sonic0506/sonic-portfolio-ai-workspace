@@ -21,7 +21,7 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 - Project CRUD
 - Blog CRUD
 - Category/Tag CRUD
-- Relation CRUD
+- Relation CRUD — 프로젝트·블로그 관리 요청의 `references`로 편집(2026-09-17)
 - RAG index/re-index
 - RAG playground
 
@@ -94,7 +94,7 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 - 비공개(`published = false`) 프로젝트·블로그는 목록에서 제외하고 상세는 `404`(Problem Detail JSON)다.
 - 날짜는 `YYYY-MM-DD`, 시각은 ISO-8601 UTC. 기간의 `periodEnd: null`은 진행 중·재직 중이다.
 - 섹션은 `sections[{title, bodyMarkdown}]`이며 `:::questions` 블록을 포함한 Markdown 원문 그대로다.
-- 관련 문서(Relation)는 아직 응답에 없다. Document 색인 구현 시 공개 문서만 추가한다(ADR-0005).
+- 프로젝트·블로그 상세는 `references`(이 문서가 참고한 문서)와 `referencedBy`(이 문서를 참고한 문서)를 준다. 항목은 `{type: "PROJECT"|"BLOG", slug, title, url}`이며 공개 문서만, 등록 순서대로다(ADR-0005 후속 결정, 2026-09-17).
 - 인증: 아래 공개 GET 경로와 `/error`만 익명 허용한다. `/api/admin/**`는 관리자(`ROLE_ADMIN`)만 가능하다([ADR-0010](../03-decisions/ADR-0010-admin-authentication.md)).
 - Swagger: `local` 프로필에서만 `/swagger-ui.html`, `/v3/api-docs`를 켜고 익명 허용한다(2026-09-16 사용자 결정). 기본 설정은 꺼짐.
 
@@ -188,13 +188,22 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
  "contribution":30,"contributionNote":null,"periodStart":"2026-07-01","periodEnd":null,
  "thumbnailUrl":null,"githubUrl":null,"serviceUrl":null,
  "featured":true,"published":false,"displayOrder":0,"adminNote":null,
- "highlights":["..."],"skillIds":[1,2],"sections":[{"title":"개요","bodyMarkdown":"..."}]}
+ "highlights":["..."],"skillIds":[1,2],"sections":[{"title":"개요","bodyMarkdown":"..."}],
+ "references":[{"type":"BLOG","id":3}]}
 ```
 
 - `slug`: 필수, 소문자·숫자·하이픈, 중복 `409`
 - `title`·`summary`·`periodStart`: 필수. `contribution`: 0~100
 - URL 필드: `http(s)://`로 시작
 - `periodEnd`가 `periodStart`보다 이르면 `400`. `skillIds`에 없는 ID나 중복이 있으면 `400`
+
+### 참고 문서 (프로젝트·블로그 공통, ADR-0005 후속 결정)
+
+- 요청 `references: [{"type":"PROJECT"|"BLOG","id":1}]` — 이 문서가 참고하는 문서(나가는 연결). 필수이며 전체 교체, 배열 순서가 표시 순서다.
+- 없는 대상, 중복, 자기 자신, 다른 type이면 `400`. 비공개 대상도 연결할 수 있다(공개 화면에서만 제외).
+- 관리자 상세 응답 `references[]`, `referencedBy[]` — 항목 `{type, id, slug, title, published}`. `referencedBy`는 읽기 전용이며 상대 문서에서 편집한다.
+- 문서를 삭제하면 양방향 연결이 함께 지워진다(FK cascade).
+- 공개 상세는 `references[]`, `referencedBy[]` — 항목 `{type, slug, title, url}`, 공개 문서만.
 
 ### Category / Tag 관리
 
@@ -215,7 +224,8 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 ```json
 {"slug":"websocket-binary-video","title":"...","summary":null,"thumbnailUrl":null,
  "published":false,"adminNote":null,
- "categoryIds":[1],"tagIds":[2,3],"skillIds":[4],"sections":[{"title":"...","bodyMarkdown":"..."}]}
+ "categoryIds":[1],"tagIds":[2,3],"skillIds":[4],"sections":[{"title":"...","bodyMarkdown":"..."}],
+ "references":[{"type":"PROJECT","id":1}]}
 ```
 
 - slug 규칙·중복 `409`와 발행일 규칙은 Project와 같다.

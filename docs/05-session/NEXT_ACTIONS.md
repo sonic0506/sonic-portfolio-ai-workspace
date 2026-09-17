@@ -6,6 +6,10 @@ Last Updated: 2026-09-17
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
+## 참고 — 샘플 시드 재실행 (선택)
+
+참고 문서 기능은 2026-09-17 사용자 확인 완료. 개발 DB 샘플 연결 방향을 새 샘플과 맞추려면 `./gradlew bootRun --args='--spring.profiles.active=local --app.seed.samples-dir=../samples'`를 한 번 실행한다(기존 offline-first-boundary→web-serial-usb 행이 web-serial-usb→offline-first-boundary로 바뀜).
+
 ## Priority 1 — 프론트 3단계 (FRONTEND_IMPLEMENTATION)
 
 1·2단계(조회·채팅·어드민 전체)는 2026-09-17 사용자 확인 완료.
@@ -16,7 +20,7 @@ Last Updated: 2026-09-17
 
 ## Priority 3 — 이후 기능 후보
 
-- Relation 편집 API와 공개 상세의 관련 문서 표시, RAG Playground, Graph API, FAQ 다른 표현(B) 관리.
+- RAG Playground, Graph API(참고 방향 화살표 표시 여부 결정), FAQ 다른 표현(B) 관리.
 
 ## 사용자 확인 대기 (콘텐츠 사실)
 

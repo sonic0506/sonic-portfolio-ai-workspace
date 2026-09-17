@@ -90,6 +90,6 @@ pnpm dev:admin               # http://localhost:5173
 
 ## 2단계 이후
 
-1. 공개 상세의 관련 문서 표시(Relation API 이후), Graph View, RAG Playground.
+1. ~~공개 상세의 관련 문서 표시~~ — 2026-09-17 참고 문서로 구현(REFERENCE_DOCUMENTS_IMPLEMENTATION, 사용자 확인 완료). Graph View, RAG Playground.
 3. 디자인 다듬기(타이포그래피, 다크 모드 점검, 이미지·썸네일), SEO 메타데이터.
 4. 배포: Vercel(Portfolio), 어드민 정적 배포 위치와 도메인(ADR-0010 4절), 캐시/재검증 정책.

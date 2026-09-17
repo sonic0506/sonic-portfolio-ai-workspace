@@ -47,6 +47,7 @@ Status: Active
   - [x] 실제 모델 확인 — 측정 6(근거 없음·다른 뜻 질문 안내)
   - [x] 바뀐 프롬프트로 PoC 근거 있는 질문 6개 재확인 — 측정 7, 10/10
 - [x] 고정 질문·답변(FAQ) — ADR-0014, FAQ_IMPLEMENTATION.md (2026-09-17, 테스트 107건, 측정 6 6/6)
+- [x] 참고 문서(프로젝트·블로그 연결, 상세의 참고/역참조 목록) — ADR-0005 후속 결정, REFERENCE_DOCUMENTS_IMPLEMENTATION.md (2026-09-17, 테스트 116건)
 - [ ] 프론트엔드 — ADR-0012(Next.js, React+Vite, pnpm), FRONTEND_IMPLEMENTATION.md
   - [x] 1단계: workspace, 포트폴리오 조회·채팅, 어드민 미답변·FAQ·색인 (2026-09-17, 사용자 로컬 검증 완료)
   - [x] 2단계: 어드민 콘텐츠 관리 (2026-09-17, 사용자 확인 완료)

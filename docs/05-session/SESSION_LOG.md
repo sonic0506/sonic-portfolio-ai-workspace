@@ -482,3 +482,16 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 프로젝트·블로그·프로필 편집 화면, 기술·카테고리·태그 관리 화면. 공용 폼 부품(섹션 편집, 항목 선택, 저장 바), 스키마·변환 테스트.
 - 검증(컨테이너): 빌드·lint·테스트 13건, 가짜 백엔드 브라우저 확인. 실제 백엔드 확인은 사용자 대기.
 - 사용자 확인: 실제 백엔드로 콘텐츠 관리 전체와 409 안내, test·lint·build 정상. 2단계 완료.
+
+## 2026-09-17 — 참고 문서 (프로젝트·블로그 연결)
+
+- 사용자 요청: 프로젝트·블로그에 참고 문서를 등록하고, 상세에서 참고 문서와 나를 참고한 문서를 보여준다.
+- 사용자 결정: 연결 종류는 하나(A, `RELATED_TO`를 "참고"로 정의), 대상은 프로젝트·블로그만, 비공개는 제외 → ADR-0005 후속 결정, DATA_MODEL, CONTENT_SPEC, API_DESIGN, 계획 REFERENCE_DOCUMENTS_IMPLEMENTATION.
+- 백엔드: `content/DocumentReferences`(검증: 중복·자기 자신·없는 대상 400, 나가는 연결 전체 교체, 관리/공개 조회), 프로젝트·블로그 관리 요청 `references`, 관리 상세 `references`/`referencedBy`, 공개 상세 `references`/`referencedBy`. 시드는 방향 그대로 저장(`on conflict do nothing`).
+- 샘플: 블로그 쪽에 중복으로 적힌 역방향 연결을 제거(관계 4건 유지, web-serial-usb→offline-first-boundary 방향 확정). samples/README에 뜻 추가.
+- 테스트: `ReferenceDocumentsApiTest` 5건 추가, 기존 관리 요청 본문에 `references` 추가, SampleIndexTest 방향 확인 추가.
+- 어드민: `ReferencePicker`(프로젝트·블로그 후보 검색, 비공개 표시, 자기 자신 제외), `ReferencedByList`, 저장·삭제 후 다른 상세 캐시 무효화. 테스트 2건 추가, 스키마 테스트 갱신.
+- 포트폴리오: 상세 하단 `References`(두 목록, 빈 목록 숨김). 테스트 2건 추가.
+- 검증: 작업 환경에서 Gradle 배포판·Maven 다운로드 차단(403)으로 백엔드 컴파일·테스트 미실행. 프론트는 admin·portfolio `tsc --noEmit` 통과, portfolio eslint 통과. vitest·oxlint·vite build는 Mac용 네이티브 바이너리라 실행 불가 → 사용자 로컬 검증 필요(NEXT_ACTIONS Priority 0).
+- 사용자 Mac 첫 실행: 포트폴리오 `references.test.tsx` 실패(vitest globals 꺼짐으로 Testing Library 자동 정리 안 됨) → `afterEach(cleanup)` 추가.
+- 사용자 확인: 백엔드 116건 통과, 프론트 test·lint·build 통과, 어드민·포트폴리오 화면 정상. 참고 문서 기능 완료. 개발 DB 시드 재실행은 미확인(선택).

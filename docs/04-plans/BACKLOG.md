@@ -11,7 +11,7 @@
 - Markdown image upload
 - Draft / Preview
 - RAG index status
-- Relation editor
+- ~~Relation editor~~ — 참고 문서 선택으로 구현(2026-09-17, REFERENCE_DOCUMENTS_IMPLEMENTATION)
 
 ## RAG
 - Hybrid search 검토
