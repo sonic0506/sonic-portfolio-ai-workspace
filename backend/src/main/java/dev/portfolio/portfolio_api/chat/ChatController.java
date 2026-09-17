@@ -1,6 +1,7 @@
 package dev.portfolio.portfolio_api.chat;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -34,7 +35,8 @@ public class ChatController {
 
     /** Validation, availability and limits are decided before the stream starts (400 / 503 / 429). */
     @PostMapping(path = "/api/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter chat(@Valid @RequestBody ChatRequest request, HttpServletRequest http) {
+    public SseEmitter chat(@Valid @RequestBody ChatRequest request, HttpServletRequest http,
+                          HttpServletResponse response) {
         if (!chat.available()) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "chat is not configured");
         }
@@ -42,6 +44,7 @@ public class ChatController {
             throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "daily question limit reached");
         }
         String question = request.question().strip();
+        ChatStreams.disableBuffering(response);
         return streams.start(sink -> {
             ChatService.Answer answer = chat.answer(question, sink);
             unanswered.recordQuietly(question, answer, null);

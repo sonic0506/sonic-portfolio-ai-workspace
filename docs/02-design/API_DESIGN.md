@@ -59,6 +59,7 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 | `error` | `{"message":"..."}` | 처리 중 오류. 내부 오류 내용은 넣지 않는다 |
 
 - `url`: `/projects/{slug}`, `/blog/{slug}`, `/profile`. 내부 ID는 보내지 않는다.
+- 응답 헤더 `Cache-Control: no-cache, no-transform`, `X-Accel-Buffering: no` — 압축·프록시가 이벤트를 모아 보내지 않게 한다(세션 질문 SSE도 같음, 2026-09-17).
 - 검색: 코사인 거리 상위 5청크(공개 문서만), 연관 공개 문서 최대 2건에서 질문과 가장 가까운 청크 1개씩 추가.
 - 근거가 없어도 생성은 호출한다(ADR-0007). 답변의 `[n]`은 근거 청크 번호다.
 

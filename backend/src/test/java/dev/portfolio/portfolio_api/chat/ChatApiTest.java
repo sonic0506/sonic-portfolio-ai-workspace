@@ -173,6 +173,8 @@ class ChatApiTest extends ApiTestSupport {
         result.getAsyncResult(5_000);
         String body = result.getResponse().getContentAsString(java.nio.charset.StandardCharsets.UTF_8);
         assertTrue(result.getResponse().getContentType().startsWith(MediaType.TEXT_EVENT_STREAM_VALUE));
+        // no-transform keeps compressing proxies (Next.js dev server) from buffering the stream
+        assertEquals("no-cache, no-transform", result.getResponse().getHeader("Cache-Control"));
         return body;
     }
 

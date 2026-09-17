@@ -5,6 +5,7 @@ import dev.portfolio.portfolio_api.chat.ChatSessionService.Created;
 import dev.portfolio.portfolio_api.chat.ChatSessionService.Session;
 import dev.portfolio.portfolio_api.chat.ChatSessionService.Transcript;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
@@ -66,7 +67,8 @@ public class ChatSessionController {
     @PostMapping(path = "/{sessionId}/messages", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter ask(@PathVariable UUID sessionId,
                           @RequestHeader(name = KEY_HEADER, required = false) String key,
-                          @Valid @RequestBody ChatRequest request, HttpServletRequest http) {
+                          @Valid @RequestBody ChatRequest request, HttpServletRequest http,
+                          HttpServletResponse response) {
         if (!chat.available()) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "chat is not configured");
         }
@@ -79,6 +81,7 @@ public class ChatSessionController {
         }
         String question = request.question().strip();
         var history = sessions.recentTurns(session.id());
+        ChatStreams.disableBuffering(response);
         return streams.start(sink -> {
             ChatService.Answer answer = chat.answer(question, history, sink);
             sessions.saveTurn(session.id(), question, answer);

@@ -2,6 +2,7 @@ package dev.portfolio.portfolio_api.chat;
 
 import dev.portfolio.portfolio_api.chat.ChatEvents.Error;
 import dev.portfolio.portfolio_api.chat.ChatEvents.Sink;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,6 +26,15 @@ public class ChatStreams {
 
     public ChatStreams(@Value("${app.chat.async:true}") boolean async) {
         this.async = async;
+    }
+
+    /**
+     * Asks proxies not to buffer or compress the stream. Compression (e.g. the Next.js dev server's gzip)
+     * holds events until the answer ends; the compression middleware skips responses marked no-transform.
+     */
+    public static void disableBuffering(HttpServletResponse response) {
+        response.setHeader("Cache-Control", "no-cache, no-transform");
+        response.setHeader("X-Accel-Buffering", "no");
     }
 
     public SseEmitter start(Consumer<Sink> pipeline) {
