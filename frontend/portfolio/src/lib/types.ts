@@ -21,12 +21,18 @@ export type ProjectSummary = {
 
 export type ProjectList = { featured: ProjectSummary[]; others: ProjectSummary[] };
 
-export type ProjectDetail = ProjectSummary & {
-  organization: string | null;
-  githubUrl: string | null;
-  serviceUrl: string | null;
-  sections: Section[];
-};
+/** 참고 문서 — 공개 문서만 온다 (ADR-0005 후속 결정) */
+export type DocumentReference = { type: "PROJECT" | "BLOG"; slug: string; title: string; url: string };
+
+type WithReferences = { references: DocumentReference[]; referencedBy: DocumentReference[] };
+
+export type ProjectDetail = ProjectSummary &
+  WithReferences & {
+    organization: string | null;
+    githubUrl: string | null;
+    serviceUrl: string | null;
+    sections: Section[];
+  };
 
 export type CodeName = { code: string; name: string };
 
@@ -44,7 +50,7 @@ export type BlogPostSummary = {
 
 export type BlogPostPage = { items: BlogPostSummary[]; page: number; size: number; totalElements: number };
 
-export type BlogPostDetail = BlogPostSummary & { sections: Section[] };
+export type BlogPostDetail = BlogPostSummary & WithReferences & { sections: Section[] };
 
 export type Career = {
   company: string;

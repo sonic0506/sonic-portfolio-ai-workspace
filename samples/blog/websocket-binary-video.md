@@ -10,7 +10,7 @@ sample_note: AI가 작성한 샘플 초안. 실제 발행 전 본인 문체와 �
 categories: [실시간 통신, 아키텍처]
 tags: [websocket, rtsp, ffmpeg, 폐쇄망, 스트리밍]
 skills: [WebSocket, RTSP, ffmpeg, NestJS]
-related_projects: [yujin-robot]
+related_projects: []
 related_blogs: []
 ---
 

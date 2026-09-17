@@ -10,7 +10,7 @@ sample_note: AI가 작성한 샘플 초안. 실제 발행 전 본인 문체와 �
 categories: [웹 API, 프론트엔드]
 tags: [web-serial, typescript, 바이너리, 하드웨어]
 skills: [Web Serial API, TypeScript, React]
-related_projects: [syncmaster]
+related_projects: []
 related_blogs: [offline-first-boundary]
 ---
 

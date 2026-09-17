@@ -47,8 +47,12 @@ class SampleIndexTest extends ApiTestSupport {
         assertEquals(1, count("""
                 select count(*) from document where document_type = 'PROJECT'
                 and metadata->>'slug' = 'yujin-robot' and metadata->'skills' @> '["nestjs"]'"""));
-        // syncmaster–web-serial, syncmaster–offline, yujin–websocket, web-serial–offline; one row per pair
+        // "source references target": syncmaster→web-serial, syncmaster→offline, yujin→websocket, web-serial→offline
         assertEquals(4, count("select count(*) from document_relation"));
+        assertEquals(1, count("""
+                select count(*) from document_relation r
+                join document s on s.id = r.source_document_id join document t on t.id = r.target_document_id
+                where s.metadata->>'slug' = 'web-serial-usb' and t.metadata->>'slug' = 'offline-first-boundary'"""));
     }
 
     @Test

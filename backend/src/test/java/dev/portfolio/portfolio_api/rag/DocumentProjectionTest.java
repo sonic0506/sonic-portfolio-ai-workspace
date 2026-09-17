@@ -71,7 +71,7 @@ class DocumentProjectionTest extends ApiTestSupport {
         long post = send(post("/api/admin/blog/posts"), """
                 {"slug":"dp-post","title":"글","summary":null,"thumbnailUrl":null,"published":true,
                  "adminNote":"secret-memo","categoryIds":[],"tagIds":[],"skillIds":[],
-                 "sections":[{"title":"본문","bodyMarkdown":"내용"}]}""", 201);
+                 "sections":[{"title":"본문","bodyMarkdown":"내용"}],"references":[]}""", 201);
         assertEquals(true, document("BLOG", post).get("visible"));
 
         send(put("/api/admin/profile"), """
@@ -97,7 +97,8 @@ class DocumentProjectionTest extends ApiTestSupport {
                  "thumbnailUrl":null,"githubUrl":null,"serviceUrl":null,"featured":false,"published":%s,
                  "displayOrder":0,"adminNote":"secret-memo","highlights":["h"],"skillIds":[%d],
                  "sections":[{"title":"개요","bodyMarkdown":"%s"},
-                             {"title":"질문","bodyMarkdown":"앞\\n\\n:::questions\\n- 물어보기\\n:::\\n\\n뒤"}]}"""
+                             {"title":"질문","bodyMarkdown":"앞\\n\\n:::questions\\n- 물어보기\\n:::\\n\\n뒤"}],
+                 "references":[]}"""
                 .formatted(published, java, body);
     }
 

@@ -41,6 +41,9 @@ const optionalDate = z.string().refine((v) => v === '' || DATE.test(v), '날짜 
 const intString = (min: number, max: number, message: string) =>
   z.string().trim().refine((v) => v === '' || (/^\d+$/.test(v) && Number(v) >= min && Number(v) <= max), message)
 
+export const referencesSchema = z.array(z.object({ type: z.enum(['PROJECT', 'BLOG']), id: z.number() }))
+const toReferences = (refs: { type: 'PROJECT' | 'BLOG'; id: number }[]) => refs.map(({ type, id }) => ({ type, id }))
+
 export const sectionSchema = z.object({
   title: required(200, '섹션 제목'),
   bodyMarkdown: z.string().max(100_000, '본문이 너무 깁니다.'),
@@ -74,6 +77,7 @@ export const projectSchema = z
     highlights: z.array(z.object({ value: required(500, '하이라이트') })),
     skillIds: z.array(z.number()),
     sections: z.array(sectionSchema),
+    references: referencesSchema,
   })
   .superRefine(periodCheck)
 
@@ -90,6 +94,7 @@ export const blogPostSchema = z.object({
   tagIds: z.array(z.number()),
   skillIds: z.array(z.number()),
   sections: z.array(sectionSchema),
+  references: referencesSchema,
 })
 
 export type BlogPostForm = z.infer<typeof blogPostSchema>
@@ -144,7 +149,7 @@ export function emptyProject(): ProjectForm {
     slug: '', title: '', summary: '', organization: '', position: '', contribution: '', contributionNote: '',
     periodStart: '', periodEnd: '', thumbnailUrl: '', githubUrl: '', serviceUrl: '',
     featured: false, published: false, displayOrder: '0', adminNote: '',
-    highlights: [], skillIds: [], sections: [],
+    highlights: [], skillIds: [], sections: [], references: [],
   }
 }
 
@@ -160,6 +165,7 @@ export function projectToForm(p: AdminProjectDetail): ProjectForm {
     adminNote: orEmpty(p.adminNote),
     highlights: p.highlights.map((value) => ({ value })),
     skillIds: p.skillIds, sections: p.sections,
+    references: toReferences(p.references),
   }
 }
 
@@ -177,6 +183,7 @@ export function projectToRequest(f: ProjectForm): ProjectRequest {
     highlights: f.highlights.map((h) => h.value.trim()),
     skillIds: f.skillIds,
     sections: f.sections.map((s) => ({ title: s.title.trim(), bodyMarkdown: s.bodyMarkdown })),
+    references: toReferences(f.references),
   }
 }
 
@@ -185,7 +192,7 @@ export function projectToRequest(f: ProjectForm): ProjectRequest {
 export function emptyBlogPost(): BlogPostForm {
   return {
     slug: '', title: '', summary: '', thumbnailUrl: '', published: false, adminNote: '',
-    categoryIds: [], tagIds: [], skillIds: [], sections: [],
+    categoryIds: [], tagIds: [], skillIds: [], sections: [], references: [],
   }
 }
 
@@ -194,6 +201,7 @@ export function blogPostToForm(p: AdminBlogPostDetail): BlogPostForm {
     slug: p.slug, title: p.title, summary: orEmpty(p.summary), thumbnailUrl: orEmpty(p.thumbnailUrl),
     published: p.published, adminNote: orEmpty(p.adminNote),
     categoryIds: p.categoryIds, tagIds: p.tagIds, skillIds: p.skillIds, sections: p.sections,
+    references: toReferences(p.references),
   }
 }
 
@@ -203,6 +211,7 @@ export function blogPostToRequest(f: BlogPostForm): BlogPostRequest {
     published: f.published, adminNote: orNull(f.adminNote),
     categoryIds: f.categoryIds, tagIds: f.tagIds, skillIds: f.skillIds,
     sections: f.sections.map((s) => ({ title: s.title.trim(), bodyMarkdown: s.bodyMarkdown })),
+    references: toReferences(f.references),
   }
 }
 

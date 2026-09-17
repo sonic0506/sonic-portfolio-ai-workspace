@@ -122,7 +122,7 @@ class BlogPostAdminApiTest extends ApiTestSupport {
                                String skillIds, String sections) {
         return ("{\"slug\":\"%s\",\"title\":\"%s title\",\"summary\":\"summary\",\"thumbnailUrl\":null,"
                 + "\"published\":%s,\"adminNote\":\"memo\",\"categoryIds\":%s,\"tagIds\":%s,"
-                + "\"skillIds\":%s,\"sections\":%s}")
+                + "\"skillIds\":%s,\"sections\":%s,\"references\":[]}")
                 .formatted(slug, slug, published, categoryIds, tagIds, skillIds, sections);
     }
 

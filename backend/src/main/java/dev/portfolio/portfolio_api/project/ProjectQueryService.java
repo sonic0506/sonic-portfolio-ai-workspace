@@ -6,6 +6,8 @@ import static java.util.stream.Collectors.toList;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import dev.portfolio.portfolio_api.content.DocumentReferences;
+import dev.portfolio.portfolio_api.content.DocumentReferences.RefType;
 import dev.portfolio.portfolio_api.content.SectionQuery;
 import dev.portfolio.portfolio_api.project.ProjectResponses.ProjectDetail;
 import dev.portfolio.portfolio_api.project.ProjectResponses.FeaturedProject;
@@ -32,10 +34,13 @@ public class ProjectQueryService {
 
     private final JPAQueryFactory queryFactory;
     private final SectionQuery sectionQuery;
+    private final DocumentReferences references;
 
-    public ProjectQueryService(JPAQueryFactory queryFactory, SectionQuery sectionQuery) {
+    public ProjectQueryService(JPAQueryFactory queryFactory, SectionQuery sectionQuery,
+                               DocumentReferences references) {
         this.queryFactory = queryFactory;
         this.sectionQuery = sectionQuery;
+        this.references = references;
     }
 
     public ProjectList list() {
@@ -82,7 +87,9 @@ public class ProjectQueryService {
                 p.getPeriodStart(), p.getPeriodEnd(), p.getThumbnailUrl(),
                 p.getGithubUrl(), p.getServiceUrl(),
                 skillsByProject(ids).getOrDefault(p.getId(), List.of()),
-                sectionQuery.forProject(p.getId()));
+                sectionQuery.forProject(p.getId()),
+                references.publicReferences(RefType.PROJECT, p.getId()),
+                references.publicReferencedBy(RefType.PROJECT, p.getId()));
     }
 
     private Map<Long, List<String>> highlightsByProject(Collection<Long> projectIds) {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { SkillBadges } from "@/components/site/project-card";
+import { References } from "@/components/site/references";
 import { Sections } from "@/components/site/sections";
 import { getPost } from "@/lib/api";
 
@@ -37,6 +38,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
         <SkillBadges skills={post.skills} />
       </header>
       <Sections sections={post.sections} />
+      <References references={post.references} referencedBy={post.referencedBy} />
     </article>
   );
 }

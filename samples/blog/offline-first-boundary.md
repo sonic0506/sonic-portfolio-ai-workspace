@@ -11,8 +11,8 @@ sample_note: AI가 작성한 샘플 초안. 실제 발행 전 본인 문체와 �
 categories: [아키텍처, 프론트엔드]
 tags: [offline-first, service-worker, 설계, 동기화]
 skills: [Service Worker, React, Web Serial API]
-related_projects: [syncmaster]
-related_blogs: [web-serial-usb]
+related_projects: []
+related_blogs: []
 ---
 
 ## 오프라인 우선의 기본형

@@ -11,6 +11,8 @@ import dev.portfolio.portfolio_api.blog.BlogResponses.BlogPostDetail;
 import dev.portfolio.portfolio_api.blog.BlogResponses.BlogPostItem;
 import dev.portfolio.portfolio_api.blog.BlogResponses.BlogPostPage;
 import dev.portfolio.portfolio_api.blog.BlogResponses.LabelResponse;
+import dev.portfolio.portfolio_api.content.DocumentReferences;
+import dev.portfolio.portfolio_api.content.DocumentReferences.RefType;
 import dev.portfolio.portfolio_api.content.SectionQuery;
 import dev.portfolio.portfolio_api.skill.QSkill;
 import dev.portfolio.portfolio_api.skill.SkillResponse;
@@ -39,10 +41,13 @@ public class BlogQueryService {
 
     private final JPAQueryFactory queryFactory;
     private final SectionQuery sectionQuery;
+    private final DocumentReferences references;
 
-    public BlogQueryService(JPAQueryFactory queryFactory, SectionQuery sectionQuery) {
+    public BlogQueryService(JPAQueryFactory queryFactory, SectionQuery sectionQuery,
+                            DocumentReferences references) {
         this.queryFactory = queryFactory;
         this.sectionQuery = sectionQuery;
+        this.references = references;
     }
 
     public BlogPostPage list(int page, int size, String categoryCode, String tagCode) {
@@ -99,7 +104,9 @@ public class BlogQueryService {
                 categoriesByPost(ids).getOrDefault(p.getId(), List.of()),
                 tagsByPost(ids).getOrDefault(p.getId(), List.of()),
                 skillsByPost(ids).getOrDefault(p.getId(), List.of()),
-                sectionQuery.forBlogPost(p.getId()));
+                sectionQuery.forBlogPost(p.getId()),
+                references.publicReferences(RefType.BLOG, p.getId()),
+                references.publicReferencedBy(RefType.BLOG, p.getId()));
     }
 
     private Map<Long, List<LabelResponse>> categoriesByPost(Collection<Long> postIds) {

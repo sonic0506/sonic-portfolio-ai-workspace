@@ -1,5 +1,6 @@
 package dev.portfolio.portfolio_api.blog;
 
+import dev.portfolio.portfolio_api.content.DocumentReferences.ReferenceRequest;
 import dev.portfolio.portfolio_api.content.SectionRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -19,5 +20,6 @@ public record BlogPostAdminRequest(
         @NotNull List<@NotNull Long> categoryIds,
         @NotNull List<@NotNull Long> tagIds,
         @NotNull List<@NotNull Long> skillIds,
-        @NotNull @Valid List<SectionRequest> sections) {
+        @NotNull @Valid List<SectionRequest> sections,
+        @NotNull @Valid List<@NotNull ReferenceRequest> references) {
 }

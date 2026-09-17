@@ -29,6 +29,8 @@ syncmaster   ──▶ web-serial-usb ──▶ offline-first-boundary (비공�
 syncmaster   ──▶ offline-first-boundary (비공개)
 ```
 
+화살표는 "참고한다"는 뜻이다(ADR-0005 후속 결정, 2026-09-17). front matter의 `related_projects`/`related_blogs`는 그 문서가 **참고하는** 문서만 적는다. 이전에 양쪽 문서에 중복으로 적었던 연결은 위 방향 하나로 정리했다.
+
 ## 추천 질문 블록 — 문법 후보
 
 CONTENT_SPEC에서 저장 문법이 미정이므로 아래를 후보로 사용한다. remark-directive의 컨테이너 문법이라 파서를 직접 만들지 않아도 된다.

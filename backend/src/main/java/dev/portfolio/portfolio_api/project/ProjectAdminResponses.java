@@ -1,5 +1,6 @@
 package dev.portfolio.portfolio_api.project;
 
+import dev.portfolio.portfolio_api.content.DocumentReferences.AdminReference;
 import dev.portfolio.portfolio_api.content.SectionResponse;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -22,6 +23,7 @@ public final class ProjectAdminResponses {
             String thumbnailUrl, String githubUrl, String serviceUrl,
             boolean featured, boolean published, int displayOrder, Instant publishedAt,
             String adminNote, Instant createdAt, Instant updatedAt,
-            List<String> highlights, List<Long> skillIds, List<SectionResponse> sections) {
+            List<String> highlights, List<Long> skillIds, List<SectionResponse> sections,
+            List<AdminReference> references, List<AdminReference> referencedBy) {
     }
 }

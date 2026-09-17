@@ -1,5 +1,6 @@
 package dev.portfolio.portfolio_api.blog;
 
+import dev.portfolio.portfolio_api.content.DocumentReferences.PublicReference;
 import dev.portfolio.portfolio_api.content.SectionResponse;
 import dev.portfolio.portfolio_api.skill.SkillResponse;
 import java.time.Instant;
@@ -27,6 +28,7 @@ public final class BlogResponses {
             String slug, String title, String summary, String thumbnailUrl,
             Instant publishedAt, Instant updatedAt,
             List<LabelResponse> categories, List<LabelResponse> tags, List<SkillResponse> skills,
-            List<SectionResponse> sections) {
+            List<SectionResponse> sections,
+            List<PublicReference> references, List<PublicReference> referencedBy) {
     }
 }

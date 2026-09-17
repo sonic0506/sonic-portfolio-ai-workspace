@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { api } from '@/lib/api'
@@ -26,6 +26,7 @@ export function useContentSave<Req, Res extends { id: number }>(opts: {
     onMutate: () => setSaved(false),
     onSuccess: async (res) => {
       queryClient.setQueryData(opts.detailKey(res.id), res)
+      invalidateOtherDetails(queryClient, opts.detailKey(res.id))
       await queryClient.invalidateQueries({ queryKey: opts.listKey, exact: true })
       void queryClient.invalidateQueries({ queryKey: keys.rag })
       setSaved(true)
@@ -41,9 +42,23 @@ export function useContentDelete(opts: { basePath: string; id?: number; listKey:
   return useMutation({
     mutationFn: () => api<void>(`${opts.basePath}/${opts.id}`, { method: 'DELETE' }),
     onSuccess: async () => {
+      invalidateOtherDetails(queryClient)
       await queryClient.invalidateQueries({ queryKey: opts.listKey, exact: true })
       void queryClient.invalidateQueries({ queryKey: keys.rag })
       navigate(opts.after, { replace: true })
     },
+  })
+}
+
+/**
+ * 참고 문서는 상대 문서 상세의 "이 문서를 참고한 문서"에도 보이므로
+ * 저장·삭제 후 다른 프로젝트·글 상세 캐시를 새로 읽게 한다.
+ */
+function invalidateOtherDetails(queryClient: QueryClient, except?: readonly unknown[]) {
+  void queryClient.invalidateQueries({
+    predicate: ({ queryKey }) =>
+      queryKey.length === 2 &&
+      (queryKey[0] === keys.projects[0] || queryKey[0] === keys.posts[0]) &&
+      !(except && queryKey[0] === except[0] && queryKey[1] === except[1]),
   })
 }

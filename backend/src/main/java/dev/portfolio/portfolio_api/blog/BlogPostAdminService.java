@@ -3,6 +3,8 @@ package dev.portfolio.portfolio_api.blog;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import dev.portfolio.portfolio_api.blog.BlogPostAdminResponses.AdminBlogPostDetail;
 import dev.portfolio.portfolio_api.blog.BlogPostAdminResponses.AdminBlogPostItem;
+import dev.portfolio.portfolio_api.content.DocumentReferences;
+import dev.portfolio.portfolio_api.content.DocumentReferences.RefType;
 import dev.portfolio.portfolio_api.content.IdChecks;
 import dev.portfolio.portfolio_api.content.IdChecks.RefTable;
 import dev.portfolio.portfolio_api.content.SectionQuery;
@@ -32,6 +34,7 @@ public class BlogPostAdminService {
     private final SectionWriter sectionWriter;
     private final SectionQuery sectionQuery;
     private final DocumentProjector projector;
+    private final DocumentReferences references;
     private final Clock clock = Clock.systemUTC();
 
     @PersistenceContext
@@ -39,7 +42,7 @@ public class BlogPostAdminService {
 
     public BlogPostAdminService(BlogPostRepository posts, JPAQueryFactory queryFactory, JdbcTemplate jdbc,
                                 IdChecks idChecks, SectionWriter sectionWriter, SectionQuery sectionQuery,
-                                DocumentProjector projector) {
+                                DocumentProjector projector, DocumentReferences references) {
         this.posts = posts;
         this.queryFactory = queryFactory;
         this.jdbc = jdbc;
@@ -47,6 +50,7 @@ public class BlogPostAdminService {
         this.sectionWriter = sectionWriter;
         this.sectionQuery = sectionQuery;
         this.projector = projector;
+        this.references = references;
     }
 
     /** Drafts (no published_at) first, then newest. */
@@ -67,7 +71,7 @@ public class BlogPostAdminService {
     }
 
     public AdminBlogPostDetail create(BlogPostAdminRequest request) {
-        validate(request);
+        validate(request, null);
         if (posts.existsBySlug(request.slug())) {
             throw conflict();
         }
@@ -75,12 +79,13 @@ public class BlogPostAdminService {
         entityManager.refresh(saved); // load DB-generated created_at
         replaceChildren(saved.getId(), request);
         projector.projectBlogPost(saved.getId());
+        references.replace(RefType.BLOG, saved.getId(), request.references());
         return toDetail(saved);
     }
 
     public AdminBlogPostDetail update(long id, BlogPostAdminRequest request) {
         BlogPost existing = find(id);
-        validate(request);
+        validate(request, id);
         if (posts.existsBySlugAndIdNot(request.slug(), id)) {
             throw conflict();
         }
@@ -88,6 +93,7 @@ public class BlogPostAdminService {
         posts.saveAndFlush(existing);
         replaceChildren(id, request);
         projector.projectBlogPost(id);
+        references.replace(RefType.BLOG, id, request.references());
         return toDetail(existing);
     }
 
@@ -98,10 +104,11 @@ public class BlogPostAdminService {
         projector.remove(DocumentProjector.Type.BLOG, id);
     }
 
-    private void validate(BlogPostAdminRequest request) {
+    private void validate(BlogPostAdminRequest request, Long id) {
         idChecks.requireExisting(RefTable.CATEGORY, "categoryIds", request.categoryIds());
         idChecks.requireExisting(RefTable.TAG, "tagIds", request.tagIds());
         idChecks.requireExisting(RefTable.SKILL, "skillIds", request.skillIds());
+        references.validate(RefType.BLOG, id, request.references());
     }
 
     private void replaceChildren(long postId, BlogPostAdminRequest request) {
@@ -124,7 +131,9 @@ public class BlogPostAdminService {
                 linkedIds("blog_category", "category_id", p.getId()),
                 linkedIds("blog_tag", "tag_id", p.getId()),
                 linkedIds("blog_skill", "skill_id", p.getId()),
-                sectionQuery.forBlogPost(p.getId()));
+                sectionQuery.forBlogPost(p.getId()),
+                references.adminReferences(RefType.BLOG, p.getId()),
+                references.adminReferencedBy(RefType.BLOG, p.getId()));
     }
 
     private List<Long> linkedIds(String table, String column, long postId) {

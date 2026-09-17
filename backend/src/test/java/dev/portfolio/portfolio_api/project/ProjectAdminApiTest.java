@@ -146,7 +146,7 @@ class ProjectAdminApiTest extends ApiTestSupport {
                  "contribution":30,"contributionNote":null,"periodStart":"2026-07-01","periodEnd":null,
                  "thumbnailUrl":null,"githubUrl":"https://github.com/x","serviceUrl":null,
                  "featured":true,"published":%s,"displayOrder":0,"adminNote":"memo",
-                 "highlights":%s,"skillIds":%s,"sections":%s}"""
+                 "highlights":%s,"skillIds":%s,"sections":%s,"references":[]}"""
                 .formatted(slug, slug, published, highlights, skillIds, sections)
                 .replace("\n", "").replace(",  ", ",").replace(", \"", ",\"");
     }

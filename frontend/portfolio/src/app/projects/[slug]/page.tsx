@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SkillBadges } from "@/components/site/project-card";
+import { References } from "@/components/site/references";
 import { Sections } from "@/components/site/sections";
 import { getProject } from "@/lib/api";
 import { formatPeriod } from "@/lib/utils";
@@ -53,6 +54,7 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[slug
         </div>
       </header>
       <Sections sections={project.sections} />
+      <References references={project.references} referencedBy={project.referencedBy} />
     </article>
   );
 }

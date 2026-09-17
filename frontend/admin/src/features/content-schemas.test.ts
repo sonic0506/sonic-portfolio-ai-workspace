@@ -68,10 +68,13 @@ describe('projectSchema', () => {
       thumbnailUrl: null, githubUrl: 'https://github.com/a', serviceUrl: null,
       featured: true, published: false, displayOrder: 2, adminNote: null,
       highlights: ['h'], skillIds: [1], sections: [], publishedAt: null, createdAt: '', updatedAt: '',
+      references: [{ type: 'BLOG', id: 3, slug: 'b', title: '글', published: false }],
+      referencedBy: [{ type: 'PROJECT', id: 2, slug: 'p', title: '다른 프로젝트', published: true }],
     }
-    const { id, publishedAt, createdAt, updatedAt, ...request } = detail
-    void [id, publishedAt, createdAt, updatedAt]
-    expect(projectToRequest(projectToForm(detail))).toEqual(request)
+    const { id, publishedAt, createdAt, updatedAt, referencedBy, ...rest } = detail
+    void [id, publishedAt, createdAt, updatedAt, referencedBy]
+    // 참고 문서는 {type, id}만 보낸다. 들어오는 연결(referencedBy)은 보내지 않는다.
+    expect(projectToRequest(projectToForm(detail))).toEqual({ ...rest, references: [{ type: 'BLOG', id: 3 }] })
   })
 })
 

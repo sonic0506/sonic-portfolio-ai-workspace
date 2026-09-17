@@ -1,5 +1,6 @@
 package dev.portfolio.portfolio_api.project;
 
+import dev.portfolio.portfolio_api.content.DocumentReferences.PublicReference;
 import dev.portfolio.portfolio_api.content.SectionResponse;
 import dev.portfolio.portfolio_api.skill.SkillResponse;
 import java.time.LocalDate;
@@ -35,6 +36,7 @@ public final class ProjectResponses {
             String organization, String position, Integer contribution, String contributionNote,
             LocalDate periodStart, LocalDate periodEnd, String thumbnailUrl,
             String githubUrl, String serviceUrl,
-            List<SkillResponse> skills, List<SectionResponse> sections) {
+            List<SkillResponse> skills, List<SectionResponse> sections,
+            List<PublicReference> references, List<PublicReference> referencedBy) {
     }
 }

@@ -67,6 +67,11 @@ export type Category = { id: number; code: string; name: string; displayOrder: n
 export type Tag = { id: number; code: string; name: string }
 export type Section = { title: string; bodyMarkdown: string }
 
+/** 참고 문서 (ADR-0005 후속 결정) — 프로젝트·블로그끼리만 연결한다. */
+export type RefType = 'PROJECT' | 'BLOG'
+export type ReferenceRequest = { type: RefType; id: number }
+export type AdminReference = ReferenceRequest & { slug: string; title: string; published: boolean }
+
 export type AdminProjectItem = {
   id: number
   slug: string
@@ -100,10 +105,13 @@ export type ProjectRequest = {
   highlights: string[]
   skillIds: number[]
   sections: Section[]
+  references: ReferenceRequest[]
 }
 
-export type AdminProjectDetail = ProjectRequest & {
+export type AdminProjectDetail = Omit<ProjectRequest, 'references'> & {
   id: number
+  references: AdminReference[]
+  referencedBy: AdminReference[]
   publishedAt: string | null
   createdAt: string
   updatedAt: string
@@ -129,10 +137,13 @@ export type BlogPostRequest = {
   tagIds: number[]
   skillIds: number[]
   sections: Section[]
+  references: ReferenceRequest[]
 }
 
-export type AdminBlogPostDetail = BlogPostRequest & {
+export type AdminBlogPostDetail = Omit<BlogPostRequest, 'references'> & {
   id: number
+  references: AdminReference[]
+  referencedBy: AdminReference[]
   publishedAt: string | null
   createdAt: string
   updatedAt: string

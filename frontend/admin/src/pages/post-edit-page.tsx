@@ -4,6 +4,7 @@ import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { Link, useParams } from 'react-router'
 import { Checkbox, Field, FormSection } from '@/components/form'
 import { IdPicker } from '@/components/id-picker'
+import { ReferencedByList, ReferencePicker } from '@/components/reference-picker'
 import { ErrorText, PageTitle } from '@/components/layout'
 import { Loading } from '@/components/loading'
 import { SaveBar } from '@/components/save-bar'
@@ -144,6 +145,30 @@ function PostEditor({ post }: { post?: AdminBlogPostDetail }) {
         </FormSection>
 
         <SectionsEditor />
+
+        <FormSection title="참고 문서">
+          <p className="-mt-2 text-xs text-muted-foreground">
+            이 문서가 참고한 프로젝트·블로그를 고릅니다. 상세 페이지의 &quot;참고 문서&quot;에 공개 문서만 표시됩니다.
+          </p>
+          <Controller
+            control={form.control}
+            name="references"
+            render={({ field }) => (
+              <ReferencePicker
+                value={field.value}
+                onChange={field.onChange}
+                self={post ? { type: 'BLOG', id: post.id } : undefined}
+                known={post?.references}
+              />
+            )}
+          />
+          {post && (
+            <div className="space-y-2 border-t pt-4">
+              <p className="text-sm font-medium">이 문서를 참고한 문서</p>
+              <ReferencedByList items={post.referencedBy} />
+            </div>
+          )}
+        </FormSection>
 
         <FormSection title="관리자 메모 (방문자·챗봇에 노출되지 않음)">
           <Textarea aria-label="관리자 메모" rows={3} {...register('adminNote')} />

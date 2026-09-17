@@ -1,6 +1,8 @@
 package dev.portfolio.portfolio_api.project;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import dev.portfolio.portfolio_api.content.DocumentReferences;
+import dev.portfolio.portfolio_api.content.DocumentReferences.RefType;
 import dev.portfolio.portfolio_api.content.SectionQuery;
 import dev.portfolio.portfolio_api.content.SectionWriter;
 import dev.portfolio.portfolio_api.project.ProjectAdminResponses.AdminProjectDetail;
@@ -32,6 +34,7 @@ public class ProjectAdminService {
     private final SectionWriter sectionWriter;
     private final SectionQuery sectionQuery;
     private final DocumentProjector projector;
+    private final DocumentReferences references;
     private final Clock clock = Clock.systemUTC();
 
     @PersistenceContext
@@ -39,7 +42,7 @@ public class ProjectAdminService {
 
     public ProjectAdminService(ProjectRepository projects, SkillRepository skills, JPAQueryFactory queryFactory,
                                JdbcTemplate jdbc, SectionWriter sectionWriter, SectionQuery sectionQuery,
-                               DocumentProjector projector) {
+                               DocumentProjector projector, DocumentReferences references) {
         this.projects = projects;
         this.skills = skills;
         this.queryFactory = queryFactory;
@@ -47,6 +50,7 @@ public class ProjectAdminService {
         this.sectionWriter = sectionWriter;
         this.sectionQuery = sectionQuery;
         this.projector = projector;
+        this.references = references;
     }
 
     @Transactional(readOnly = true)
@@ -67,7 +71,7 @@ public class ProjectAdminService {
     }
 
     public AdminProjectDetail create(ProjectAdminRequest request) {
-        validate(request);
+        validate(request, null);
         if (projects.existsBySlug(request.slug())) {
             throw conflict("project slug already exists");
         }
@@ -75,12 +79,13 @@ public class ProjectAdminService {
         entityManager.refresh(saved); // load DB-generated created_at
         replaceChildren(saved.getId(), request);
         projector.projectProject(saved.getId());
+        references.replace(RefType.PROJECT, saved.getId(), request.references());
         return toDetail(saved);
     }
 
     public AdminProjectDetail update(long id, ProjectAdminRequest request) {
         Project existing = find(id);
-        validate(request);
+        validate(request, id);
         if (projects.existsBySlugAndIdNot(request.slug(), id)) {
             throw conflict("project slug already exists");
         }
@@ -88,17 +93,18 @@ public class ProjectAdminService {
         projects.saveAndFlush(existing);
         replaceChildren(id, request);
         projector.projectProject(id);
+        references.replace(RefType.PROJECT, id, request.references());
         return toDetail(existing);
     }
 
-    /** Highlights, skill links and sections are removed by FK cascade; the RAG document is removed too. */
+    /** Highlights, skill links and sections are removed by FK cascade; the RAG document and its references too. */
     public void delete(long id) {
         projects.delete(find(id));
         projects.flush();
         projector.remove(DocumentProjector.Type.PROJECT, id);
     }
 
-    private void validate(ProjectAdminRequest request) {
+    private void validate(ProjectAdminRequest request, Long id) {
         if (request.periodEnd() != null && request.periodEnd().isBefore(request.periodStart())) {
             throw badRequest("periodEnd must not be before periodStart");
         }
@@ -109,6 +115,7 @@ public class ProjectAdminService {
         if (!distinct.isEmpty() && skills.findAllById(distinct).size() != distinct.size()) {
             throw badRequest("skillIds contain an unknown skill");
         }
+        references.validate(RefType.PROJECT, id, request.references());
     }
 
     private void replaceChildren(long projectId, ProjectAdminRequest request) {
@@ -137,7 +144,9 @@ public class ProjectAdminService {
                 p.getPeriodStart(), p.getPeriodEnd(), p.getThumbnailUrl(), p.getGithubUrl(), p.getServiceUrl(),
                 p.isFeatured(), p.isPublished(), p.getDisplayOrder(), p.getPublishedAt(),
                 p.getAdminNote(), p.getCreatedAt(), p.getUpdatedAt(),
-                highlights, skillIds, sectionQuery.forProject(p.getId()));
+                highlights, skillIds, sectionQuery.forProject(p.getId()),
+                references.adminReferences(RefType.PROJECT, p.getId()),
+                references.adminReferencedBy(RefType.PROJECT, p.getId()));
     }
 
     private Project find(long id) {

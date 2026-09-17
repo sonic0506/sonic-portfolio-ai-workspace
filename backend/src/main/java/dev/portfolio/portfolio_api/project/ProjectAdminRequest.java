@@ -1,5 +1,6 @@
 package dev.portfolio.portfolio_api.project;
 
+import dev.portfolio.portfolio_api.content.DocumentReferences.ReferenceRequest;
 import dev.portfolio.portfolio_api.content.SectionRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -31,5 +32,6 @@ public record ProjectAdminRequest(
         @Size(max = 5000) String adminNote,
         @NotNull List<@NotBlank @Size(max = 500) String> highlights,
         @NotNull List<@NotNull Long> skillIds,
-        @NotNull @Valid List<SectionRequest> sections) {
+        @NotNull @Valid List<SectionRequest> sections,
+        @NotNull @Valid List<@NotNull ReferenceRequest> references) {
 }

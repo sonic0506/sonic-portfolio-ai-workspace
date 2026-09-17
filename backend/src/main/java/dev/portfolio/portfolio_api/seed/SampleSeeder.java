@@ -35,7 +35,8 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Loads samples/ into the database through the admin services, so the same validation applies.
  * Idempotent: rows are matched by skill/category/tag code and project/blog slug and replaced.
- * related_projects/related_blogs become document_relation rows (one direction per pair, ADR-0005).
+ * related_projects/related_blogs mean "this document references them" and become document_relation rows in that
+ * direction (ADR-0005 follow-up). Saving through the admin services clears references first, so they are re-linked.
  */
 @Component
 public class SampleSeeder {
@@ -130,7 +131,7 @@ public class SampleSeeder {
                 md.text("thumbnail"), nullableText(links.get("github")), nullableText(links.get("service")),
                 md.bool("featured"), md.bool("published"), order,
                 adminNote(md.list("open_questions")),
-                md.list("highlights"), resolve(md, "skills", skillIds), md.sections());
+                md.list("highlights"), resolve(md, "skills", skillIds), md.sections(), List.of());
         Long existing = idBySlug("project", request.slug());
         if (existing == null) {
             projects.create(request);
@@ -152,7 +153,7 @@ public class SampleSeeder {
                 md.requiredText("id"), md.requiredText("title"), md.text("summary"), md.text("thumbnail"),
                 md.bool("published"), adminNote(notes),
                 resolve(md, "categories", categoryIds), resolve(md, "tags", tagIds),
-                resolve(md, "skills", skillIds), md.sections());
+                resolve(md, "skills", skillIds), md.sections(), List.of());
         Long id = idBySlug("blog_post", request.slug());
         if (id == null) {
             id = blogPosts.create(request).id();
@@ -208,12 +209,7 @@ public class SampleSeeder {
         for (Long target : targets) {
             jdbc.update("""
                     insert into document_relation (source_document_id, target_document_id)
-                    select ?, ? where not exists (
-                      select 1 from document_relation
-                      where relation_type = 'RELATED_TO'
-                        and ((source_document_id = ? and target_document_id = ?)
-                          or (source_document_id = ? and target_document_id = ?)))""",
-                    source, target, source, target, target, source);
+                    values (?, ?) on conflict do nothing""", source, target);
         }
     }
 
