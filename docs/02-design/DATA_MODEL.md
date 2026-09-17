@@ -368,6 +368,10 @@ create index chat_message_source_document_idx on chat_message_source (document_i
 - 보관·만료는 ADR-0011을 따른다: `visitor_key`에는 서버가 발급한 비밀키의 SHA-256을 저장하고, `expires_at`은 마지막 활동 + 24시간이다.
 - `chat_message_source.document_id`는 `restrict`이므로 원본 삭제 시 애플리케이션(`DocumentProjector.remove`)이 인용 행을 먼저 지운다.
 
+### chat_unanswered_question (V2, ADR-0013)
+
+근거 부족으로 답하지 못한 질문. 질문·답변·사유·당시 검색 문서(jsonb)·상태·관리자 메모. `session_id`는 `on delete set null`이라 세션(24시간)이 지워져도 기록은 90일 유지된다. 방문자 식별 정보는 저장하지 않는다.
+
 ## 5. 두지 않은 테이블
 
 | 후보 | 두지 않은 이유 |

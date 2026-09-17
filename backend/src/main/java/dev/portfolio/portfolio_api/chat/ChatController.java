@@ -22,11 +22,14 @@ public class ChatController {
     private final ChatService chat;
     private final ChatRateLimiter limiter;
     private final ChatStreams streams;
+    private final UnansweredQuestionService unanswered;
 
-    public ChatController(ChatService chat, ChatRateLimiter limiter, ChatStreams streams) {
+    public ChatController(ChatService chat, ChatRateLimiter limiter, ChatStreams streams,
+                          UnansweredQuestionService unanswered) {
         this.chat = chat;
         this.limiter = limiter;
         this.streams = streams;
+        this.unanswered = unanswered;
     }
 
     /** Validation, availability and limits are decided before the stream starts (400 / 503 / 429). */
@@ -39,6 +42,10 @@ public class ChatController {
             throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "daily question limit reached");
         }
         String question = request.question().strip();
-        return streams.start(sink -> ChatService.done(sink, chat.answer(question, sink)));
+        return streams.start(sink -> {
+            ChatService.Answer answer = chat.answer(question, sink);
+            unanswered.recordQuietly(question, answer, null);
+            ChatService.done(sink, answer);
+        });
     }
 }

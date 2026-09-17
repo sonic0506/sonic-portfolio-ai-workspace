@@ -35,7 +35,8 @@ public final class ChatEvents {
     public record AnswerDelta(String text) {
     }
 
-    public record Done(List<Doc> sources) {
+    /** unanswered: the answer could not (fully) use public evidence and the question was kept (ADR-0013). */
+    public record Done(List<Doc> sources, boolean unanswered) {
     }
 
     public record Error(String message) {

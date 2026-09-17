@@ -70,3 +70,7 @@ ADR-0006이 임베딩 모델과 검색 정책을 다뤘고 생성 모델은 "측
 - [Evaluation Cases](../06-testing/RAG_TEST_CASES.md)
 - [PoC Harness](../../poc/README.md)
 - [Measurements](../06-testing/RAG_MEASUREMENTS.md)
+
+## 후속 결정 — 2026-09-16 (ADR-0013)
+
+근거 부족 시 규칙을 바꿨다: "근거에 등록되어 있지 않다" 대신 설정값 안내 문구(주제는 모델이 채움)를 쓰고, 답변 맨 앞에 `[[NO_ANSWER]]` 표시를 붙인다. 나머지 규칙(근거만 사용, 번호 인용, 추측 금지)은 유지한다. 이 변경 후 PoC 질문 7개를 재측정한다(RAG_MEASUREMENTS).

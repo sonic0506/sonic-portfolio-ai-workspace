@@ -32,13 +32,15 @@ public class ChatSessionController {
     private final ChatService chat;
     private final ChatRateLimiter limiter;
     private final ChatStreams streams;
+    private final UnansweredQuestionService unanswered;
 
     public ChatSessionController(ChatSessionService sessions, ChatService chat, ChatRateLimiter limiter,
-                                 ChatStreams streams) {
+                                 ChatStreams streams, UnansweredQuestionService unanswered) {
         this.sessions = sessions;
         this.chat = chat;
         this.limiter = limiter;
         this.streams = streams;
+        this.unanswered = unanswered;
     }
 
     @PostMapping
@@ -80,6 +82,7 @@ public class ChatSessionController {
         return streams.start(sink -> {
             ChatService.Answer answer = chat.answer(question, history, sink);
             sessions.saveTurn(session.id(), question, answer);
+            unanswered.recordQuietly(question, answer, session.id());
             ChatService.done(sink, answer);
         });
     }

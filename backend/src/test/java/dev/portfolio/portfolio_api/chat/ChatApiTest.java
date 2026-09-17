@@ -33,6 +33,7 @@ class ChatApiTest extends ApiTestSupport {
     @Autowired FakeEmbeddingClient embeddings;
     @Autowired FakeChatGenerator generator;
     @Autowired ChatRateLimiter limiter;
+    @Autowired ChatService chatService;
 
     long a;
     long b;
@@ -85,7 +86,7 @@ class ChatApiTest extends ApiTestSupport {
         assertTrue(prompt.contains("\n\n[6] 블로그 B — 개요\nB 내용\n</근거>"), prompt);
         assertTrue(prompt.endsWith("질문: A 경험이 있나요?"));
         // no history: the PoC prompt unchanged (ADR-0007)
-        assertEquals(AnswerPrompt.SYSTEM, generator.systemPrompts.get(0));
+        assertEquals(chatService.systemPrompt(false), generator.systemPrompts.get(0));
         assertEquals(List.of("A 경험이 있나요?"), embeddings.texts);
     }
 

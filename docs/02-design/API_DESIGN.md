@@ -55,7 +55,7 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 | `status` | `{"stage":"SEARCHING"\|"EXPANDING"\|"ANSWERING"}` | EXPANDING은 공개 연관 문서가 있을 때만 |
 | `documents` | `{"documents":[{type, slug, title, url}]}` | 검색 결과(문서 단위 중복 제거), 확장 시 추가분을 한 번 더 |
 | `answer_delta` | `{"text":"..."}` | 생성 조각 순서대로 |
-| `done` | `{"sources":[{type, slug, title, url}]}` | 답변에 나온 `[n]` 번호의 문서만. 없으면 `[]` |
+| `done` | `{"sources":[{type, slug, title, url}], "unanswered": bool}` | 답변에 나온 `[n]` 번호의 문서만. 없으면 `[]`. `unanswered`는 근거 부족으로 질문이 보관됐는지(ADR-0013) |
 | `error` | `{"message":"..."}` | 처리 중 오류. 내부 오류 내용은 넣지 않는다 |
 
 - `url`: `/projects/{slug}`, `/blog/{slug}`, `/profile`. 내부 ID는 보내지 않는다.
@@ -265,3 +265,12 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 - 후속 질문: 검색 질의에 직전 질문을 붙이고, 최근 3턴을 `<이전 대화>`로 프롬프트에 넣는다(이력은 질문 해석에만 사용).
 
 검증: `ChatSessionApiTest` (2026-09-16)
+
+### 답하지 못한 질문 관리 (ADR-0013)
+
+- `GET /api/admin/chat/unanswered?status=OPEN|RESOLVED|IGNORED&page=0&size=20` → `{items, page, size, totalElements}` 최신순. 항목: `id, question, answer, reason(NO_EVIDENCE|NO_CITATION), retrieved[{type, slug, title, distance}], status, adminNote, inActiveSession, createdAt, handledAt`
+- `PUT /api/admin/chat/unanswered/{id}` `{status, adminNote}` → 항목. RESOLVED/IGNORED로 바꾸면 `handledAt` 기록, OPEN이면 비움
+- `DELETE /api/admin/chat/unanswered/{id}` → `204`
+- 90일 지난 기록은 자동 삭제(`CHAT_UNANSWERED_RETENTION_DAYS`). `retrieved.distance`는 코사인 거리(작을수록 가까움)로, 자료가 있는데 못 찾았는지 판단하는 데 쓴다.
+
+검증: `UnansweredQuestionTest`, `NoAnswerMarkerTest` (2026-09-17)

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /** Single-question RAG pipeline: search → relation expansion → answer → cited sources. */
@@ -25,19 +26,40 @@ public class ChatService {
     private final EmbeddingClient embeddings;
     private final ChatGenerator generator;
     private final Retriever retriever;
+    private final String guide;
 
-    public ChatService(EmbeddingClient embeddings, ChatGenerator generator, Retriever retriever) {
+    public ChatService(EmbeddingClient embeddings, ChatGenerator generator, Retriever retriever,
+                       @Value("${app.chat.no-answer-guide:}") String guide) {
         this.embeddings = embeddings;
         this.generator = generator;
         this.retriever = retriever;
+        this.guide = guide == null || guide.isBlank() ? DEFAULT_GUIDE : guide.strip();
+    }
+
+    /** ADR-0013 default; kept in code because .properties files are not reliably read as UTF-8. */
+    public static final String DEFAULT_GUIDE = AnswerPrompt.GUIDE_PLACEHOLDER
+            + "에 대해서는 지금 정보로는 답변드리기 어려워요. 질문주신 내용은 따로 보관하여 더 보완하도록 하겠습니다. 감사합니다.";
+
+    /** The system prompt sent to the model (for tests and diagnostics). */
+    public String systemPrompt(boolean withHistory) {
+        return withHistory ? AnswerPrompt.system(guide) + AnswerPrompt.HISTORY_RULE : AnswerPrompt.system(guide);
     }
 
     public boolean available() {
         return embeddings.enabled() && generator.enabled();
     }
 
-    /** Answer text and the documents it cited, for storing the turn. */
-    public record Answer(String text, List<Retriever.DocumentRef> cited) {
+    public enum Unanswered {
+        NO_EVIDENCE,
+        NO_CITATION
+    }
+
+    /**
+     * Answer text (marker removed), cited documents, all documents looked at with their best distance,
+     * and why it counts as unanswered (null when answered).
+     */
+    public record Answer(String text, List<Retriever.DocumentRef> cited, List<Retriever.Hit> retrieved,
+                         Unanswered unanswered) {
     }
 
     public Answer answer(String question, Sink sink) {
@@ -79,19 +101,22 @@ public class ChatService {
         }
 
         sink.send(ChatEvents.STATUS, new Status(Stage.ANSWERING));
-        StringBuilder answer = new StringBuilder();
-        generator.stream(AnswerPrompt.system(history), AnswerPrompt.user(question, evidence, history), delta -> {
-            answer.append(delta);
-            sink.send(ChatEvents.ANSWER_DELTA, new AnswerDelta(delta));
-        });
+        NoAnswerMarker marker = new NoAnswerMarker(
+                delta -> sink.send(ChatEvents.ANSWER_DELTA, new AnswerDelta(delta)));
+        generator.stream(AnswerPrompt.system(guide, history), AnswerPrompt.user(question, evidence, history), marker);
+        marker.finish();
 
-        List<Retriever.DocumentRef> cited = citedDocuments(answer.toString(), evidence);
-        return new Answer(answer.toString(), cited);
+        String text = marker.text();
+        List<Retriever.DocumentRef> cited = citedDocuments(text, evidence);
+        Unanswered unanswered = marker.found() ? Unanswered.NO_EVIDENCE
+                : cited.isEmpty() ? Unanswered.NO_CITATION : null;
+        return new Answer(text, cited, List.copyOf(evidence), unanswered);
     }
 
     /** Sends the final event; kept separate so a session can store the turn first. */
     public static void done(Sink sink, Answer answer) {
-        sink.send(ChatEvents.DONE, new Done(answer.cited().stream().map(Doc::of).toList()));
+        sink.send(ChatEvents.DONE,
+                new Done(answer.cited().stream().map(Doc::of).toList(), answer.unanswered() != null));
     }
 
     /** Documents whose evidence numbers appear in the answer, in order of first citation. */

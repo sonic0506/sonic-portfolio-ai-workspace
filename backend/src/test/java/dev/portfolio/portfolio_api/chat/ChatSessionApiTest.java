@@ -38,6 +38,7 @@ class ChatSessionApiTest extends ApiTestSupport {
     @Autowired ChatRateLimiter limiter;
     @Autowired ChatSessionService sessions;
     @Autowired DocumentProjector projector;
+    @Autowired ChatService chatService;
 
     long docA;
     String id;
@@ -132,8 +133,9 @@ class ChatSessionApiTest extends ApiTestSupport {
         askOk("거기서 맡은 역할은?");
 
         assertEquals("A 프로젝트 경험이 있나요?\n거기서 맡은 역할은?", embeddings.texts.get(1));
-        assertEquals(AnswerPrompt.SYSTEM, generator.systemPrompts.get(0));
-        assertEquals(AnswerPrompt.SYSTEM + AnswerPrompt.HISTORY_RULE, generator.systemPrompts.get(1));
+        assertEquals(chatService.systemPrompt(false), generator.systemPrompts.get(0));
+        assertEquals(chatService.systemPrompt(true), generator.systemPrompts.get(1));
+        assertTrue(generator.systemPrompts.get(1).endsWith(AnswerPrompt.HISTORY_RULE));
         String prompt = generator.userPrompts.get(1);
         assertTrue(prompt.startsWith("<이전 대화>\n사용자: A 프로젝트 경험이 있나요?\n"
                 + "답변: A에서 개발을 맡았습니다 [1].\n</이전 대화>\n\n<근거>\n"), prompt);
