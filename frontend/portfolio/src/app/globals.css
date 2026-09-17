@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+/* shadcn/ui 테마 토큰 (neutral). components.json과 맞춘다. */
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Markdown 본문 — components 레이어에 두어 유틸리티 클래스로 덮어쓸 수 있게 한다. */
+@layer components {
+  .prose-md h2 { @apply mt-10 mb-3 text-xl font-semibold; }
+  .prose-md h3 { @apply mt-6 mb-2 text-lg font-semibold; }
+  .prose-md p { @apply my-3 leading-7; }
+  .prose-md ul { @apply my-3 list-disc pl-6; }
+  .prose-md ol { @apply my-3 list-decimal pl-6; }
+  .prose-md li { @apply my-1 leading-7; }
+  .prose-md a { @apply underline underline-offset-4; }
+  .prose-md code { @apply rounded bg-muted px-1 py-0.5 font-mono text-sm; }
+  .prose-md pre { @apply my-4 overflow-x-auto rounded-lg bg-muted p-4; }
+  .prose-md pre code { @apply bg-transparent p-0; }
+  .prose-md blockquote { @apply my-4 border-l-4 pl-4 text-muted-foreground; }
+  .prose-md table { @apply my-4 w-full border-collapse text-sm; }
+  .prose-md th, .prose-md td { @apply border px-3 py-2 text-left; }
+}

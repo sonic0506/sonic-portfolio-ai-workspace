@@ -1,0 +1,15 @@
+{
+  "name": "dev-portfolio-frontend",
+  "private": true,
+  "packageManager": "pnpm@12.4.2",
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "scripts": {
+    "dev:portfolio": "pnpm --filter portfolio-web dev",
+    "dev:admin": "pnpm --filter portfolio-admin dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r --if-present test"
+  }
+}

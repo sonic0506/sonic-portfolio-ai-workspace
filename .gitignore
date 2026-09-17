@@ -1,1 +1,4 @@
 .DS_Store
+
+# frontend (pnpm workspace)
+node_modules/
