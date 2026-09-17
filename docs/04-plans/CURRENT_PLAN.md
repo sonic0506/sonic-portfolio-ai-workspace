@@ -49,7 +49,8 @@ Status: Active
 - [x] 고정 질문·답변(FAQ) — ADR-0014, FAQ_IMPLEMENTATION.md (2026-09-17, 테스트 107건, 측정 6 6/6)
 - [ ] 프론트엔드 — ADR-0012(Next.js, React+Vite, pnpm), FRONTEND_IMPLEMENTATION.md
   - [x] 1단계: workspace, 포트폴리오 조회·채팅, 어드민 미답변·FAQ·색인 (2026-09-17, 사용자 로컬 검증 완료)
-  - [ ] 2단계: 어드민 콘텐츠 관리, 디자인·캐시 정책
+  - [x] 2단계: 어드민 콘텐츠 관리 (2026-09-17, 사용자 확인 완료)
+  - [ ] 3단계: 디자인 다듬기, SEO, 캐시·재검증 정책
 
 ## Definition of Done for Current Phase
 

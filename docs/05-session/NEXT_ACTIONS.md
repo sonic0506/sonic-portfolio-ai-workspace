@@ -6,12 +6,13 @@ Last Updated: 2026-09-17
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
-## Priority 1 — 프론트 2단계 (FRONTEND_IMPLEMENTATION)
+## Priority 1 — 프론트 3단계 (FRONTEND_IMPLEMENTATION)
 
-1단계는 2026-09-17 사용자 로컬에서 모두 확인했다(조회·채팅 스트리밍·복원, 로그인 복귀, 미답변→FAQ, 색인, 로딩 표시, FAQ 비슷한 질문 일관성, 질문 제한 제외).
+1·2단계(조회·채팅·어드민 전체)는 2026-09-17 사용자 확인 완료.
 
-1. 어드민 콘텐츠 관리: 프로젝트·블로그(섹션 편집, 카테고리·태그·기술 선택)·프로필·기술·카테고리/태그. 백엔드 관리 API는 이미 있다(API_DESIGN Admin API).
-2. 디자인 다듬기(타이포그래피, 다크 모드, 썸네일), SEO 메타데이터, 캐시·재검증 정책.
+1. 디자인 다듬기(타이포그래피, 다크 모드, 썸네일·프로필 이미지), SEO 메타데이터.
+2. 캐시·재검증 정책(현재 모든 페이지 force-dynamic).
+3. 이후: 배포 준비(도메인, ADR-0010 4절, 방문자 IP 판별).
 
 ## Priority 3 — 이후 기능 후보
 
@@ -41,4 +42,4 @@ Last Updated: 2026-09-17
 
 ## Recommended Next Session Prompt
 
-> 공통 규칙과 세션 문서를 읽고, FRONTEND_IMPLEMENTATION 2단계(어드민 콘텐츠 관리)를 진행하자.
+> 공통 규칙과 세션 문서를 읽고, FRONTEND_IMPLEMENTATION 3단계(디자인·SEO·캐시)를 진행하자.
