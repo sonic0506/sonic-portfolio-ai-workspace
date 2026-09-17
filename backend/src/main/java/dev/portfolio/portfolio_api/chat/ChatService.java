@@ -26,13 +26,15 @@ public class ChatService {
     private final EmbeddingClient embeddings;
     private final ChatGenerator generator;
     private final Retriever retriever;
+    private final FaqMatcher faqs;
     private final String guide;
 
-    public ChatService(EmbeddingClient embeddings, ChatGenerator generator, Retriever retriever,
+    public ChatService(EmbeddingClient embeddings, ChatGenerator generator, Retriever retriever, FaqMatcher faqs,
                        @Value("${app.chat.no-answer-guide:}") String guide) {
         this.embeddings = embeddings;
         this.generator = generator;
         this.retriever = retriever;
+        this.faqs = faqs;
         this.guide = guide == null || guide.isBlank() ? DEFAULT_GUIDE : guide.strip();
     }
 
@@ -101,6 +103,13 @@ public class ChatService {
         }
 
         sink.send(ChatEvents.STATUS, new Status(Stage.ANSWERING));
+        String previousQuestion = history.isEmpty() ? null : history.get(history.size() - 1).question();
+        var faq = faqs.match(question, previousQuestion, evidence);
+        if (faq.isPresent()) {
+            // Registered answer, sent unchanged (ADR-0014 follow-up)
+            sink.send(ChatEvents.ANSWER_DELTA, new AnswerDelta(faq.get().answer()));
+            return new Answer(faq.get().answer(), List.of(faq.get().document()), List.copyOf(evidence), null);
+        }
         NoAnswerMarker marker = new NoAnswerMarker(
                 delta -> sink.send(ChatEvents.ANSWER_DELTA, new AnswerDelta(delta)));
         generator.stream(AnswerPrompt.system(guide, history), AnswerPrompt.user(question, evidence, history), marker);

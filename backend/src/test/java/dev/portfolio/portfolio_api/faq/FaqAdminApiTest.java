@@ -135,6 +135,32 @@ class FaqAdminApiTest extends ApiTestSupport {
         assertTrue(body.contains("\"unanswered\":false"), body);
         assertEquals(0, jdbc.queryForObject("select count(*) from chat_unanswered_question", Integer.class));
         assertFalse(body.contains("NO_ANSWER"));
+        assertEquals(1, generator.faqJudgePrompts.size(), "judge asked because a FAQ was retrieved");
+        assertTrue(generator.faqJudgePrompts.get(0).contains("1. 어디에 사시나요?"), generator.faqJudgePrompts.get(0));
+    }
+
+    @Test
+    void sameQuestionGetsTheRegisteredAnswerUnchanged() throws Exception {
+        long id = create(faq("고향이 어디세요?", "저의 고향은 안산입니다.", true, null));
+        jdbc.update("insert into faq_alias (faq_id, question, display_order) values (?, ?, 0)", id, "출신이 어디예요?");
+        indexer.indexPending();
+        generator.faqJudgeReply = "1";
+        generator.deltas = List.of("생성된 답변이 쓰이면 안 된다");
+
+        MvcResult result = mockMvc.perform(post("/api/chat").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"question\":\"어디서 태어나셨나요?\"}"))
+                .andExpect(request().asyncStarted()).andReturn();
+        result.getAsyncResult(5_000);
+        String body = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        String judge = generator.faqJudgePrompts.get(0);
+        assertTrue(judge.contains("1. 고향이 어디세요? (같은 뜻: 출신이 어디예요?)"), judge);
+        assertTrue(judge.endsWith("방문자 질문: 어디서 태어나셨나요?"), judge);
+        assertTrue(generator.userPrompts.isEmpty(), "no answer generation on a FAQ match");
+        assertTrue(body.contains("{\"text\":\"저의 고향은 안산입니다.\"}"), body);
+        assertTrue(body.contains("\"slug\":\"faq-" + id + "\""), body);
+        assertTrue(body.contains("\"unanswered\":false"), body);
+        assertEquals(0, jdbc.queryForObject("select count(*) from chat_unanswered_question", Integer.class));
     }
 
     private static String faq(String question, String answer, boolean published, Long fromUnansweredId) {

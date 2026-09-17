@@ -14,6 +14,9 @@ public class FakeChatGenerator implements ChatGenerator {
     public volatile RuntimeException failure;
     public final List<String> userPrompts = new ArrayList<>();
     public final List<String> systemPrompts = new ArrayList<>();
+    /** FAQ judge calls (FaqMatcher) are answered with this and recorded separately. */
+    public volatile String faqJudgeReply = "0";
+    public final List<String> faqJudgePrompts = new ArrayList<>();
 
     public void reset() {
         enabled = true;
@@ -21,6 +24,8 @@ public class FakeChatGenerator implements ChatGenerator {
         failure = null;
         userPrompts.clear();
         systemPrompts.clear();
+        faqJudgeReply = "0";
+        faqJudgePrompts.clear();
     }
 
     @Override
@@ -30,6 +35,11 @@ public class FakeChatGenerator implements ChatGenerator {
 
     @Override
     public void stream(String systemPrompt, String userPrompt, Consumer<String> onDelta) {
+        if (systemPrompt.startsWith(FaqMatcher.SYSTEM_HEAD)) {
+            faqJudgePrompts.add(userPrompt);
+            onDelta.accept(faqJudgeReply);
+            return;
+        }
         userPrompts.add(userPrompt);
         systemPrompts.add(systemPrompt);
         if (failure != null) {
