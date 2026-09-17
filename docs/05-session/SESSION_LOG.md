@@ -463,3 +463,11 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 
 - 안내 문구 주제를 명사구로 쓰는 규칙 추가. 측정 7(실제 모델) 10/10, 근거 있는 질문 오판정 없음.
 - 프로필 출처 빈 slug 재발: 개발 DB 문서가 수정 전 투영 상태였음 → 조회 시 PROFILE이면 `profile`로 대체, 테스트 추가. 사용자 로컬 108건 통과, 화면 노출 확인.
+
+## 2026-09-17 — 프론트엔드 1단계
+
+- 사용자 선택: Tailwind + shadcn, TanStack Query + RHF + Zod, 개발 서버 프록시, Node 22.22 이상/24 → ADR-0012 후속 결정, FRONTEND_IMPLEMENTATION 작성.
+- 루트 pnpm workspace, `frontend/portfolio`(Next.js 16.3.5: 홈·프로젝트·블로그·소개, Markdown `:::questions` → 채팅 질문, 채팅 위젯 세션·SSE), `frontend/admin`(Vite 8.3: 로그인 확인, 미답변 질문 처리 → FAQ 등록, FAQ CRUD, 색인 상태).
+- shadcn 레지스트리가 작업 환경에서 차단(403)되어 컴포넌트를 같은 형식으로 직접 옮겼다.
+- 검증(컨테이너): 설치·빌드·lint·테스트 9건, 가짜 백엔드로 페이지·404·SSE 스트리밍·브라우저 채팅·어드민 로그인 화면. 실제 백엔드 연동과 사용자 Mac 설치는 미검증.
+- 사용자 Mac 첫 실행: 백엔드 주소 `127.0.0.1`로 변경(IPv6 연결 실패), `skills` 응답 타입 수정(객체 배열). 이후 조회 화면 정상, 루트 test·lint·build 통과. 채팅·어드민 수동 확인은 대기.

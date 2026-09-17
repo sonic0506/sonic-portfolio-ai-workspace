@@ -51,7 +51,7 @@ Admin Web
 
 | 항목 | 이유 |
 |---|---|
-| Dependency versions and build tools | 프론트: ADR-0012(Next.js·React+Vite·pnpm). 백엔드 완료: ADR-0009. Gradle Groovy 9.7.1, Java 21, Boot 4.1.1, AI 2.0.1, QueryDSL 5.1.0, PostgreSQL 17 / pgvector 0.8.2. 프론트 도구는 프론트 착수 시 확정 |
+| Dependency versions and build tools | 프론트: ADR-0012(Next.js·React+Vite·pnpm). 백엔드 완료: ADR-0009. Gradle Groovy 9.7.1, Java 21, Boot 4.1.1, AI 2.0.1, QueryDSL 5.1.0, PostgreSQL 17 / pgvector 0.8.2. 프론트 확정(FRONTEND_IMPLEMENTATION): pnpm 12.4.2 workspace, Node ≥22.22, Next.js 16.3.5, Vite 8.3 + React Router 8.4 + TanStack Query 5 + RHF 7 + Zod 4, Tailwind 4 + shadcn/ui, Vitest 5. 개발 중 API는 개발 서버 프록시 |
 | API style — 완료 | ADR-0008: REST + JSON, 채팅 진행 상태·문서 목록·답변 SSE |
 
 ### 해당 기능 착수 시 결정

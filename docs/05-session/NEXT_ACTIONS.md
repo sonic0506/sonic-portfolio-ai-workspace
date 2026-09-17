@@ -1,21 +1,24 @@
 # Next Actions
 
-Last Updated: 2026-09-16
+Last Updated: 2026-09-17
 
 ## 현재 기준
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
-## Priority 1 — 프론트엔드 착수 (ADR-0012)
+## Priority 1 — 프론트 1단계 로컬 검증 (FRONTEND_IMPLEMENTATION)
 
-백엔드는 공개 조회·관리·색인·채팅(세션·미답변·FAQ)까지 구현됐다(107건). 프론트 구현 계획을 쓴다.
+1. ~~루트에서 설치·테스트·lint·빌드~~ — 2026-09-17 통과, 조회 화면 확인.
+2. 백엔드 `.env`에 `ADMIN_LOGIN_SUCCESS_URL=http://localhost:5173/` 추가 후 bootRun(채팅 확인 시 `EMBEDDING_PROVIDER`/`CHAT_PROVIDER=openai`, 유료 호출).
+3. `pnpm dev:portfolio`: 홈·프로젝트·블로그·소개 화면, 추천 질문 클릭 → 단계 표시와 답변이 조각으로 나오는지(버퍼링 여부), 새로고침 후 대화 복원, 새 대화.
+4. `pnpm dev:admin`: GitHub 로그인 후 5173 복귀, 미답변 → FAQ 등록(CSRF 포함), 색인 상태.
+5. 1단계 코드는 커밋됨. 3·4 결과에 따라 수정 커밋.
 
-1. 저장소 루트에 pnpm workspace(`frontend/portfolio` Next.js, `frontend/admin` React+Vite) 구성안과 버전을 정하고 실제 설치로 검증한다.
-2. 포트폴리오 첫 화면: 프로필·프로젝트·블로그 조회와 채팅 위젯(세션 localStorage, SSE, "대화는 24시간 후 삭제" 안내, `unanswered` 표시).
-3. 어드민 첫 화면: GitHub 로그인, 콘텐츠 관리, 미답변 질문 목록 → FAQ 등록, RAG 색인 상태.
-4. 개발 중 API 호출 경로(프록시 vs CORS)를 정한다(ADR-0010 4절).
+## Priority 2 — 프론트 2단계
 
-## Priority 2 — 이후 기능 후보
+- 어드민 콘텐츠 관리(프로젝트·블로그·프로필·기술·카테고리/태그), 디자인 다듬기, 캐시 정책.
+
+## Priority 3 — 이후 기능 후보
 
 - Relation 편집 API와 공개 상세의 관련 문서 표시, RAG Playground, Graph API, FAQ 다른 표현(B) 관리.
 
@@ -42,4 +45,4 @@ Last Updated: 2026-09-16
 
 ## Recommended Next Session Prompt
 
-> 공통 규칙과 세션 문서를 읽고, ADR-0012에 따라 pnpm workspace와 포트폴리오(Next.js)·어드민(React+Vite) 프론트 구현 계획을 작성하자.
+> 공통 규칙과 세션 문서를 읽고, FRONTEND_IMPLEMENTATION 1단계 로컬 검증 결과를 반영한 뒤 어드민 콘텐츠 관리(2단계)를 진행하자.

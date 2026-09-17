@@ -14,6 +14,14 @@ ADR-0001은 Public은 Next.js, Admin은 React로 정했고, 패키지 관리·�
 - 패키지 매니저: **pnpm** (사용자 선택). 두 앱을 같은 저장소에서 pnpm workspace로 관리한다.
 - 버전 고정·디렉터리 구조·라우팅·상태 관리 등 세부는 프론트 구현 계획에서 정하고 실제 설치로 검증한다.
 
+### 후속 결정 — 2026-09-17 (사용자 선택)
+
+- 스타일: Tailwind CSS + shadcn/ui.
+- 어드민: React Router + TanStack Query + React Hook Form + Zod.
+- 개발 중 API 호출: 개발 서버 프록시(Next rewrites, Vite proxy). 배포 시 경로는 도메인 결정 때 정한다.
+- Node 22.22 이상 또는 24, pnpm 12.4.2(Corepack).
+- 구조: 루트 workspace의 `frontend/portfolio`, `frontend/admin`. 버전과 검증 결과는 [FRONTEND_IMPLEMENTATION](../04-plans/FRONTEND_IMPLEMENTATION.md).
+
 ## Alternatives Considered
 
 - npm / yarn: 사용자가 pnpm을 선택했다.
