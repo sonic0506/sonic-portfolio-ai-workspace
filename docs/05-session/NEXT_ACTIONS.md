@@ -6,17 +6,12 @@ Last Updated: 2026-09-17
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
-## Priority 1 — 프론트 1단계 로컬 검증 (FRONTEND_IMPLEMENTATION)
+## Priority 1 — 프론트 2단계 (FRONTEND_IMPLEMENTATION)
 
-1. ~~루트에서 설치·테스트·lint·빌드~~ — 2026-09-17 통과, 조회 화면 확인.
-2. 백엔드 `.env`에 `ADMIN_LOGIN_SUCCESS_URL=http://localhost:5173/` 추가 후 bootRun(채팅 확인 시 `EMBEDDING_PROVIDER`/`CHAT_PROVIDER=openai`, 유료 호출).
-3. `pnpm dev:portfolio`: 홈·프로젝트·블로그·소개 화면, 추천 질문 클릭 → 단계 표시와 답변이 조각으로 나오는지(버퍼링 여부), 새로고침 후 대화 복원, 새 대화.
-4. `pnpm dev:admin`: GitHub 로그인 후 5173 복귀, 미답변 → FAQ 등록(CSRF 포함), 색인 상태.
-5. 1단계 코드는 커밋됨. 3·4 결과에 따라 수정 커밋.
+1단계는 2026-09-17 사용자 로컬에서 모두 확인했다(조회·채팅 스트리밍·복원, 로그인 복귀, 미답변→FAQ, 색인, 로딩 표시, FAQ 비슷한 질문 일관성, 질문 제한 제외).
 
-## Priority 2 — 프론트 2단계
-
-- 어드민 콘텐츠 관리(프로젝트·블로그·프로필·기술·카테고리/태그), 디자인 다듬기, 캐시 정책.
+1. 어드민 콘텐츠 관리: 프로젝트·블로그(섹션 편집, 카테고리·태그·기술 선택)·프로필·기술·카테고리/태그. 백엔드 관리 API는 이미 있다(API_DESIGN Admin API).
+2. 디자인 다듬기(타이포그래피, 다크 모드, 썸네일), SEO 메타데이터, 캐시·재검증 정책.
 
 ## Priority 3 — 이후 기능 후보
 
@@ -33,6 +28,7 @@ Last Updated: 2026-09-17
 - Graph: 라이브러리와 Skill/Category 노드 매핑. Document Relation 기준 ID·방향성은 ADR-0005를 유지한다.
 - 이미지 업로드: S3 접근 정책과 리전. Markdown 본문 저장 위치는 이미 content_section.body_markdown으로 정했다.
 - 색인: 원본 변경/삭제 시 동기화, 실패 재시도 및 중복 실행을 검증한다. 공개 범위는 ADR-0005의 조회 시점 필터를 유지한다.
+- 배포: 채팅 질문 제한은 `request.getRemoteAddr()` 기준이다. 프록시·Vercel 뒤에서는 실제 방문자 IP(X-Forwarded-For, `server.forward-headers-strategy`)를 신뢰할 경로를 정하고, 본인 IP 제외 목록(`CHAT_LIMIT_EXEMPT_IPS`)을 설정한다.
 - 배포: Vercel 무료 조건과 저장소 연결, Lightsail/RDS 사설 연결, 메모리 부하와 실제 비용을 검증한다.
 
 ## 남은 검증과 콘텐츠 확인
@@ -45,4 +41,4 @@ Last Updated: 2026-09-17
 
 ## Recommended Next Session Prompt
 
-> 공통 규칙과 세션 문서를 읽고, FRONTEND_IMPLEMENTATION 1단계 로컬 검증 결과를 반영한 뒤 어드민 콘텐츠 관리(2단계)를 진행하자.
+> 공통 규칙과 세션 문서를 읽고, FRONTEND_IMPLEMENTATION 2단계(어드민 콘텐츠 관리)를 진행하자.

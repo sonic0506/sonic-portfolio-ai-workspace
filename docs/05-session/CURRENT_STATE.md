@@ -4,11 +4,11 @@ Last Updated: 2026-09-17
 
 ## Current Phase
 
-Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 콘텐츠 관리 CRUD(Project, Blog, Profile, Category/Tag)도 완료했다. 샘플 콘텐츠 시드와 Document 색인(가짜 임베딩으로 검증)도 완료했다. 실제 OpenAI 임베딩으로 개발 DB 샘플 7건 READY를 확인했다(사용자 보고). 검색·답변(채팅) 1차(단일 질문, SSE, 질문 제한)도 구현했다. 실제 OpenAI로 PoC 질문 7개를 재현해 기대 출처 7/7, 근거 부족 거부, 비공개 미노출을 확인했다(RAG_MEASUREMENTS 측정 4). 프로필 slug 결함도 수정했다(77건 통과). 채팅 세션(ADR-0011)도 구현했다(89건 통과). 답하지 못한 질문 보관·안내 문구(ADR-0013)도 구현했다(101건 통과). FAQ(ADR-0014)도 구현하고 실제 모델로 확인했다(측정 6·7, 108건 통과). 백엔드 기능은 여기서 일단락했다. 프론트엔드(ADR-0012) 1단계(pnpm workspace, 포트폴리오 조회·채팅, 어드민 미답변·FAQ·색인)를 작성했고 사용자 로컬 검증을 기다린다.
+Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 콘텐츠 관리 CRUD(Project, Blog, Profile, Category/Tag)도 완료했다. 샘플 콘텐츠 시드와 Document 색인(가짜 임베딩으로 검증)도 완료했다. 실제 OpenAI 임베딩으로 개발 DB 샘플 7건 READY를 확인했다(사용자 보고). 검색·답변(채팅) 1차(단일 질문, SSE, 질문 제한)도 구현했다. 실제 OpenAI로 PoC 질문 7개를 재현해 기대 출처 7/7, 근거 부족 거부, 비공개 미노출을 확인했다(RAG_MEASUREMENTS 측정 4). 프로필 slug 결함도 수정했다(77건 통과). 채팅 세션(ADR-0011)도 구현했다(89건 통과). 답하지 못한 질문 보관·안내 문구(ADR-0013)도 구현했다(101건 통과). FAQ(ADR-0014)도 구현하고 실제 모델로 확인했다(측정 6·7, 108건 통과). 백엔드 기능은 여기서 일단락했다. 프론트엔드(ADR-0012) 1단계(pnpm workspace, 포트폴리오 조회·채팅, 어드민 미답변·FAQ·색인)를 완료했다. 같은 날 SSE 버퍼링 방지 헤더, FAQ 판정 단계 분리(ADR-0014 후속 2), 질문 제한 제외 IP를 추가했다(백엔드 111건 통과). 다음은 프론트 2단계(어드민 콘텐츠 관리).
 
 ## Confirmed
 
-- 2026-09-17 프론트 1단계(사용자 Mac에서 설치·빌드·테스트·조회 화면 확인, 채팅·어드민 수동 확인 대기): 루트 pnpm workspace, `frontend/portfolio`(Next.js 16.3.5)·`frontend/admin`(Vite 8.3 + React Router 8.4 + TanStack Query + RHF + Zod), Tailwind 4 + shadcn 방식 컴포넌트(레지스트리 차단으로 수동), 개발 서버 프록시, Node ≥22.22. 컨테이너에서 설치·빌드·lint·테스트(4+5건)와 가짜 백엔드 연동(SSE 스트리밍 포함)을 확인했다. 상세는 FRONTEND_IMPLEMENTATION.
+- 2026-09-17 프론트 1단계(사용자 Mac에서 설치·빌드·테스트, 조회·채팅·어드민 수동 확인 완료): 루트 pnpm workspace, `frontend/portfolio`(Next.js 16.3.5)·`frontend/admin`(Vite 8.3 + React Router 8.4 + TanStack Query + RHF + Zod), Tailwind 4 + shadcn 방식 컴포넌트(레지스트리 차단으로 수동), 개발 서버 프록시, Node ≥22.22. 컨테이너에서 설치·빌드·lint·테스트(4+5건)와 가짜 백엔드 연동(SSE 스트리밍 포함)을 확인했다. 상세는 FRONTEND_IMPLEMENTATION.
 
 - 2026-09-17 FAQ: V3 `faq`·`faq_alias`, FAQ를 RAG 문서로 색인하고 같은 뜻 판단은 모델이 함(측정 5에서 거리 기준 불가 확인), `/api/admin/faqs`, 미답변 질문에서 등록 시 처리됨. 측정 6: 같은 뜻 3개 등록 답변, 다른 뜻·근거 없음 3개 안내 문구.
 

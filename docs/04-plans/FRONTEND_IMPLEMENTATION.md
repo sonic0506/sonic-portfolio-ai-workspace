@@ -1,6 +1,6 @@
 # Frontend Implementation
 
-Status: In Progress (1단계 작성, 사용자 로컬 검증 대기)
+Status: In Progress (1단계 완료·검증, 2단계 대기)
 Last Updated: 2026-09-17
 
 기준: [ADR-0012](../03-decisions/ADR-0012-frontend-tooling.md), API 계약은 [API_DESIGN](../02-design/API_DESIGN.md).
@@ -67,7 +67,12 @@ pnpm dev:admin               # http://localhost:5173
 - 가짜 백엔드(8080)로 `next dev` 확인: 페이지 200, 없는 slug 404, rewrites를 거친 SSE가 0.5초 간격 그대로 도착(버퍼링 없음), 브라우저에서 추천 질문 클릭 → 답변 표시·localStorage 저장, 콘솔 오류 없음. Admin은 401 시 로그인 화면·로그인 링크 확인.
 - 사용자 Mac 첫 실행(2026-09-17)에서 두 결함을 고쳤다: ① 백엔드 주소 `localhost` → `127.0.0.1`(IPv6 연결 실패), ② `skills`가 문자열이 아니라 `SkillResponse{id, code, name, iconKey}` 배열인데 문자열로 가정해 렌더링 오류. 가짜 백엔드가 잘못된 가정을 그대로 따라 컨테이너 검증에서 놓쳤다. 이후 응답 타입은 백엔드 record와 대조한다.
 - 수정 후 사용자 Mac에서 포트폴리오 조회 화면 정상 노출, 루트 `pnpm test && pnpm lint && pnpm build` 통과(2026-09-17).
-- 사용자 확인 대기: 실제 모델 채팅(스트리밍·복원·새 대화), 어드민 GitHub 로그인 복귀·FAQ 등록(CSRF)·색인 화면.
+- 사용자 확인(2026-09-17): 새로고침 복원, FAQ 등록 → 해결 처리(CSRF 포함)·채팅 반영, 색인 화면 정상.
+  - 답변이 한꺼번에 표시됨 → Next 개발 서버가 브라우저 요청에 gzip을 적용하며 SSE를 모아 보냄(가짜 백엔드로 재현). 백엔드 SSE 응답에 `Cache-Control: no-cache, no-transform`, `X-Accel-Buffering: no` 추가 → 실제 환경에서 조각별 표시 확인(백엔드 테스트 통과).
+  - 로그인 후 `/api/admin/me`로 이동 → 사용자 `.env`에 `ADMIN_LOGIN_SUCCESS_URL`이 없었음. `.env`·`.env.example`에 추가, 5173 복귀 확인.
+  - 로그인 버튼을 눌러도 반응이 없음 → GitHub로 이동하는 동안 버튼 잠금·"GitHub로 이동 중…" 표시(뒤로 가기 시 해제). 사용자 확인 완료.
+  - 답변 본문의 근거 번호([1] 등)를 화면에서 제거(사용자 선택). 서버는 번호로 출처를 계산하고 저장 내용도 그대로이며, 출처는 답변 아래 목록으로만 보인다. 사용자 확인 완료.
+  - 로딩 표시가 없어 멈춘 것처럼 보임 → 어드민 로그인 확인·목록·저장·재색인·로그아웃에 스피너, 포트폴리오 `loading.tsx` 추가(사용자 확인 완료).
 - 미검증: 위 사용자 확인 대기 항목.
 
 ## 2단계 이후

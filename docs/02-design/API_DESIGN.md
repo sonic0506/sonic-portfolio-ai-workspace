@@ -48,7 +48,7 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 
 `POST /api/chat` — 익명, CSRF 제외. 요청 `{"question": "..."}`(1~500자), 응답 `text/event-stream`.
 
-스트림 시작 전 오류(JSON Problem Detail): `400` 질문 검증, `503` 임베딩·생성 모델 꺼짐, `429` 하루 질문 제한 초과(IP당 20, 전체 300 — `CHAT_LIMIT_*`로 변경·해제).
+스트림 시작 전 오류(JSON Problem Detail): `400` 질문 검증, `503` 임베딩·생성 모델 꺼짐, `429` 하루 질문 제한 초과(IP당 20, 전체 300 — `CHAT_LIMIT_*`로 변경·해제). `CHAT_LIMIT_EXEMPT_IPS`(쉼표 구분)의 IP는 제한·집계에서 제외한다(2026-09-17 사용자 요청). 로컬에서는 개발 서버 프록시를 거쳐 모든 요청이 `127.0.0.1`로 보인다.
 
 | 이벤트 | data | 비고 |
 |---|---|---|
@@ -281,6 +281,6 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 - `GET /api/admin/faqs` → `[{id, question, answer, published, displayOrder, indexStatus, createdAt, updatedAt}]`(순서, id 순)
 - `POST /api/admin/faqs` → `201`, `PUT /api/admin/faqs/{id}` → `200`, `DELETE /api/admin/faqs/{id}` → `204`
 - 본문 `{question(1~300자), answer(1~3000자), published, displayOrder, fromUnansweredId?}`. `fromUnansweredId`가 있으면 그 미답변 질문을 RESOLVED로 바꾸고 메모에 "FAQ #n 등록"을 남긴다(없는 ID면 `400`).
-- 저장 시 RAG 문서(`FAQ`, 제목 "자주 묻는 질문: {질문}")로 투영되고 색인된다. 채팅에서 같은 뜻이면 등록 답변을 그대로 쓰며 출처는 `{type: "FAQ", slug: "faq-{id}", url: null}`이다.
+- 저장 시 RAG 문서(`FAQ`, 제목 "자주 묻는 질문: {질문}")로 투영되고 색인된다. 채팅 검색에 FAQ가 걸리면 먼저 같은 질문인지 판정하고(ADR-0014 후속 결정 2), 같으면 생성 없이 등록 답변을 `answer_delta` 한 번으로 보낸다. 출처는 `{type: "FAQ", slug: "faq-{id}", url: null}`이다.
 
 검증: `FaqAdminApiTest` (2026-09-17), RAG_MEASUREMENTS 측정 6
