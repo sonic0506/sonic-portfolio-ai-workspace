@@ -274,3 +274,12 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 - 90일 지난 기록은 자동 삭제(`CHAT_UNANSWERED_RETENTION_DAYS`). `retrieved.distance`는 코사인 거리(작을수록 가까움)로, 자료가 있는데 못 찾았는지 판단하는 데 쓴다.
 
 검증: `UnansweredQuestionTest`, `NoAnswerMarkerTest` (2026-09-17)
+
+### FAQ 관리 (ADR-0014)
+
+- `GET /api/admin/faqs` → `[{id, question, answer, published, displayOrder, indexStatus, createdAt, updatedAt}]`(순서, id 순)
+- `POST /api/admin/faqs` → `201`, `PUT /api/admin/faqs/{id}` → `200`, `DELETE /api/admin/faqs/{id}` → `204`
+- 본문 `{question(1~300자), answer(1~3000자), published, displayOrder, fromUnansweredId?}`. `fromUnansweredId`가 있으면 그 미답변 질문을 RESOLVED로 바꾸고 메모에 "FAQ #n 등록"을 남긴다(없는 ID면 `400`).
+- 저장 시 RAG 문서(`FAQ`, 제목 "자주 묻는 질문: {질문}")로 투영되고 색인된다. 채팅에서 같은 뜻이면 등록 답변을 그대로 쓰며 출처는 `{type: "FAQ", slug: "faq-{id}", url: null}`이다.
+
+검증: `FaqAdminApiTest` (2026-09-17), RAG_MEASUREMENTS 측정 6

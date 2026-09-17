@@ -22,10 +22,12 @@ public class Retriever {
     /** Public view of a document; no internal id is sent to clients. */
     public record DocumentRef(long id, String type, String slug, String title) {
 
+        /** null for FAQ: there is no public FAQ page. */
         public String url() {
             return switch (type) {
                 case "PROJECT" -> "/projects/" + slug;
                 case "BLOG" -> "/blog/" + slug;
+                case "FAQ" -> null;
                 default -> "/profile";
             };
         }

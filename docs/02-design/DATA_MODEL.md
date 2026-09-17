@@ -372,6 +372,10 @@ create index chat_message_source_document_idx on chat_message_source (document_i
 
 근거 부족으로 답하지 못한 질문. 질문·답변·사유·당시 검색 문서(jsonb)·상태·관리자 메모. `session_id`는 `on delete set null`이라 세션(24시간)이 지워져도 기록은 90일 유지된다. 방문자 식별 정보는 저장하지 않는다.
 
+### faq / faq_alias (V3, ADR-0014)
+
+관리자가 등록한 질문·답변. `document_type = 'FAQ'`로 투영된다. `faq_alias`는 같은 뜻의 다른 표현(현재 API 미노출, 투영에는 포함).
+
 ## 5. 두지 않은 테이블
 
 | 후보 | 두지 않은 이유 |
