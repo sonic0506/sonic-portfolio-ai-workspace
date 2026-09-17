@@ -19,7 +19,10 @@ public class Retriever {
     public static final int TOP_K = 5;
     public static final int MAX_RELATED = 2;
 
-    /** Public view of a document; no internal id is sent to clients. */
+    /**
+     * Public view of a document; no internal id is sent to clients. Profile documents projected before
+     * the fixed "profile" slug existed have no slug in metadata, so the queries fall back to it.
+     */
     public record DocumentRef(long id, String type, String slug, String title) {
 
         /** null for FAQ: there is no public FAQ page. */
@@ -37,7 +40,7 @@ public class Retriever {
     }
 
     private static final String SELECT = """
-            select d.id as doc_id, d.document_type, d.metadata->>'slug' as slug, d.title,
+            select d.id as doc_id, d.document_type, coalesce(d.metadata->>'slug', case when d.document_type = 'PROFILE' then 'profile' end) as slug, d.title,
                    c.section_titles, c.content, c.embedding <=> cast(? as vector) as distance
             from document_chunk c join document d on d.id = c.document_id
             where d.visible and c.embedding is not null
@@ -60,7 +63,7 @@ public class Retriever {
         }
         Long[] ids = documentIds.toArray(Long[]::new);
         return jdbc.query("""
-                select distinct on (d.id) d.id, d.document_type, d.metadata->>'slug' as slug, d.title
+                select distinct on (d.id) d.id, d.document_type, coalesce(d.metadata->>'slug', case when d.document_type = 'PROFILE' then 'profile' end) as slug, d.title
                 from document_relation r
                 join document d on d.id = case when r.source_document_id = any (?)
                                                then r.target_document_id else r.source_document_id end

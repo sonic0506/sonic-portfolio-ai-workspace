@@ -141,7 +141,7 @@ public class ChatSessionService {
     public Transcript transcript(Session session) {
         Map<Long, List<Doc>> sources = new LinkedHashMap<>();
         jdbc.query("""
-                select s.message_id, d.document_type, d.metadata->>'slug' as slug, d.title
+                select s.message_id, d.document_type, coalesce(d.metadata->>'slug', case when d.document_type = 'PROFILE' then 'profile' end) as slug, d.title
                 from chat_message_source s
                 join chat_message m on m.id = s.message_id
                 join document d on d.id = s.document_id

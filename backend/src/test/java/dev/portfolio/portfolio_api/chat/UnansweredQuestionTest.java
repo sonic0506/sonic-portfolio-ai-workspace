@@ -64,6 +64,7 @@ class UnansweredQuestionTest extends ApiTestSupport {
         String prompt = chatService.systemPrompt(false);
         assertTrue(prompt.contains("[[NO_ANSWER]]"));
         assertTrue(prompt.contains(ChatService.DEFAULT_GUIDE));
+        assertTrue(prompt.contains("짧은 명사구로 쓴다"));
         assertTrue(ChatService.DEFAULT_GUIDE.startsWith("{주제}에 대해서는 지금 정보로는 답변드리기 어려워요."));
     }
 

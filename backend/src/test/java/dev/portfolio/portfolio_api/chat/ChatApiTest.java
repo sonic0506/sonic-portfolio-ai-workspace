@@ -145,6 +145,20 @@ class ChatApiTest extends ApiTestSupport {
     }
 
     @Test
+    void profileDocumentWithoutStoredSlugStillGetsOne() throws Exception {
+        // a profile document projected before the fixed slug existed (metadata without slug)
+        long profile = insertReturningId("""
+                insert into document (document_type, source_id, title, content, metadata, visible, index_status)
+                values ('PROFILE', 99, '프로필', 'x', '{}', true, 'READY')""");
+        chunk(profile, 0, "프로필 내용", oneHot(0, 1f)); // same direction as the query: ranked first
+        generator.deltas = List.of("프로필입니다 [1].");
+        String body = chat("프로필?");
+        String done = body.substring(body.indexOf("event:done"));
+        assertTrue(done.contains("\"slug\":\"profile\""), done);
+        assertFalse(body.contains("\"slug\":null"), body);
+    }
+
+    @Test
     void citationParsingIgnoresOutOfRangeNumbers() {
         Retriever.DocumentRef ref = new Retriever.DocumentRef(9, "PROJECT", "x", "X");
         var hits = List.of(new Retriever.Hit(ref, List.of("t"), "x", 0.1));
