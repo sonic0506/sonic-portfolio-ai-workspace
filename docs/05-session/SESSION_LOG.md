@@ -448,3 +448,8 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 사용자: ADR-0011 제안 채택, 어드민 Vite + pnpm(ADR-0012), 채팅 세션 먼저.
 - 구현: ChatSessionService/Controller, ChatStreams, 이력 반영 ChatService, 인용 문서 삭제 허용. 사용자 로컬 89건 통과(첫 실행).
 - 사용자 요청: 근거 부족 시 부드러운 안내 문구 + 답하지 못한 질문 보관·관리자 확인. 결정(표시+출처 없음 판정, 설정 템플릿, 90일 자동 삭제+관리자 삭제)을 UNANSWERED_QUESTIONS_IMPLEMENTATION에 기록.
+
+## 2026-09-17 — 답하지 못한 질문 보관, FAQ 요청
+
+- ADR-0013 작성, ADR-0007 후속 결정. V2 마이그레이션, NoAnswerMarker, 기록·관리자 API·90일 정리. 사용자 로컬 101건 통과(첫 실행).
+- 사용자 요청: 고정 질문·답변 등록과 유사 질문 매칭 방식 논의.

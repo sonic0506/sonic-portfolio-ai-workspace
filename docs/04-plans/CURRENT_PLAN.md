@@ -43,7 +43,9 @@ Status: Active
 - [x] 검색·답변(채팅) 1차 — CHAT_IMPLEMENTATION.md (2026-09-16, 단일 질문, 테스트 77건)
   - [x] 실제 OpenAI로 PoC 질문 7개 재현 — 7/7 (RAG_MEASUREMENTS 측정 4)
 - [x] 채팅 세션(대화 이력) — ADR-0011, CHAT_SESSION_IMPLEMENTATION.md (2026-09-16, 테스트 89건)
-- [ ] 답하지 못한 질문 보관·안내 문구 — UNANSWERED_QUESTIONS_IMPLEMENTATION.md
+- [x] 답하지 못한 질문 보관·안내 문구 — ADR-0013, UNANSWERED_QUESTIONS_IMPLEMENTATION.md (2026-09-17, 테스트 101건)
+  - [ ] 실제 모델로 PoC 질문 7개 재측정
+- [ ] 고정 질문·답변(FAQ) — 사용자 요청, 설계 논의 중
 - [ ] 프론트엔드 — ADR-0012(Next.js, React+Vite, pnpm)
 
 ## Definition of Done for Current Phase
