@@ -1,0 +1,117 @@
+import { describe, expect, it } from 'vitest'
+import {
+  blogPostSchema,
+  duplicateSkillIds,
+  emptyBlogPost,
+  emptyProfile,
+  emptyProject,
+  profileSchema,
+  profileToForm,
+  profileToRequest,
+  projectSchema,
+  projectToForm,
+  projectToRequest,
+} from './content-schemas'
+import type { AdminProfile, AdminProjectDetail } from '@/lib/types'
+
+const paths = (r: { success: boolean; error?: { issues: { path: PropertyKey[] }[] } }) =>
+  r.error?.issues.map((i) => i.path.join('.')) ?? []
+
+describe('projectSchema', () => {
+  it('필수값·slug 형식·URL·기여도·기간 역전을 검사한다', () => {
+    const r = projectSchema.safeParse({
+      ...emptyProject(),
+      slug: 'My Project',
+      summary: '요약',
+      periodStart: '2024-05-01',
+      periodEnd: '2024-01-01',
+      githubUrl: 'github.com/x',
+      contribution: '120',
+      highlights: [{ value: ' ' }],
+    })
+    expect(paths(r)).toEqual(
+      expect.arrayContaining(['slug', 'title', 'periodEnd', 'githubUrl', 'contribution', 'highlights.0.value']),
+    )
+  })
+
+  it('폼 값을 요청으로 바꿀 때 빈 문자열은 null, 숫자는 숫자로 바꾼다', () => {
+    const form = projectSchema.parse({
+      ...emptyProject(),
+      slug: 'viora',
+      title: ' 비오라 ',
+      summary: '요약',
+      periodStart: '2024-01-01',
+      contribution: '30',
+      displayOrder: '',
+      highlights: [{ value: '성과' }],
+      skillIds: [3, 1],
+      sections: [{ title: ' 개요 ', bodyMarkdown: '본문\n' }],
+    })
+    const req = projectToRequest(form)
+    expect(req).toMatchObject({
+      title: '비오라',
+      contribution: 30,
+      displayOrder: 0,
+      organization: null,
+      periodEnd: null,
+      githubUrl: null,
+      highlights: ['성과'],
+      skillIds: [3, 1],
+      sections: [{ title: '개요', bodyMarkdown: '본문\n' }],
+    })
+  })
+
+  it('상세 응답 → 폼 → 요청이 같은 값을 유지한다', () => {
+    const detail: AdminProjectDetail = {
+      id: 1, slug: 'a', title: 't', summary: 's', organization: null, position: '개발',
+      contribution: null, contributionNote: null, periodStart: '2024-01-01', periodEnd: null,
+      thumbnailUrl: null, githubUrl: 'https://github.com/a', serviceUrl: null,
+      featured: true, published: false, displayOrder: 2, adminNote: null,
+      highlights: ['h'], skillIds: [1], sections: [], publishedAt: null, createdAt: '', updatedAt: '',
+    }
+    const { id, publishedAt, createdAt, updatedAt, ...request } = detail
+    void [id, publishedAt, createdAt, updatedAt]
+    expect(projectToRequest(projectToForm(detail))).toEqual(request)
+  })
+})
+
+describe('blogPostSchema', () => {
+  it('요약은 비워도 되고 제목은 필수다', () => {
+    const r = blogPostSchema.safeParse({ ...emptyBlogPost(), slug: 'post' })
+    expect(paths(r)).toEqual(['title'])
+  })
+})
+
+describe('profileSchema', () => {
+  it('이메일 형식과 경력 기간을 검사한다', () => {
+    const r = profileSchema.safeParse({
+      ...emptyProfile(),
+      headline: 'h',
+      shortBio: 'b',
+      email: 'not-an-email',
+      careers: [{ company: 'c', role: '', periodStart: '2024-02-01', periodEnd: '2023-01-01', description: '' }],
+    })
+    expect(paths(r)).toEqual(['email', 'careers.0.periodEnd'])
+  })
+
+  it('스킬 그룹을 고정 순서로 펼치고 중복을 찾는다', () => {
+    const profile: AdminProfile = {
+      id: 1, updatedAt: '', headline: 'h', shortBio: 'b', imageUrl: null, githubUrl: null, email: null,
+      careers: [],
+      skills: [
+        { skillId: 5, group: 'LEARNING' },
+        { skillId: 2, group: 'PRIMARY' },
+        { skillId: 1, group: 'PRIMARY' },
+      ],
+      sections: [],
+    }
+    const form = profileToForm(profile)
+    expect(form.skillGroups.PRIMARY).toEqual([2, 1])
+    expect(profileToRequest(form).skills).toEqual([
+      { skillId: 2, group: 'PRIMARY' },
+      { skillId: 1, group: 'PRIMARY' },
+      { skillId: 5, group: 'LEARNING' },
+    ])
+    expect(duplicateSkillIds({ ...form.skillGroups, COLLABORATION: [1] })).toEqual([1])
+  })
+})

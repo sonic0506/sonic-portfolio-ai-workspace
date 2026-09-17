@@ -3,11 +3,12 @@ import { ErrorText, PageTitle } from '@/components/layout'
 import { Loading, Spinner } from '@/components/loading'
 import { IndexStatusBadge } from '@/components/status-badge'
 import { Button } from '@/components/ui/button'
+import { keys } from '@/features/content-queries'
 import { api } from '@/lib/api'
 import { formatDateTime } from '@/lib/format'
 import type { RagDocument, ReindexResult } from '@/lib/types'
 
-const key = ['rag', 'documents'] as const
+const key = keys.rag
 
 export function RagPage() {
   const queryClient = useQueryClient()

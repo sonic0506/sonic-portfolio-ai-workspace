@@ -8,7 +8,13 @@ import { meQueryKey } from '@/features/auth-queries'
 import { ApiError } from '@/lib/api'
 import { FaqEditPage } from '@/pages/faq-edit-page'
 import { FaqListPage } from '@/pages/faq-list-page'
+import { PostEditPage } from '@/pages/post-edit-page'
+import { PostListPage } from '@/pages/post-list-page'
+import { ProfilePage } from '@/pages/profile-page'
+import { ProjectEditPage } from '@/pages/project-edit-page'
+import { ProjectListPage } from '@/pages/project-list-page'
 import { RagPage } from '@/pages/rag-page'
+import { TaxonomyPage } from '@/pages/taxonomy-page'
 import { UnansweredPage } from '@/pages/unanswered-page'
 import './index.css'
 
@@ -37,6 +43,14 @@ const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <Navigate to="/unanswered" replace /> },
+      { path: 'projects', element: <ProjectListPage /> },
+      { path: 'projects/new', element: <ProjectEditPage /> },
+      { path: 'projects/:id', element: <ProjectEditPage /> },
+      { path: 'posts', element: <PostListPage /> },
+      { path: 'posts/new', element: <PostEditPage /> },
+      { path: 'posts/:id', element: <PostEditPage /> },
+      { path: 'profile', element: <ProfilePage /> },
+      { path: 'taxonomy', element: <TaxonomyPage /> },
       { path: 'unanswered', element: <UnansweredPage /> },
       { path: 'faqs', element: <FaqListPage /> },
       { path: 'faqs/new', element: <FaqEditPage /> },

@@ -59,3 +59,104 @@ export type FaqRequest = {
   displayOrder: number
   fromUnansweredId?: number
 }
+
+// 콘텐츠 관리 (API_DESIGN "콘텐츠 관리")
+
+export type Skill = { id: number; code: string; name: string; iconKey: string | null }
+export type Category = { id: number; code: string; name: string; displayOrder: number }
+export type Tag = { id: number; code: string; name: string }
+export type Section = { title: string; bodyMarkdown: string }
+
+export type AdminProjectItem = {
+  id: number
+  slug: string
+  title: string
+  featured: boolean
+  published: boolean
+  displayOrder: number
+  periodStart: string
+  periodEnd: string | null
+  publishedAt: string | null
+  updatedAt: string
+}
+
+export type ProjectRequest = {
+  slug: string
+  title: string
+  summary: string
+  organization: string | null
+  position: string | null
+  contribution: number | null
+  contributionNote: string | null
+  periodStart: string
+  periodEnd: string | null
+  thumbnailUrl: string | null
+  githubUrl: string | null
+  serviceUrl: string | null
+  featured: boolean
+  published: boolean
+  displayOrder: number
+  adminNote: string | null
+  highlights: string[]
+  skillIds: number[]
+  sections: Section[]
+}
+
+export type AdminProjectDetail = ProjectRequest & {
+  id: number
+  publishedAt: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type AdminBlogPostItem = {
+  id: number
+  slug: string
+  title: string
+  published: boolean
+  publishedAt: string | null
+  updatedAt: string
+}
+
+export type BlogPostRequest = {
+  slug: string
+  title: string
+  summary: string | null
+  thumbnailUrl: string | null
+  published: boolean
+  adminNote: string | null
+  categoryIds: number[]
+  tagIds: number[]
+  skillIds: number[]
+  sections: Section[]
+}
+
+export type AdminBlogPostDetail = BlogPostRequest & {
+  id: number
+  publishedAt: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type SkillGroup = 'PRIMARY' | 'PROJECT_EXPERIENCE' | 'LEARNING' | 'COLLABORATION'
+
+export type Career = {
+  company: string
+  role: string | null
+  periodStart: string
+  periodEnd: string | null
+  description: string | null
+}
+
+export type ProfileRequest = {
+  headline: string
+  shortBio: string
+  imageUrl: string | null
+  githubUrl: string | null
+  email: string | null
+  careers: Career[]
+  skills: { skillId: number; group: SkillGroup }[]
+  sections: Section[]
+}
+
+export type AdminProfile = ProfileRequest & { id: number; updatedAt: string }
