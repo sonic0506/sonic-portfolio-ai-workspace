@@ -6,15 +6,23 @@ Last Updated: 2026-09-16
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
-## Priority 1 — 실제 모델 재측정과 고정 질문(FAQ) 설계
+## Priority 1 — 프론트엔드 착수 (ADR-0012)
 
-- 답하지 못한 질문 기능(ADR-0013)은 2026-09-17 구현·커밋. 프롬프트가 바뀌었으니 실제 모델로 PoC 질문 7개를 다시 확인한다(표시 누락·오판정, 안내 문구). 결과를 RAG_MEASUREMENTS 측정 5로 기록한다.
-- 사용자 요청: 관리자가 등록한 고정 질문·답변(FAQ)으로 답하기, 비슷한 표현의 질문 처리 방식 결정 필요.
+백엔드는 공개 조회·관리·색인·채팅(세션·미답변·FAQ)까지 구현됐다(107건). 프론트 구현 계획을 쓴다.
 
-## Priority 2 — 다음 기능 선택 (사용자에게 확인)
+1. 저장소 루트에 pnpm workspace(`frontend/portfolio` Next.js, `frontend/admin` React+Vite) 구성안과 버전을 정하고 실제 설치로 검증한다.
+2. 포트폴리오 첫 화면: 프로필·프로젝트·블로그 조회와 채팅 위젯(세션 localStorage, SSE, "대화는 24시간 후 삭제" 안내, `unanswered` 표시).
+3. 어드민 첫 화면: GitHub 로그인, 콘텐츠 관리, 미답변 질문 목록 → FAQ 등록, RAG 색인 상태.
+4. 개발 중 API 호출 경로(프록시 vs CORS)를 정한다(ADR-0010 4절).
 
-- **프론트엔드(Public Next.js / Admin React):** 백엔드 API가 공개 조회·관리·채팅까지 갖춰졌다. 프론트 도구(패키지 매니저·빌드) 결정이 먼저 필요하다(ARCHITECTURE).
-- **Relation 편집 API와 공개 상세의 관련 문서 표시**, RAG Playground, Graph API.
+## 남은 백엔드 확인 (작음)
+
+- 바뀐 프롬프트로 PoC 근거 있는 질문 6개 재확인(표시 오판정 여부).
+- 안내 문구 주제를 명사형으로 쓰도록 프롬프트 다듬기 검토(측정 6).
+
+## Priority 2 — 이후 기능 후보
+
+- Relation 편집 API와 공개 상세의 관련 문서 표시, RAG Playground, Graph API, FAQ 다른 표현(B) 관리.
 
 ## 사용자 확인 대기 (콘텐츠 사실)
 
@@ -39,4 +47,4 @@ Last Updated: 2026-09-16
 
 ## Recommended Next Session Prompt
 
-> 공통 규칙과 세션 문서를 읽고, 다음 기능(프론트엔드 또는 채팅 세션)을 사용자와 정한 뒤 계획을 작성하자.
+> 공통 규칙과 세션 문서를 읽고, ADR-0012에 따라 pnpm workspace와 포트폴리오(Next.js)·어드민(React+Vite) 프론트 구현 계획을 작성하자.

@@ -44,8 +44,9 @@ Status: Active
   - [x] 실제 OpenAI로 PoC 질문 7개 재현 — 7/7 (RAG_MEASUREMENTS 측정 4)
 - [x] 채팅 세션(대화 이력) — ADR-0011, CHAT_SESSION_IMPLEMENTATION.md (2026-09-16, 테스트 89건)
 - [x] 답하지 못한 질문 보관·안내 문구 — ADR-0013, UNANSWERED_QUESTIONS_IMPLEMENTATION.md (2026-09-17, 테스트 101건)
-  - [ ] 실제 모델로 PoC 질문 7개 재측정
-- [ ] 고정 질문·답변(FAQ) — 사용자 요청, 설계 논의 중
+  - [x] 실제 모델 확인 — 측정 6(근거 없음·다른 뜻 질문 안내)
+  - [ ] 바뀐 프롬프트로 PoC 근거 있는 질문 6개 재확인
+- [x] 고정 질문·답변(FAQ) — ADR-0014, FAQ_IMPLEMENTATION.md (2026-09-17, 테스트 107건, 측정 6 6/6)
 - [ ] 프론트엔드 — ADR-0012(Next.js, React+Vite, pnpm)
 
 ## Definition of Done for Current Phase
