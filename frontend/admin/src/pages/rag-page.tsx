@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ErrorText, PageTitle } from '@/components/layout'
+import { Loading, Spinner } from '@/components/loading'
 import { IndexStatusBadge } from '@/components/status-badge'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
@@ -30,6 +31,7 @@ export function RagPage() {
         actions={
           <>
             <Button variant="outline" disabled={reindex.isPending} onClick={() => reindex.mutate(false)}>
+              {reindex.isPending && reindex.variables === false && <Spinner />}
               대기·실패 문서 색인
             </Button>
             <Button
@@ -40,6 +42,7 @@ export function RagPage() {
                 }
               }}
             >
+              {reindex.isPending && reindex.variables === true && <Spinner />}
               전체 재색인
             </Button>
           </>
@@ -48,7 +51,8 @@ export function RagPage() {
         색인 상태
       </PageTitle>
 
-      {reindex.isPending && <p className="mb-4 text-sm text-muted-foreground">색인 중…</p>}
+      {reindex.isPending && <Loading label="색인 중… 문서 수에 따라 시간이 걸릴 수 있습니다." className="py-4" />}
+      {documents.isPending && <Loading />}
       {result && (
         <p className="mb-4 text-sm">
           {result.embeddingEnabled
@@ -58,7 +62,7 @@ export function RagPage() {
       )}
       <ErrorText error={documents.error ?? reindex.error} />
 
-      <div className="overflow-x-auto rounded-lg border">
+      <div className={documents.isPending ? 'hidden' : 'overflow-x-auto rounded-lg border'}>
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left">
             <tr>

@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { ErrorText, PageTitle } from '@/components/layout'
+import { Loading, Spinner } from '@/components/loading'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -16,7 +17,7 @@ export function FaqEditPage() {
   const { id } = useParams()
   const faqs = useFaqs()
   if (!id) return <FaqForm />
-  if (faqs.isPending) return <p className="text-sm text-muted-foreground">불러오는 중…</p>
+  if (faqs.isPending) return <Loading />
   const faq = faqs.data?.find((f) => f.id === Number(id))
   if (!faq) return <p className="text-sm text-muted-foreground">FAQ를 찾을 수 없습니다.</p>
   return <FaqForm faq={faq} />
@@ -89,6 +90,7 @@ function FaqForm({ faq }: { faq?: Faq }) {
         <ErrorText error={save.error} />
         <div className="flex gap-2">
           <Button type="submit" disabled={save.isPending}>
+            {save.isPending && <Spinner />}
             {save.isPending ? '저장 중…' : '저장'}
           </Button>
           <Link to={fromId ? '/unanswered' : '/faqs'} className={buttonVariants({ variant: 'outline' })}>

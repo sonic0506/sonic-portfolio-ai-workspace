@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router'
 import { ErrorText, PageTitle } from '@/components/layout'
+import { Loading } from '@/components/loading'
 import { IndexStatusBadge } from '@/components/status-badge'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { api } from '@/lib/api'
@@ -30,7 +31,8 @@ export function FaqListPage() {
         채팅에서 같은 뜻의 질문이 오면 등록한 답변을 그대로 씁니다. 저장하면 색인이 다시 만들어집니다.
       </p>
       <ErrorText error={faqs.error ?? remove.error} />
-      <div className="overflow-x-auto rounded-lg border">
+      {faqs.isPending && <Loading />}
+      <div className={faqs.isPending ? 'hidden' : 'overflow-x-auto rounded-lg border'}>
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left">
             <tr>

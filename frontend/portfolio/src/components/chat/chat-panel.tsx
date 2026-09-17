@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { ChatSource } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useChat, type ChatMessage, type Stage } from "./chat-provider";
+import { stripCitations } from "./citations";
 
 const STAGE_LABEL: Record<Stage, string> = {
   SEARCHING: "문서를 찾는 중",
@@ -133,7 +134,7 @@ function Message({ message, stage }: { message: ChatMessage; stage: Stage | null
       )}
       {message.content && (
         <div className="prose-md rounded-lg bg-muted px-3 py-2 [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{stripCitations(message.content)}</ReactMarkdown>
         </div>
       )}
       {message.error && <p className="text-destructive">{message.error}</p>}

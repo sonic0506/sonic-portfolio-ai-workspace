@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useSearchParams } from 'react-router'
 import { ErrorText, PageTitle } from '@/components/layout'
+import { Loading, Spinner } from '@/components/loading'
 import { Badge } from '@/components/ui/badge'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -28,7 +29,9 @@ export function UnansweredPage() {
 
   return (
     <>
-      <PageTitle>답하지 못한 질문</PageTitle>
+      <PageTitle actions={list.isFetching && !list.isPending ? <Spinner className="text-muted-foreground" /> : null}>
+        답하지 못한 질문
+      </PageTitle>
       <div className="mb-4 flex gap-2">
         {(Object.keys(STATUS_LABEL) as UnansweredStatus[]).map((s) => (
           <Button key={s} size="sm" variant={s === status ? 'default' : 'outline'} onClick={() => setParams({ status: s })}>
@@ -37,6 +40,7 @@ export function UnansweredPage() {
         ))}
       </div>
       <ErrorText error={list.error} />
+      {list.isPending && <Loading />}
       {list.data?.items.length === 0 && <p className="text-sm text-muted-foreground">해당하는 질문이 없습니다.</p>}
       <div className="space-y-4">
         {list.data?.items.map((item) => (

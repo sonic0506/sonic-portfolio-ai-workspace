@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router'
+import { Spinner } from '@/components/loading'
 import { Button } from '@/components/ui/button'
 import { useLogout, useMe } from '@/features/auth-queries'
 import { cn } from '@/lib/utils'
@@ -34,6 +35,7 @@ export function Layout() {
             {me.data?.avatarUrl && <img src={me.data.avatarUrl} alt="" className="size-6 rounded-full" />}
             <span>{me.data?.name ?? me.data?.login}</span>
             <Button variant="ghost" size="sm" onClick={() => logout.mutate()} disabled={logout.isPending}>
+              {logout.isPending && <Spinner />}
               로그아웃
             </Button>
           </div>
