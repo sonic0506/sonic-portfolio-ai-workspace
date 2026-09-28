@@ -2,7 +2,6 @@
 
 import type { ComponentType, RefObject } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { forceX, forceY } from 'd3-force';
 import { useTheme } from 'next-themes';
 import type { ForceGraphMethods, ForceGraphProps, NodeObject } from 'react-force-graph-2d';
 
@@ -10,18 +9,7 @@ import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import type { Graph, GraphNodeType } from '@/lib/graph';
 import { visibleGraph } from '@/lib/graph';
 import type { GraphData, GraphDatum, LinkDatum } from '@/lib/graph-layout';
-import {
-  ALPHA_DECAY,
-  ALPHA_MIN,
-  CENTER_ASPECT,
-  CHARGE_STRENGTH,
-  LINK_DISTANCE,
-  SIM_TICKS,
-  VELOCITY_DECAY,
-  centerStrength,
-  createGraphData,
-  settleGraphData,
-} from '@/lib/graph-layout';
+import { createGraphData, settleGraphData } from '@/lib/graph-layout';
 
 /** 상세 패널이 덮는 폭. 노드를 가운데로 옮길 때 이만큼 뺀 영역을 기준으로 삼는다. */
 export const GRAPH_PANEL_WIDTH = 300;
@@ -130,19 +118,21 @@ export function GraphCanvas({ graph, query, hidden, selectedId, onSelect, focus,
   /*
    * 라이브러리가 이 객체들에 좌표를 직접 써넣으므로 한 번 만들어 계속 쓴다.
    * 보이는 종류만으로 배치한다. 종류를 켜고 끄면 다시 배치한다(ADR-0015 3).
+   * 배치는 그리기 전에 끝내고 노드를 고정한다. 애니메이션으로 자리 잡은 뒤에 화면을
+   * 맞추면 "한 번 그리고 다시 정렬하는" 점프가 보였다(2026-09-29 측정: 1초 뒤 배율 1 → 0.39).
    */
   const hiddenKey = [...hidden].sort().join(',');
   const data: GraphData = useMemo(() => {
     const built = createGraphData(visibleGraph(graph, new Set(hiddenKey.split(',').filter(Boolean) as GraphNodeType[])));
-    if (reduceMotion) settleGraphData(built);
+    settleGraphData(built);
     return built;
-  }, [graph, hiddenKey, reduceMotion]);
+  }, [graph, hiddenKey]);
 
   const propsRef = useRef({ query, hidden, selectedId, onSelect, panelOpen });
   const hoverRef = useRef<string | null>(null);
   const lastFrameRef = useRef(0);
   const focusTokenRef = useRef(0);
-  /** 첫 배율을 잡기 전에 들어온 포커스 요청. 배치가 끝난 뒤에 처리한다. */
+  /** 첫 배율을 잡기 전에 들어온 포커스 요청. 첫 맞춤과 함께 곧바로 처리한다. */
   const pendingFocusRef = useRef<string | null>(null);
   const fittedRef = useRef(false);
   const userMovedRef = useRef(false);
@@ -211,18 +201,6 @@ export function GraphCanvas({ graph, query, hidden, selectedId, onSelect, focus,
     instance.centerAt((bbox.x[0] + bbox.x[1]) / 2 - offset, (bbox.y[0] + bbox.y[1]) / 2, 0);
   }, []);
 
-  // 힘은 라이브러리가 만든 시뮬레이션에 얹는다. 캔버스가 붙은 뒤라야 손댈 수 있다.
-  useEffect(() => {
-    const instance = graphRef.current;
-    if (!instance || !size.width) return;
-    // 기본 forceCenter는 노드마다 세기를 달리할 수 없어 걷어낸다.
-    instance.d3Force('center', null);
-    instance.d3Force('charge')?.strength(CHARGE_STRENGTH);
-    instance.d3Force('link')?.distance(LINK_DISTANCE);
-    instance.d3Force('x', forceX<GraphDatum>(0).strength(centerStrength));
-    instance.d3Force('y', forceY<GraphDatum>(0).strength((node) => centerStrength(node) * CENTER_ASPECT));
-    if (!reduceMotion) instance.d3ReheatSimulation();
-  }, [data, ForceGraph2D, size.width, reduceMotion]);
 
   // 사용자가 줌·팬·드래그를 시작하면 그 뒤로는 시야에 손대지 않는다.
   useEffect(() => {
@@ -248,16 +226,16 @@ export function GraphCanvas({ graph, query, hidden, selectedId, onSelect, focus,
     fitView();
   }, [size, fitView]);
 
-  /** 노드를 패널이 덮지 않는 영역의 한가운데로 옮긴다. */
+  /** 노드를 패널이 덮지 않는 영역의 한가운데로 옮긴다. instant면 애니메이션 없이 옮긴다. */
   const focusNode = useCallback(
-    (id: string) => {
+    (id: string, instant = false) => {
       const instance = graphRef.current;
       const node = data.nodes.find((item) => item.id === id);
       if (!instance || !node) return;
       const zoom = instance.zoom();
       const offset = propsRef.current.panelOpen ? GRAPH_PANEL_WIDTH / 2 / zoom : 0;
       userMovedRef.current = true;
-      instance.centerAt(node.x + offset, node.y, reduceMotion ? 0 : FOCUS_DURATION);
+      instance.centerAt(node.x + offset, node.y, instant || reduceMotion ? 0 : FOCUS_DURATION);
     },
     [data, reduceMotion],
   );
@@ -265,7 +243,7 @@ export function GraphCanvas({ graph, query, hidden, selectedId, onSelect, focus,
   useEffect(() => {
     if (!focus || focus.token === focusTokenRef.current) return;
     focusTokenRef.current = focus.token;
-    // 아직 배치가 끝나지 않았으면 좌표가 계속 움직인다. 첫 배율 뒤로 미룬다.
+    // 첫 맞춤 전이면 그때 함께 옮긴다(처음부터 그 노드 자리에서 시작한다).
     if (!fittedRef.current) {
       pendingFocusRef.current = focus.id;
       return;
@@ -450,16 +428,22 @@ export function GraphCanvas({ graph, query, hidden, selectedId, onSelect, focus,
     ctx.globalAlpha = 1;
   }, []);
 
-  const handleEngineStop = useCallback(() => {
-    if (fittedRef.current || userMovedRef.current) return;
+  /** 첫 화면 맞춤. 딥링크로 들어왔으면 곧바로 그 노드로 옮긴다(애니메이션 없음). */
+  const fitOnce = useCallback(() => {
+    if (fittedRef.current || !graphRef.current) return;
     fittedRef.current = true;
     fitView();
     const pending = pendingFocusRef.current;
     if (pending) {
       pendingFocusRef.current = null;
-      focusNode(pending);
+      focusNode(pending, true);
     }
   }, [fitView, focusNode]);
+
+  // 캔버스가 붙거나 새로 배치하면 곧바로 맞춘다. 좌표는 이미 정해져 있다.
+  useEffect(() => {
+    if (ForceGraph2D && size.width) fitOnce();
+  }, [ForceGraph2D, size.width, data, fitOnce]);
 
   const handleNodeHover = useCallback((node: GraphNodeDatum | null) => {
     hoverRef.current = node?.id ?? null;
@@ -484,12 +468,10 @@ export function GraphCanvas({ graph, query, hidden, selectedId, onSelect, focus,
           maxZoom={MAX_ZOOM}
           // 페이드가 프레임마다 진행되므로 쉬는 프레임을 두면 안 된다.
           autoPauseRedraw={false}
-          cooldownTicks={reduceMotion ? 0 : SIM_TICKS}
-          cooldownTime={Infinity}
-          d3AlphaMin={ALPHA_MIN}
-          d3AlphaDecay={ALPHA_DECAY}
-          d3VelocityDecay={VELOCITY_DECAY}
-          onEngineStop={handleEngineStop}
+          // 배치는 미리 끝냈다. 라이브러리 시뮬레이션은 돌리지 않는다.
+          cooldownTicks={0}
+          // 첫 프레임 전에 맞춤이 끝나지 않았다면 여기서 한 번 더 시도한다.
+          onEngineStop={fitOnce}
           onRenderFramePre={advanceFade}
           onRenderFramePost={paintLabels}
           nodeCanvasObjectMode={() => 'replace'}
