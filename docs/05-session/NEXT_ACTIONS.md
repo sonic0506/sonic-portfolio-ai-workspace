@@ -1,14 +1,16 @@
 # Next Actions
 
-Last Updated: 2026-09-17
+Last Updated: 2026-09-28
 
 ## 현재 기준
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
-## 참고 — 샘플 시드 재실행 (선택)
+## Priority 0 — 실제 콘텐츠 개발 DB 반영
 
-참고 문서 기능은 2026-09-17 사용자 확인 완료. 개발 DB 샘플 연결 방향을 새 샘플과 맞추려면 `./gradlew bootRun --args='--spring.profiles.active=local --app.seed.samples-dir=../samples'`를 한 번 실행한다(기존 offline-first-boundary→web-serial-usb 행이 web-serial-usb→offline-first-boundary로 바뀜).
+1. 개발 DB의 기존 샘플(프로젝트 yujin-robot·syncmaster, 블로그 websocket-binary-video·web-serial-usb·offline-first-boundary)을 어드민에서 삭제한다(사용자 결정). 채팅 출처로 인용된 문서는 삭제가 막힐 수 있다(`chat_message_source` restrict).
+2. `./gradlew bootRun --args='--spring.profiles.active=local --app.seed.samples-dir=../content'` 실행. viora는 같은 slug라 새 내용으로 교체된다.
+3. 색인 상태(어드민)와 포트폴리오 목록·상세·참고 문서를 확인한다. 콘텐츠가 바뀌었으므로 RAG 품질은 새 질문으로 따로 본다(RAG_MEASUREMENTS 기준은 samples/).
 
 ## Priority 1 — 프론트 3단계 (FRONTEND_IMPLEMENTATION)
 

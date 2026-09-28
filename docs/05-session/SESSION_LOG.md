@@ -495,3 +495,19 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 검증: 작업 환경에서 Gradle 배포판·Maven 다운로드 차단(403)으로 백엔드 컴파일·테스트 미실행. 프론트는 admin·portfolio `tsc --noEmit` 통과, portfolio eslint 통과. vitest·oxlint·vite build는 Mac용 네이티브 바이너리라 실행 불가 → 사용자 로컬 검증 필요(NEXT_ACTIONS Priority 0).
 - 사용자 Mac 첫 실행: 포트폴리오 `references.test.tsx` 실패(vitest globals 꺼짐으로 Testing Library 자동 정리 안 됨) → `afterEach(cleanup)` 추가.
 - 사용자 확인: 백엔드 116건 통과, 프론트 test·lint·build 통과, 어드민·포트폴리오 화면 정상. 참고 문서 기능 완료. 개발 DB 시드 재실행은 미확인(선택).
+
+## 2026-09-28 — 실제 콘텐츠(Notion 위키) 반영
+
+- 사용자 요청: Notion 위키(프로젝트 README + decisions 블로그)를 데이터로 반영, README의 `결정사항 / 트러블슈팅` 섹션은 제외. 변환안을 먼저 확인받음.
+- 사용자 결정: 실제 데이터는 새 `content/`에 두고 `samples/`는 테스트·RAG 측정용으로 유지, 개발 DB의 기존 샘플은 삭제, 블로그 날짜는 2026-09-28, `fsd-notes.md` 제외, featured는 viora·bring-and-t·evar.
+- `content/`: 프로젝트 7건, 블로그 12편, 참고 관계 15건, Skill 11개·카테고리 4개·태그 25개 추가. 변환 규칙은 `content/README.md`. 변환 스크립트는 일회성이라 저장소에 두지 않았다.
+- 시드: 블로그 front matter `open_questions`도 관리자 메모에 넣도록 한 줄 추가.
+- 테스트: `SampleSeederTest.seedsRealContent`(7/12/15건, featured 3, evar에 결정사항 섹션 없음·참고 문서 4건, 블로그 관리자 메모). 백엔드 117건 통과(작업 환경 Mac, 5433 DB).
+- 미확인: 개발 DB에 `content/` 시드 실행, 기존 샘플 삭제, 실제 임베딩 색인, 화면 확인.
+
+## 2026-09-28 — RAG 아키텍처 개요 문서
+
+- 사용자 요청: 외부 참고 문서(RAG 발전 흐름, GraphRAG, Decision Model)와 현재 프로젝트를 비교 분석한 뒤, 같은 형식으로 현재 구조 정리 문서를 보관.
+- `docs/02-design/RAG_ARCHITECTURE_OVERVIEW.md` 추가(Draft, 코드 기준 현황): 전체 흐름, 색인·질의 시퀀스, Vector + 참고 관계 1-hop, LLM 판단 2곳(FAQ·근거 부족), 미답변 → FAQ 순환, 세션, ERD, 일반 RAG 단계 대비표, 확장 후보(Hybrid, Skill 간선, Reranking, 개체 그래프 — 모두 미결정). RAG_DESIGN에 링크.
+- 코드 변경 없음. 결정 변경 없음. Mermaid 렌더링은 로컬 도구(mmdc) 부재로 미검증.
+- 사용자 요청으로 단독 공유용으로 재구성: 다른 문서 링크를 없애고 결정 이유·측정 수치(청킹, 검색 회수, 임계값 0.030, FAQ 거리 겹침, 판정 분리 결과)·SSE 이벤트·프롬프트 규칙·미답변 기록 항목을 본문에 포함. 문서 규칙(수치는 RAG_MEASUREMENTS 링크)의 예외이며, 문서 머리에 2026-09-28 스냅샷이고 기준 문서가 바뀌면 갱신해야 한다고 적었다.
