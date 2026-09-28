@@ -1,6 +1,7 @@
 package dev.portfolio.portfolio_api.blog;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -13,12 +14,13 @@ public final class TaxonomyAdmin {
     public record CategoryRequest(
             @NotBlank @Size(max = 60) @Pattern(regexp = "[a-z0-9]+(-[a-z0-9]+)*") String code,
             @NotBlank @Size(max = 100) String name,
-            int displayOrder) {
+            int displayOrder,
+            @NotNull @Pattern(regexp = "#[0-9A-Fa-f]{6}") String color) {
     }
 
-    public record CategoryResponse(Long id, String code, String name, int displayOrder) {
+    public record CategoryResponse(Long id, String code, String name, int displayOrder, String color) {
         static CategoryResponse from(Category c) {
-            return new CategoryResponse(c.getId(), c.getCode(), c.getName(), c.getDisplayOrder());
+            return new CategoryResponse(c.getId(), c.getCode(), c.getName(), c.getDisplayOrder(), c.getColor());
         }
     }
 

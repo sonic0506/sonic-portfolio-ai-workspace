@@ -5,12 +5,12 @@
 
 ## Categories
 
-| code | name | display_order |
-|---|---|---|
-| frontend | 프론트엔드 | 0 |
-| architecture | 아키텍처 | 1 |
-| web-api | 웹 API | 2 |
-| realtime | 실시간 통신 | 3 |
+| code | name | display_order | color |
+|---|---|---|---|
+| frontend | 프론트엔드 | 0 | #C7772A |
+| architecture | 아키텍처 | 1 | #7F5FC0 |
+| web-api | 웹 API | 2 | #2E93A8 |
+| realtime | 실시간 통신 | 3 | #B8425F |
 
 ## Tags
 

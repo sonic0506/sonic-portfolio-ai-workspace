@@ -80,9 +80,10 @@ public class SampleSeeder {
         }
 
         Map<String, Long> categoryIds = new HashMap<>();
-        List<List<String>> categoryRows = tableRows(dir.resolve("taxonomy.md"), "| code | name | display_order |");
+        List<List<String>> categoryRows = tableRows(dir.resolve("taxonomy.md"), "| code | name | display_order | color |");
         for (List<String> row : categoryRows) {
-            categoryIds.put(row.get(1), upsertCategory(row.get(0), row.get(1), Integer.parseInt(row.get(2))));
+            categoryIds.put(row.get(1),
+                    upsertCategory(row.get(0), row.get(1), Integer.parseInt(row.get(2)), row.get(3)));
         }
         Map<String, Long> tagIds = new HashMap<>();
         List<List<String>> tagRows = tableRows(dir.resolve("taxonomy.md"), "| code | name |");
@@ -231,9 +232,9 @@ public class SampleSeeder {
         return id == null ? skills.create(request).id() : skills.update(id, request).id();
     }
 
-    private long upsertCategory(String code, String name, int order) {
+    private long upsertCategory(String code, String name, int order, String color) {
         Long id = idByCode("category", code);
-        var request = new CategoryRequest(code, name, order);
+        var request = new CategoryRequest(code, name, order, color);
         return id == null ? taxonomy.createCategory(request).id() : taxonomy.updateCategory(id, request).id();
     }
 

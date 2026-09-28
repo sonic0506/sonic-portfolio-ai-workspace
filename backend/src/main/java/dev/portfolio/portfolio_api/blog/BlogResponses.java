@@ -1,5 +1,6 @@
 package dev.portfolio.portfolio_api.blog;
 
+import dev.portfolio.portfolio_api.content.CategoryLabel;
 import dev.portfolio.portfolio_api.content.DocumentReferences.PublicReference;
 import dev.portfolio.portfolio_api.content.SectionResponse;
 import dev.portfolio.portfolio_api.skill.SkillResponse;
@@ -15,7 +16,7 @@ public final class BlogResponses {
     public record LabelResponse(String code, String name) {
     }
 
-    public record CategoryCount(String code, String name, long postCount) {
+    public record CategoryCount(String code, String name, String color, long postCount) {
     }
 
     public record BlogPostPage(List<BlogPostItem> items, int page, int size, long totalElements) {
@@ -24,13 +25,13 @@ public final class BlogResponses {
     public record BlogPostItem(
             String slug, String title, String summary, String thumbnailUrl,
             Instant publishedAt, Instant updatedAt,
-            LabelResponse category, List<LabelResponse> tags, List<SkillResponse> skills) {
+            CategoryLabel category, List<LabelResponse> tags, List<SkillResponse> skills) {
     }
 
     public record BlogPostDetail(
             String slug, String title, String summary, String thumbnailUrl,
             Instant publishedAt, Instant updatedAt,
-            LabelResponse category, List<LabelResponse> tags, List<SkillResponse> skills,
+            CategoryLabel category, List<LabelResponse> tags, List<SkillResponse> skills,
             List<SectionResponse> sections,
             List<PublicReference> references, List<PublicReference> referencedBy) {
     }

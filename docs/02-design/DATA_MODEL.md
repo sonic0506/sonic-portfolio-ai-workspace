@@ -184,7 +184,8 @@ create table category (
   id            bigint generated always as identity primary key,
   code          text not null unique,
   name          text not null,
-  display_order int not null default 0
+  display_order int not null default 0,
+  color         text not null default '#8B8B94' check (color ~ '^#[0-9A-F]{6}$') -- V5, 점(dot) 색
 );
 
 create table tag (

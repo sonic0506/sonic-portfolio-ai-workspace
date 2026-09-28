@@ -13,6 +13,7 @@ import dev.portfolio.portfolio_api.blog.BlogResponses.BlogPostItem;
 import dev.portfolio.portfolio_api.blog.BlogResponses.BlogPostPage;
 import dev.portfolio.portfolio_api.blog.BlogResponses.CategoryCount;
 import dev.portfolio.portfolio_api.blog.BlogResponses.LabelResponse;
+import dev.portfolio.portfolio_api.content.CategoryLabel;
 import dev.portfolio.portfolio_api.content.DocumentReferences;
 import dev.portfolio.portfolio_api.content.DocumentReferences.RefType;
 import dev.portfolio.portfolio_api.content.SectionQuery;
@@ -79,7 +80,7 @@ public class BlogQueryService {
                 .fetch();
 
         List<Long> ids = posts.stream().map(BlogPost::getId).toList();
-        Map<Long, LabelResponse> categories = categoriesById(posts.stream().map(BlogPost::getCategoryId).toList());
+        Map<Long, CategoryLabel> categories = categoriesById(posts.stream().map(BlogPost::getCategoryId).toList());
         Map<Long, List<LabelResponse>> tags = tagsByPost(ids);
         Map<Long, List<SkillResponse>> skills = skillsByPost(ids);
 
@@ -116,16 +117,16 @@ public class BlogQueryService {
     public List<CategoryCount> categories() {
         var count = JPAExpressions.select(post.count()).from(post)
                 .where(post.categoryId.eq(category.id), post.published.isTrue());
-        return queryFactory.select(category.code, category.name, count)
+        return queryFactory.select(category.code, category.name, category.color, count)
                 .from(category)
                 .orderBy(category.displayOrder.asc(), category.code.asc())
                 .fetch()
                 .stream()
-                .map(t -> new CategoryCount(t.get(category.code), t.get(category.name), t.get(2, Long.class)))
+                .map(t -> new CategoryCount(t.get(category.code), t.get(category.name), t.get(category.color), t.get(3, Long.class)))
                 .toList();
     }
 
-    private Map<Long, LabelResponse> categoriesById(Collection<Long> categoryIds) {
+    private Map<Long, CategoryLabel> categoriesById(Collection<Long> categoryIds) {
         List<Long> ids = categoryIds.stream().filter(Objects::nonNull).distinct().toList();
         if (ids.isEmpty()) {
             return new HashMap<>(); // get(null) must return null, Map.of() would throw
@@ -134,7 +135,7 @@ public class BlogQueryService {
                 .where(category.id.in(ids))
                 .fetch()
                 .stream()
-                .collect(toMap(Category::getId, c -> new LabelResponse(c.getCode(), c.getName())));
+                .collect(toMap(Category::getId, c -> new CategoryLabel(c.getCode(), c.getName(), c.getColor())));
     }
 
     private Map<Long, List<LabelResponse>> tagsByPost(Collection<Long> postIds) {

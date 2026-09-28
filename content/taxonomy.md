@@ -4,14 +4,14 @@
 
 ## Categories
 
-| code | name | display_order |
-|---|---|---|
-| frontend | 프론트엔드 | 0 |
-| architecture | 아키텍처 | 1 |
-| ux | UX·화면 흐름 | 2 |
-| collaboration | 협업·기획 | 3 |
-| infra | 배포·인프라 | 4 |
-| hardware | 하드웨어 | 5 |
+| code | name | display_order | color |
+|---|---|---|---|
+| frontend | 프론트엔드 | 0 | #C7772A |
+| architecture | 아키텍처 | 1 | #7F5FC0 |
+| ux | UX·화면 흐름 | 2 | #2E93A8 |
+| collaboration | 협업·기획 | 3 | #2F8A6E |
+| infra | 배포·인프라 | 4 | #B35A3F |
+| hardware | 하드웨어 | 5 | #6B7386 |
 
 ## Tags
 

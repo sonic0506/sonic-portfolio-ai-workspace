@@ -42,10 +42,11 @@ public class DocumentReferences {
     public record AdminReference(RefType type, long id, String slug, String title, boolean published) {
     }
 
-    public record PublicReference(RefType type, String slug, String title, String url) {
+    /** category: the blog post's category, null for projects (and posts without one). */
+    public record PublicReference(RefType type, String slug, String title, String url, CategoryLabel category) {
 
-        static PublicReference of(RefType type, String slug, String title) {
-            return new PublicReference(type, slug, title, type.urlPrefix + slug);
+        static PublicReference of(RefType type, String slug, String title, CategoryLabel category) {
+            return new PublicReference(type, slug, title, type.urlPrefix + slug, category);
         }
     }
 
@@ -111,8 +112,11 @@ public class DocumentReferences {
 
     /** otherColumn: the linked document; ownerColumn: the owner's side of the row. */
     private static String select(String otherColumn, String ownerColumn, boolean visibleOnly) {
-        return "select d.document_type, d.source_id, d.metadata->>'slug' as slug, d.title, d.visible"
+        return "select d.document_type, d.source_id, d.metadata->>'slug' as slug, d.title, d.visible,"
+                + " c.code as category_code, c.name as category_name, c.color as category_color"
                 + " from document_relation r join document d on d.id = r." + otherColumn
+                + " left join blog_post b on d.document_type = 'BLOG' and b.id = d.source_id"
+                + " left join category c on c.id = b.category_id"
                 + " where r." + ownerColumn + " = (select o.id from document o"
                 + "   where o.document_type = ? and o.source_id = ?)"
                 + " and r.relation_type = ? and d.document_type in ('PROJECT', 'BLOG')"
@@ -126,8 +130,11 @@ public class DocumentReferences {
     }
 
     private static PublicReference publicRow(java.sql.ResultSet rs) throws java.sql.SQLException {
+        String categoryCode = rs.getString("category_code");
+        CategoryLabel category = categoryCode == null ? null
+                : new CategoryLabel(categoryCode, rs.getString("category_name"), rs.getString("category_color"));
         return PublicReference.of(RefType.valueOf(rs.getString("document_type")),
-                rs.getString("slug"), rs.getString("title"));
+                rs.getString("slug"), rs.getString("title"), category);
     }
 
     /** Sources created before document projection existed may lack a document; project them on demand. */

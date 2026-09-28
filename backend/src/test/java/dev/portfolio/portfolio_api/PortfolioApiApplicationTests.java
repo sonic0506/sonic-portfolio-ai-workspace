@@ -25,5 +25,6 @@ class PortfolioApiApplicationTests {
         assertEquals(1, jdbc.queryForObject("select count(*) from flyway_schema_history where success and version='2'", Integer.class));
         assertEquals(1, jdbc.queryForObject("select count(*) from flyway_schema_history where success and version='3'", Integer.class));
         assertEquals(1, jdbc.queryForObject("select count(*) from flyway_schema_history where success and version='4'", Integer.class));
+        assertEquals(1, jdbc.queryForObject("select count(*) from flyway_schema_history where success and version='5'", Integer.class));
     }
 }

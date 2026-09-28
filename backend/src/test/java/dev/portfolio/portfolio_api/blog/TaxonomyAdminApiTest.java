@@ -29,9 +29,11 @@ class TaxonomyAdminApiTest extends ApiTestSupport {
 
     @Test
     void managesCategories() throws Exception {
-        send(post("/api/admin/categories"), "{\"code\":\"tx-fe\",\"name\":\" 프론트엔드 \",\"displayOrder\":1}")
+        send(post("/api/admin/categories"), "{\"code\":\"tx-fe\",\"name\":\" 프론트엔드 \",\"displayOrder\":1,\"color\":\"#c7772a\"}")
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("프론트엔드"));
+                .andExpect(jsonPath("$.name").value("프론트엔드"))
+                // stored uppercase so the DB check and clients see one form
+                .andExpect(jsonPath("$.color").value("#C7772A"));
         long arch = insertReturningId("insert into category (code, name, display_order) values ('tx-arch', '아키텍처', 0)");
 
         mockMvc.perform(get("/api/admin/categories").with(admin()))
@@ -39,14 +41,19 @@ class TaxonomyAdminApiTest extends ApiTestSupport {
                 .andExpect(jsonPath("$[0].code").value("tx-arch"))
                 .andExpect(jsonPath("$[1].code").value("tx-fe"));
 
-        send(post("/api/admin/categories"), "{\"code\":\"tx-fe\",\"name\":\"dup\",\"displayOrder\":0}")
+        send(post("/api/admin/categories"), "{\"code\":\"tx-fe\",\"name\":\"dup\",\"displayOrder\":0,\"color\":\"#c7772a\"}")
                 .andExpect(status().isConflict());
-        send(put("/api/admin/categories/{id}", arch), "{\"code\":\"tx-fe\",\"name\":\"dup\",\"displayOrder\":0}")
+        send(put("/api/admin/categories/{id}", arch), "{\"code\":\"tx-fe\",\"name\":\"dup\",\"displayOrder\":0,\"color\":\"#c7772a\"}")
                 .andExpect(status().isConflict());
-        send(put("/api/admin/categories/{id}", arch), "{\"code\":\"tx-architecture\",\"name\":\"설계\",\"displayOrder\":5}")
+        send(put("/api/admin/categories/{id}", arch), "{\"code\":\"tx-architecture\",\"name\":\"설계\",\"displayOrder\":5,\"color\":\"#c7772a\"}")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.displayOrder").value(5));
-        send(post("/api/admin/categories"), "{\"code\":\"Bad Code\",\"name\":\"x\",\"displayOrder\":0}")
+        send(post("/api/admin/categories"), "{\"code\":\"Bad Code\",\"name\":\"x\",\"displayOrder\":0,\"color\":\"#c7772a\"}")
+                .andExpect(status().isBadRequest());
+        // color is required and must be #RRGGBB
+        send(post("/api/admin/categories"), "{\"code\":\"no-color\",\"name\":\"x\",\"displayOrder\":0}")
+                .andExpect(status().isBadRequest());
+        send(post("/api/admin/categories"), "{\"code\":\"bad-color\",\"name\":\"x\",\"displayOrder\":0,\"color\":\"red\"}")
                 .andExpect(status().isBadRequest());
     }
 

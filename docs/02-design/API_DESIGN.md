@@ -94,7 +94,7 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 - 비공개(`published = false`) 프로젝트·블로그는 목록에서 제외하고 상세는 `404`(Problem Detail JSON)다.
 - 날짜는 `YYYY-MM-DD`, 시각은 ISO-8601 UTC. 기간의 `periodEnd: null`은 진행 중·재직 중이다.
 - 섹션은 `sections[{title, bodyMarkdown}]`이며 `:::questions` 블록을 포함한 Markdown 원문 그대로다.
-- 프로젝트·블로그 상세는 `references`(이 문서가 참고한 문서)와 `referencedBy`(이 문서를 참고한 문서)를 준다. 항목은 `{type: "PROJECT"|"BLOG", slug, title, url}`이며 공개 문서만, 등록 순서대로다(ADR-0005 후속 결정, 2026-09-17).
+- 프로젝트·블로그 상세는 `references`(이 문서가 참고한 문서)와 `referencedBy`(이 문서를 참고한 문서)를 준다. 항목은 `{type: "PROJECT"|"BLOG", slug, title, url, category}`이며(`category{code,name,color}`는 블로그만, 프로젝트는 null — 2026-09-29) 공개 문서만, 등록 순서대로다(ADR-0005 후속 결정, 2026-09-17).
 - 인증: 아래 공개 GET 경로와 `/error`만 익명 허용한다. `/api/admin/**`는 관리자(`ROLE_ADMIN`)만 가능하다([ADR-0010](../03-decisions/ADR-0010-admin-authentication.md)).
 - Swagger: `local` 프로필에서만 `/swagger-ui.html`, `/v3/api-docs`를 켜고 익명 허용한다(2026-09-16 사용자 결정). 기본 설정은 꺼짐.
 
@@ -114,12 +114,12 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 쿼리: `page`(0부터), `size`(기본 20, 1~50으로 보정), `category`(code), `tag`(code). 둘 다 주면 AND.
 응답: `{items: [...], page, size, totalElements}`. 정렬은 `published_at desc nulls last` → `id desc`.
 
-- 항목: `slug, title, summary, thumbnailUrl, publishedAt, updatedAt, category{code,name}, tags[{code,name}], skills[]`
+- 항목: `slug, title, summary, thumbnailUrl, publishedAt, updatedAt, category{code,name,color}, tags[{code,name}], skills[]`
 - 카테고리는 글마다 하나다(ADR-0005 후속 3, 2026-09-29). 태그·기술은 code 순.
 
 ### GET /api/blog/categories
 
-`[{code, name, postCount}]`. 카테고리 `display_order` → code 순. `postCount`는 공개 글 수이며 0인 카테고리도 준다(2026-09-29, 포트폴리오 사이드바용).
+`[{code, name, color, postCount}]`. 카테고리 `display_order` → code 순. `postCount`는 공개 글 수이며 0인 카테고리도 준다(2026-09-29, 포트폴리오 사이드바용).
 
 ### GET /api/blog/posts/{slug}
 
@@ -212,7 +212,7 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 ### Category / Tag 관리
 
 - `GET /api/admin/categories` (`displayOrder`, code 순), `POST` → `201`, `PUT /{id}`, `DELETE /{id}` → `204`
-  - 본문 `{code, name, displayOrder}`. 블로그가 사용 중인 카테고리 삭제는 `409`
+  - 본문 `{code, name, displayOrder, color}`. `color`는 필수 `#RRGGBB`이며 대문자로 저장한다(2026-09-29). 블로그가 사용 중인 카테고리 삭제는 `409`
 - `GET /api/admin/tags` (code 순), `POST` → `201`, `PUT /{id}`, `DELETE /{id}` → `204`
   - 본문 `{code, name}`. 사용 중인 태그도 삭제되며 글과의 연결이 함께 지워진다
 - code 형식·중복 규칙은 Skill과 같다

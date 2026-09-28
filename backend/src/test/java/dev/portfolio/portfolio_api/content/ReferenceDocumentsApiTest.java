@@ -48,6 +48,8 @@ class ReferenceDocumentsApiTest extends ApiTestSupport {
                 .andExpect(jsonPath("$.references[0].slug").value("rd-public"))
                 .andExpect(jsonPath("$.references[0].title").value("rd-public title"))
                 .andExpect(jsonPath("$.references[0].url").value("/blog/rd-public"))
+                .andExpect(jsonPath("$.references[0].category.code").value("rd-cat"))
+                .andExpect(jsonPath("$.references[0].category.color").value("#8B8B94"))
                 .andExpect(jsonPath("$.references[0].id").doesNotExist())
                 .andExpect(jsonPath("$.referencedBy.length()").value(1))
                 .andExpect(jsonPath("$.referencedBy[0].url").value("/blog/rd-public"));
@@ -57,6 +59,7 @@ class ReferenceDocumentsApiTest extends ApiTestSupport {
                 .andExpect(jsonPath("$.references.length()").value(1))
                 .andExpect(jsonPath("$.references[0].type").value("PROJECT"))
                 .andExpect(jsonPath("$.references[0].url").value("/projects/rd-project"))
+                .andExpect(jsonPath("$.references[0].category").value(org.hamcrest.Matchers.nullValue()))
                 // referenced by the project and the private post; only the project is public
                 .andExpect(jsonPath("$.referencedBy.length()").value(1))
                 .andExpect(jsonPath("$.referencedBy[0].slug").value("rd-project"));

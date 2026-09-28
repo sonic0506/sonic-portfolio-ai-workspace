@@ -45,6 +45,7 @@ class BlogApiTest extends ApiTestSupport {
                 .andExpect(jsonPath("$.items[0].slug").value("websocket-binary-video"))
                 .andExpect(jsonPath("$.items[0].category.code").value("test-fe"))
                 .andExpect(jsonPath("$.items[0].category.name").value("프론트엔드"))
+                .andExpect(jsonPath("$.items[0].category.color").value("#8B8B94"))
                 .andExpect(jsonPath("$.items[1].category.code").value("test-arch"))
                 .andExpect(jsonPath("$.items[0].tags[0].name").value("websocket"))
                 .andExpect(jsonPath("$.items[0].skills[0].code").value("test-react"))
@@ -95,6 +96,7 @@ class BlogApiTest extends ApiTestSupport {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[?(@.code == 'test-arch')].postCount").value(org.hamcrest.Matchers.contains(1)))
                 .andExpect(jsonPath("$[?(@.code == 'test-fe')].name").value(org.hamcrest.Matchers.contains("프론트엔드")))
+                .andExpect(jsonPath("$[?(@.code == 'test-fe')].color").value(org.hamcrest.Matchers.contains("#8B8B94")))
                 .andExpect(jsonPath("$[?(@.code == 'test-empty')].postCount").value(org.hamcrest.Matchers.contains(0)));
     }
 

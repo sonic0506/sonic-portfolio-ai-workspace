@@ -21,7 +21,7 @@ Skill과 Category는 `document_type`에 포함하지 않는다([DATA_MODEL](DATA
 ### 결정 — 2026-09-29 (사용자, 구현은 다른 프론트 작업 뒤)
 
 - 노드: Project, Blog, **Skill, Category까지 포함**한다. Skill 간선은 `project_skill`·`blog_skill`, Category 간선은 `blog_post.category_id`(단일 카테고리, ADR-0005 후속 3)에서 읽는다.
-- 노드 UI는 sonic-portfolio 그래프(문서·프로젝트 2종)를 4종으로 확장한다. 카테고리 색 토큰(`--color-cat-*`)을 노드에 쓴다.
+- 노드 UI는 sonic-portfolio 그래프(문서·프로젝트 2종)를 4종으로 확장한다. 카테고리 색은 서버 `category.color`(ADR-0005 후속 3)를 노드에 쓴다.
 - 남은 결정: 그래프 라이브러리(ADR), Graph API 형태, 참고 방향 화살표 표시 여부.
 
 ## 3. Edge
