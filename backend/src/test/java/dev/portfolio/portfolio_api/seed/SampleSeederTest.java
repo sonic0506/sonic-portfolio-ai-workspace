@@ -74,6 +74,24 @@ class SampleSeederTest extends ApiTestSupport {
     }
 
     @Test
+    void seedsRealContent() throws Exception {
+        SampleSeeder.Result result = seeder.seed(SAMPLES.resolveSibling("content"));
+        assertEquals(7, result.projects());
+        assertEquals(12, result.blogPosts());
+        assertEquals(15, result.relations());
+
+        mockMvc.perform(get("/api/projects"))
+                .andExpect(jsonPath("$.featured.length()").value(3))
+                .andExpect(jsonPath("$.featured[0].slug").value("viora"))
+                .andExpect(jsonPath("$.others.length()").value(4));
+        mockMvc.perform(get("/api/projects/evar"))
+                .andExpect(jsonPath("$.sections[?(@.title == '결정사항 / 트러블슈팅')]").isEmpty())
+                .andExpect(jsonPath("$.references.length()").value(4));
+        assertEquals(12, jdbc.queryForObject(
+                "select count(*) from blog_post where admin_note is not null", Integer.class));
+    }
+
+    @Test
     void seedingTwiceReplacesInsteadOfDuplicating() {
         seeder.seed(SAMPLES);
         String counts = "select (select count(*) from skill) || '/' || (select count(*) from project) || '/'"
