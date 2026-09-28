@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { ThemeProvider } from "next-themes";
 import { ChatPanel } from "@/components/chat/chat-panel";
 import { ChatProvider } from "@/components/chat/chat-provider";
-import { SiteHeader } from "@/components/site/site-header";
+import { AppShell } from "@/components/templates/app-shell";
+import { getCategoriesOrEmpty } from "@/lib/api";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -9,15 +11,19 @@ export const metadata: Metadata = {
   description: "프로젝트와 기술 기록, 그리고 내용을 근거로 답하는 질문하기",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const categories = await getCategoriesOrEmpty();
+
   return (
-    <html lang="ko" className="h-full antialiased">
-      <body className="flex min-h-full flex-col">
-        <ChatProvider>
-          <SiteHeader />
-          <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-10">{children}</main>
-          <ChatPanel />
-        </ChatProvider>
+    // next-themes가 <html>에 .dark를 붙이므로 서버와 클래스가 달라진다.
+    <html lang="ko" suppressHydrationWarning>
+      <body className="h-screen w-screen overflow-hidden bg-bg text-text-1">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <ChatProvider>
+            <AppShell categories={categories}>{children}</AppShell>
+            <ChatPanel />
+          </ChatProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

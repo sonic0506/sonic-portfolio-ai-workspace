@@ -36,6 +36,8 @@ export type ProjectDetail = ProjectSummary &
 
 export type CodeName = { code: string; name: string };
 
+export type CategoryCount = CodeName & { postCount: number };
+
 export type BlogPostSummary = {
   slug: string;
   title: string;
