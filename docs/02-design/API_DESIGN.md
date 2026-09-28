@@ -117,6 +117,10 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 - 항목: `slug, title, summary, thumbnailUrl, publishedAt, updatedAt, category{code,name}, tags[{code,name}], skills[]`
 - 카테고리는 글마다 하나다(ADR-0005 후속 3, 2026-09-29). 태그·기술은 code 순.
 
+### GET /api/blog/categories
+
+`[{code, name, postCount}]`. 카테고리 `display_order` → code 순. `postCount`는 공개 글 수이며 0인 카테고리도 준다(2026-09-29, 포트폴리오 사이드바용).
+
 ### GET /api/blog/posts/{slug}
 
 목록 항목 필드 + `sections[]`.

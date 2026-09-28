@@ -11,6 +11,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import dev.portfolio.portfolio_api.blog.BlogResponses.BlogPostDetail;
 import dev.portfolio.portfolio_api.blog.BlogResponses.BlogPostItem;
 import dev.portfolio.portfolio_api.blog.BlogResponses.BlogPostPage;
+import dev.portfolio.portfolio_api.blog.BlogResponses.CategoryCount;
 import dev.portfolio.portfolio_api.blog.BlogResponses.LabelResponse;
 import dev.portfolio.portfolio_api.content.DocumentReferences;
 import dev.portfolio.portfolio_api.content.DocumentReferences.RefType;
@@ -110,6 +111,18 @@ public class BlogQueryService {
                 sectionQuery.forBlogPost(p.getId()),
                 references.publicReferences(RefType.BLOG, p.getId()),
                 references.publicReferencedBy(RefType.BLOG, p.getId()));
+    }
+
+    public List<CategoryCount> categories() {
+        var count = JPAExpressions.select(post.count()).from(post)
+                .where(post.categoryId.eq(category.id), post.published.isTrue());
+        return queryFactory.select(category.code, category.name, count)
+                .from(category)
+                .orderBy(category.displayOrder.asc(), category.code.asc())
+                .fetch()
+                .stream()
+                .map(t -> new CategoryCount(t.get(category.code), t.get(category.name), t.get(2, Long.class)))
+                .toList();
     }
 
     private Map<Long, LabelResponse> categoriesById(Collection<Long> categoryIds) {

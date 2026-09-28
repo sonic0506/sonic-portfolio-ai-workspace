@@ -34,7 +34,7 @@ public class SecurityConfig {
     private static final String[] PUBLIC_GET = {
             "/api/skills",
             "/api/projects", "/api/projects/*",
-            "/api/blog/posts", "/api/blog/posts/*",
+            "/api/blog/posts", "/api/blog/posts/*", "/api/blog/categories",
             "/api/profile",
     };
 

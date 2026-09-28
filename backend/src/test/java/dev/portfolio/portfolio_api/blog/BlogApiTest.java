@@ -87,6 +87,17 @@ class BlogApiTest extends ApiTestSupport {
         mockMvc.perform(get("/api/blog/posts/offline-first-boundary")).andExpect(status().isNotFound());
     }
 
+    @Test
+    void listsCategoriesWithPublishedPostCounts() throws Exception {
+        insertReturningId("insert into category (code, name, display_order) values ('test-empty', '빈 분류', 2)");
+        // test-arch: one published post + one draft; the draft is not counted
+        mockMvc.perform(get("/api/blog/categories"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.code == 'test-arch')].postCount").value(org.hamcrest.Matchers.contains(1)))
+                .andExpect(jsonPath("$[?(@.code == 'test-fe')].name").value(org.hamcrest.Matchers.contains("프론트엔드")))
+                .andExpect(jsonPath("$[?(@.code == 'test-empty')].postCount").value(org.hamcrest.Matchers.contains(0)));
+    }
+
     private long post(String slug, boolean published, String publishedAt) {
         Timestamp at = publishedAt == null ? null : Timestamp.from(Instant.parse(publishedAt));
         return insertReturningId(

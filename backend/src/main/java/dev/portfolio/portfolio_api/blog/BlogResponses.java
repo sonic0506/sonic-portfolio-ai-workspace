@@ -15,6 +15,9 @@ public final class BlogResponses {
     public record LabelResponse(String code, String name) {
     }
 
+    public record CategoryCount(String code, String name, long postCount) {
+    }
+
     public record BlogPostPage(List<BlogPostItem> items, int page, int size, long totalElements) {
     }
 
