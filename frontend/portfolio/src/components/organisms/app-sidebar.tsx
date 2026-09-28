@@ -2,12 +2,16 @@
 
 import { Suspense, type ComponentProps } from 'react';
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Archive, FileText, MessageSquarePlus, PanelLeftOpen, Sparkle, User } from 'lucide-react';
 
 import { CategoryDot } from '@/components/atoms/category-dot';
+import { ConversationItem } from '@/components/molecules/conversation-item';
 import { ThemeToggle } from '@/components/molecules/theme-toggle';
+import { useConversations } from '@/hooks/use-conversation';
 import { useIsTablet } from '@/hooks/use-mobile';
+import { deleteSession } from '@/lib/chat-api';
+import { removeConversation, type StoredConversation } from '@/lib/chat-store';
 import { SITE_NAME } from '@/lib/site';
 import type { CategoryCount } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -39,6 +43,16 @@ export function AppSidebar({ categories, className, ...props }: SidebarProps) {
   const { state, isMobile, toggleSidebar } = useSidebar();
   const isTablet = useIsTablet();
   const pathname = usePathname();
+  const router = useRouter();
+  // 대화 목록은 브라우저 저장소에서 온다. 24시간이 지난 대화는 저절로 빠진다.
+  const conversations = useConversations();
+
+  const handleDelete = (conversation: StoredConversation) => {
+    removeConversation(conversation.id);
+    void deleteSession(conversation);
+    // 보고 있던 대화가 사라졌으면 새 대화 화면으로 물러난다.
+    if (pathname === `/chat/${conversation.id}`) router.push('/');
+  };
 
   // 태블릿 레일과 모바일 드로어는 펼침 상태를 바꿀 수 없다. 다시 펼 수 있을 때만
   // 펴는 아이콘을 두고, 그 밖에는 브랜드 마크를 보여준다.
@@ -104,6 +118,28 @@ export function AppSidebar({ categories, className, ...props }: SidebarProps) {
         </SidebarGroup>
 
         <SidebarSeparator className="mx-2" />
+
+        {/* 기록이 없으면 라벨만 남지 않도록 섹션째 접는다. */}
+        {conversations.length > 0 && (
+          <>
+            <SidebarGroup>
+              <SidebarGroupLabel>대화</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {conversations.map((conversation) => (
+                    <ConversationItem
+                      key={conversation.id}
+                      conversation={conversation}
+                      active={pathname === `/chat/${conversation.id}`}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+            <SidebarSeparator className="mx-2" />
+          </>
+        )}
 
         <SidebarGroup>
           <SidebarGroupLabel>블로그</SidebarGroupLabel>

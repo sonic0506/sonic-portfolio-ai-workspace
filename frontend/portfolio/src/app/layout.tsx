@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
-import { ChatPanel } from "@/components/chat/chat-panel";
-import { ChatProvider } from "@/components/chat/chat-provider";
 import { AppShell } from "@/components/templates/app-shell";
 import { getCategoriesOrEmpty } from "@/lib/api";
 import "./globals.css";
+
+// 사이드바의 카테고리 글 수를 요청마다 읽는다(빌드 시점 값으로 굳지 않게, 404·/chat 포함).
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: { default: "개발자 포트폴리오", template: "%s | 개발자 포트폴리오" },
@@ -19,10 +20,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="ko" suppressHydrationWarning>
       <body className="h-screen w-screen overflow-hidden bg-bg text-text-1">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <ChatProvider>
-            <AppShell categories={categories}>{children}</AppShell>
-            <ChatPanel />
-          </ChatProvider>
+          <AppShell categories={categories}>{children}</AppShell>
         </ThemeProvider>
       </body>
     </html>
