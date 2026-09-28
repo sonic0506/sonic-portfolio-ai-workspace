@@ -8,7 +8,7 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 
 ## Confirmed
 
-- 2026-09-29 그래프(ADR-0015, 브랜치 `feat/graph`): `GET /api/graph`와 `/graph` 화면. 노드 Project·Blog·Category·Skill(스킬 기본 숨김), 참고 방향 옅은 화살표, 모바일은 목록, 상세·카테고리에서 딥링크. 백엔드 120·포트폴리오 22·어드민 15건, build 통과. 사용자 화면 확인 대기.
+- 2026-09-29 그래프(ADR-0015, 브랜치 `feat/graph`): `GET /api/graph`와 `/graph` 화면. 노드 Project·Blog·Category·Skill(기본 전체 보기, 선택·필터·검색은 URL 쿼리로 유지), 참고 방향 옅은 화살표, 모바일은 목록, 상세·카테고리에서 딥링크. 백엔드 120·포트폴리오 22·어드민 15건, build 통과. 사용자 화면 확인 대기.
 
 - 2026-09-29 sonic-portfolio UI 적용(사용자 결정, 브랜치 `feat/sonic-ui`): 현재 URL 유지, 다크·라이트(시스템 기본), 블로그 카테고리 단일 선택(V4, ADR-0005 후속 3), 대화 여러 개·만료 후 숨김(ADR-0011 후속, 백엔드 변경 없음), 공개 `GET /api/blog/categories`. 그래프는 스킬·카테고리 노드 포함으로 정했고 구현은 뒤로(GRAPH_DESIGN). 백엔드 118·포트폴리오 18·어드민 15건, build 통과. 개발 DB에는 V4가 이미 적용됨(devtools 재시작). 상세는 FRONTEND_IMPLEMENTATION 3단계.
 

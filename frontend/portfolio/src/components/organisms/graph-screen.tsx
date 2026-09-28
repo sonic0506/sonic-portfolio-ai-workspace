@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 import { NodeMark } from '@/components/atoms/node-mark';
 import { GraphFilterCard } from '@/components/molecules/graph-filter-card';
@@ -9,27 +10,62 @@ import { GraphCanvas } from '@/components/organisms/graph-canvas';
 import { GraphDetailPanel } from '@/components/organisms/graph-detail-panel';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
-import type { GraphApiResponse, GraphNode, GraphNodeType } from '@/lib/graph';
-import { DEFAULT_HIDDEN, GRAPH_TYPES, buildGraph, visibleCounts } from '@/lib/graph';
+import type { Graph, GraphApiResponse, GraphNode, GraphNodeType } from '@/lib/graph';
+import { GRAPH_TYPES, buildGraph, parseGraphParams, toGraphParams, visibleCounts } from '@/lib/graph';
+
+/** URL 쿼리 → 화면 상태. 없는 노드는 버리고, 선택한 노드의 종류가 숨겨져 있으면 그 종류를 켠다. */
+function viewFromParams(graph: Graph, params: URLSearchParams) {
+  const view = parseGraphParams(params);
+  const node = view.node ? (graph.byId[view.node] ?? null) : null;
+  if (node) view.hidden.delete(node.type);
+  return { node, hidden: view.hidden, query: view.query };
+}
 
 /**
  * 그래프 화면 전체. 필터·검색·선택 상태를 여기서 들고, 캔버스는 그리기와 입력만 맡는다.
- * initialNodeId: 상세·카테고리 화면에서 `?node=`로 넘어온 노드. 처음에 열고 그리로 옮긴다.
+ * 상태는 URL 쿼리(`node`, `hide`, `q`)와 맞춘다. 기록을 쌓지 않고 현재 기록만 바꾸므로
+ * 새로고침하거나 다른 화면에 갔다가 뒤로 와도 같은 선택이 남는다.
  */
-export function GraphScreen({ data, initialNodeId }: { data: GraphApiResponse; initialNodeId: string | null }) {
+export function GraphScreen({ data }: { data: GraphApiResponse }) {
   const graph = useMemo(() => buildGraph(data), [data]);
-  const entry = initialNodeId ? (graph.byId[initialNodeId] ?? null) : null;
+  const searchParams = useSearchParams();
   const isMobile = useIsMobile();
+  const [initial] = useState(() => viewFromParams(graph, searchParams));
 
-  const [query, setQuery] = useState('');
-  // 들어온 노드가 스킬이면 스킬을 켠 채로 시작한다.
-  const [hidden, setHidden] = useState<Set<GraphNodeType>>(
-    () => new Set(DEFAULT_HIDDEN.filter((type) => type !== entry?.type)),
-  );
-  const [selectedId, setSelectedId] = useState<string | null>(entry?.id ?? null);
+  const [query, setQuery] = useState(initial.query);
+  const [hidden, setHidden] = useState<Set<GraphNodeType>>(initial.hidden);
+  const [selectedId, setSelectedId] = useState<string | null>(initial.node?.id ?? null);
   // 패널이 닫히는 140ms 동안에도 내용이 남아 있어야 해서 선택과 따로 들고 있는다.
-  const [panelNode, setPanelNode] = useState<GraphNode | null>(entry);
-  const [focus, setFocus] = useState<{ id: string; token: number } | null>(entry ? { id: entry.id, token: 1 } : null);
+  const [panelNode, setPanelNode] = useState<GraphNode | null>(initial.node);
+  const [focus, setFocus] = useState<{ id: string; token: number } | null>(
+    initial.node ? { id: initial.node.id, token: 1 } : null,
+  );
+
+  // 화면 상태 → URL. 마지막으로 쓴 값을 기억해 두고, 그와 다른 쿼리가 들어오면 바깥에서 온 이동이다.
+  const writtenRef = useRef(searchParams.toString());
+  useEffect(() => {
+    const next = toGraphParams({ node: selectedId, hidden, query });
+    if (next === writtenRef.current) return;
+    writtenRef.current = next;
+    window.history.replaceState(window.history.state, '', next ? `/graph?${next}` : '/graph');
+  }, [selectedId, hidden, query]);
+
+  // URL → 화면 상태. 그래프 화면에 있는 채로 사이드바·딥링크로 다른 쿼리가 오면 그 상태로 바꾼다.
+  const incoming = searchParams.toString();
+  useEffect(() => {
+    if (incoming === writtenRef.current) return;
+    writtenRef.current = incoming;
+    const view = viewFromParams(graph, new URLSearchParams(incoming));
+    /* eslint-disable react-hooks/set-state-in-effect -- 외부(URL) 변경을 상태로 옮기는 동기화다. */
+    setQuery(view.query);
+    setHidden(view.hidden);
+    setSelectedId(view.node?.id ?? null);
+    if (view.node) {
+      setPanelNode(view.node);
+      setFocus((previous) => ({ id: view.node!.id, token: (previous?.token ?? 0) + 1 }));
+    }
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [incoming, graph]);
 
   const select = useCallback(
     (id: string | null) => {

@@ -33,8 +33,6 @@ export const GRAPH_TYPE_LABEL: Record<GraphNodeType, string> = {
   SKILL: "스킬",
 };
 
-/** 스킬 간선이 전체의 3/4이라 처음에는 스킬을 숨긴다(ADR-0015 3). */
-export const DEFAULT_HIDDEN: GraphNodeType[] = ["SKILL"];
 
 export type Graph = {
   nodes: GraphNode[];
@@ -104,4 +102,30 @@ export function visibleGraph(graph: Graph, hidden: Set<GraphNodeType>): Graph {
     nodes: graph.nodes.filter((n) => !hidden.has(n.type)),
     edges: graph.edges.filter((e) => !hidden.has(graph.byId[e.source].type) && !hidden.has(graph.byId[e.target].type)),
   });
+}
+
+/**
+ * 화면 상태 ↔ URL 쿼리(ADR-0015 후속). 새로고침·뒤로 가기에도 같은 화면이 나오게 한다.
+ * - `node`: 선택한 노드 id, `hide`: 숨긴 종류(소문자, 쉼표), `q`: 검색어. 기본값(전체 보기)은 쓰지 않는다.
+ */
+export type GraphViewState = { node: string | null; hidden: Set<GraphNodeType>; query: string };
+
+export function parseGraphParams(params: URLSearchParams): GraphViewState {
+  const hidden = new Set(
+    (params.get("hide") ?? "")
+      .split(",")
+      .map((v) => v.trim().toUpperCase())
+      .filter((v): v is GraphNodeType => (GRAPH_TYPES as string[]).includes(v)),
+  );
+  return { node: params.get("node") || null, hidden, query: params.get("q") ?? "" };
+}
+
+export function toGraphParams({ node, hidden, query }: GraphViewState): string {
+  const params = new URLSearchParams();
+  if (node) params.set("node", node);
+  // 종류 순서를 고정해 같은 상태가 늘 같은 주소가 되게 한다.
+  const hide = GRAPH_TYPES.filter((t) => hidden.has(t)).map((t) => t.toLowerCase());
+  if (hide.length) params.set("hide", hide.join(","));
+  if (query) params.set("q", query);
+  return params.toString();
 }

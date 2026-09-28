@@ -540,3 +540,10 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 구현 중 바꾼 것: 숨긴 종류를 시뮬레이션에 남기면 배치가 퍼지고 크기·라벨이 스킬 연결로 부풀어, **보이는 종류만으로 배치**하도록 바꿈(GRAPH_DESIGN 5절). 스킬을 켜면 0.5 배율 하한 때문에 화면에 다 안 들어와 최소 배율을 0.2로 낮춤.
 - 문서: ADR-0015, GRAPH_DESIGN(Accepted, API·간선 표·화면), API_DESIGN, ARCHITECTURE·BACKLOG의 라이브러리 항목 완료, FRONTEND_IMPLEMENTATION 그래프 절.
 - 미검증: 사용자 화면 확인, 태블릿 폭, reduced-motion.
+
+## 2026-09-29 — 그래프 기본 전체 보기·URL 상태
+
+- 사용자 요청: 기본 노출을 전체 보기로, 노드 필터와 선택을 URL 파라미터로 유지해 새로고침·뒤로 가기에도 남게.
+- 구현: `DEFAULT_HIDDEN` 제거, `parseGraphParams`/`toGraphParams`(`node`, `hide`, `q`, 기본값 생략, 알 수 없는 종류 무시) + 테스트. 화면은 `useSearchParams`로 초기 상태를 읽고 `history.replaceState`로 쓴다. 바깥에서 들어온 쿼리(사이드바·딥링크)는 마지막으로 쓴 값과 비교해 반영.
+- 브라우저 확인: 기본 65노드, 필터 → `?hide=category`, 검색 → `&q=`, 쿼리로 진입 시 선택·필터·검색 복원, "글 열기" 후 뒤로·다른 메뉴 후 뒤로·새로고침에서 유지, 사이드바 "그래프"로 초기화.
+- 문서: ADR-0015 후속 결정, GRAPH_DESIGN, FRONTEND_IMPLEMENTATION.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildGraph, neighborsOfType, visibleCounts, visibleGraph, type GraphNode } from "./graph";
+import { buildGraph, neighborsOfType, parseGraphParams, toGraphParams, visibleCounts, visibleGraph, type GraphNode } from "./graph";
 
 const node = (id: string, type: GraphNode["type"]): GraphNode => ({
   id,
@@ -47,5 +47,14 @@ describe("graph", () => {
     expect(shown.nodes.map((n) => n.id)).not.toContain("skill:react");
     expect(shown.degree["project:a"]).toBe(1);
     expect(visibleGraph(graph, new Set())).toBe(graph);
+  });
+
+  it("화면 상태를 URL 쿼리로 오가며, 알 수 없는 종류는 버리고 기본값은 쓰지 않는다", () => {
+    const state = parseGraphParams(new URLSearchParams("node=blog%3Ab&hide=skill,Category,unknown&q=%EC%95%B1"));
+    expect(state.node).toBe("blog:b");
+    expect([...state.hidden].sort()).toEqual(["CATEGORY", "SKILL"]);
+    expect(state.query).toBe("앱");
+    expect(toGraphParams(state)).toBe("node=blog%3Ab&hide=category%2Cskill&q=%EC%95%B1");
+    expect(toGraphParams(parseGraphParams(new URLSearchParams("")))).toBe("");
   });
 });

@@ -5,10 +5,7 @@ import { getGraph } from "@/lib/api";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "그래프" };
 
-export default async function GraphPage({ searchParams }: PageProps<"/graph">) {
-  const { node } = await searchParams;
-  const data = await getGraph();
-  // 같은 경로에서 ?node=만 바뀌면 선택을 다시 잡도록 key로 다시 마운트한다.
-  const initialNodeId = typeof node === "string" ? node : null;
-  return <GraphScreen key={initialNodeId ?? "all"} data={data} initialNodeId={initialNodeId} />;
+/** 선택·필터·검색은 화면이 URL 쿼리(node, hide, q)에서 직접 읽고 쓴다. */
+export default async function GraphPage() {
+  return <GraphScreen data={await getGraph()} />;
 }
