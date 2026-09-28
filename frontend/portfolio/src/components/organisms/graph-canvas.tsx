@@ -12,7 +12,6 @@ import type { GraphData, GraphDatum, LinkDatum } from '@/lib/graph-layout';
 import { forceX, forceY } from 'd3-force';
 import {
   ALPHA_DECAY,
-  ALPHA_MIN,
   CENTER_ASPECT,
   CHARGE_STRENGTH,
   LINK_DISTANCE,
@@ -239,14 +238,17 @@ export function GraphCanvas({ graph, query, hidden, selectedId, onSelect, focus,
     fitView();
   }, [size, fitView]);
 
-  /** 노드를 패널이 덮지 않는 영역의 한가운데로 옮긴다. instant면 애니메이션 없이 옮긴다. */
+  /**
+   * 노드를 패널이 덮지 않는 영역의 한가운데로 옮긴다. instant면 애니메이션 없이 옮긴다.
+   * withPanel: 클릭처럼 이번에 패널이 열릴 참이면 아직 닫힌 상태라도 패널 폭을 빼고 맞춘다.
+   */
   const focusNode = useCallback(
-    (id: string, instant = false) => {
+    (id: string, instant = false, withPanel = propsRef.current.panelOpen) => {
       const instance = graphRef.current;
       const node = data.nodes.find((item) => item.id === id);
       if (!instance || !node) return;
       const zoom = instance.zoom();
-      const offset = propsRef.current.panelOpen ? GRAPH_PANEL_WIDTH / 2 / zoom : 0;
+      const offset = withPanel ? GRAPH_PANEL_WIDTH / 2 / zoom : 0;
       userMovedRef.current = true;
       instance.centerAt(node.x + offset, node.y, instant || reduceMotion ? 0 : FOCUS_DURATION);
     },
@@ -476,7 +478,14 @@ export function GraphCanvas({ graph, query, hidden, selectedId, onSelect, focus,
   const handleNodeHover = useCallback((node: GraphNodeDatum | null) => {
     hoverRef.current = node?.id ?? null;
   }, []);
-  const handleNodeClick = useCallback((node: GraphNodeDatum) => propsRef.current.onSelect(node.id), []);
+  // 누른 노드를 고르고 부드럽게 가운데로 옮긴다(선택하면 패널이 열리므로 그 폭을 뺀다).
+  const handleNodeClick = useCallback(
+    (node: GraphNodeDatum) => {
+      propsRef.current.onSelect(node.id);
+      focusNode(node.id, false, true);
+    },
+    [focusNode],
+  );
   const handleBackgroundClick = useCallback(() => propsRef.current.onSelect(null), []);
 
   return (
@@ -494,7 +503,12 @@ export function GraphCanvas({ graph, query, hidden, selectedId, onSelect, focus,
           // 미리 끝낸 배치에서 시작해 가볍게 튀고 멎는다. 움직임 줄이기면 돌리지 않는다.
           cooldownTicks={reduceMotion ? 0 : SIM_TICKS}
           cooldownTime={Infinity}
-          d3AlphaMin={ALPHA_MIN}
+          /*
+           * 강도(alpha)로 멈추지 않고 틱 수로만 멈춘다. 드래그가 끝나면 강도가 최솟값 아래로
+           * 내려가 멈추는데, 그 상태에서 다음 드래그를 시작하면 첫 틱 전에 "최솟값 미만"으로
+           * 곧바로 다시 멈춰 두 번째 드래그부터 이웃이 따라오지 않았다(force-graph layoutTick).
+           */
+          d3AlphaMin={0}
           d3AlphaDecay={ALPHA_DECAY}
           d3VelocityDecay={VELOCITY_DECAY}
           // 첫 프레임 전에 맞춤이 끝나지 않았다면 여기서 한 번 더 시도한다.
