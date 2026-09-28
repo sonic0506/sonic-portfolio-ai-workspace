@@ -125,6 +125,11 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 
 목록 항목 필드 + `sections[]`.
 
+### GET /api/graph
+
+그래프 전체(ADR-0015). `{nodes:[{id, type, key, title, url, summary, color, periodStart, periodEnd, publishedAt, tags}], edges:[{source, target, kind}]}`. 
+`id`는 `project:{slug}`·`blog:{slug}`·`category:{code}`·`skill:{code}`, `kind`는 `REFERENCE`(source가 target을 참고)·`SKILL`(문서 → 스킬)·`CATEGORY`(블로그 → 카테고리). 공개 문서만, 카테고리·스킬은 공개 문서가 쓰는 것만. 형태와 순서는 [GRAPH_DESIGN](GRAPH_DESIGN.md) 4절.
+
 ### GET /api/profile
 
 `headline, shortBio, imageUrl, githubUrl, email, careers[], skillGroups[], sections[]`. 프로필이 없으면 `404`.
