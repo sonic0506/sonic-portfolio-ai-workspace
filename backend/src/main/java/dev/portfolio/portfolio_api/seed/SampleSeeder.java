@@ -149,6 +149,7 @@ public class SampleSeeder {
         if (md.text("draft_note") != null) {
             notes.add(md.text("draft_note"));
         }
+        notes.addAll(md.list("open_questions"));
         var request = new BlogPostAdminRequest(
                 md.requiredText("id"), md.requiredText("title"), md.text("summary"), md.text("thumbnail"),
                 md.bool("published"), adminNote(notes),
