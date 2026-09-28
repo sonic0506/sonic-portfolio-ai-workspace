@@ -7,7 +7,7 @@ updated_at: 2025-02-18
 published: true
 sample: true
 sample_note: AI가 작성한 샘플 초안. 실제 발행 전 본인 문체와 사실 확인 필요.
-categories: [실시간 통신, 아키텍처]
+category: 실시간 통신
 tags: [websocket, rtsp, ffmpeg, 폐쇄망, 스트리밍]
 skills: [WebSocket, RTSP, ffmpeg, NestJS]
 related_projects: []

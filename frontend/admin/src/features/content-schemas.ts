@@ -90,7 +90,8 @@ export const blogPostSchema = z.object({
   thumbnailUrl: optionalUrl,
   published: z.boolean(),
   adminNote: optional(5000),
-  categoryIds: z.array(z.number()),
+  // 단일 카테고리(ADR-0005 후속 3). select 값이라 문자열이다.
+  categoryId: z.string().min(1, '카테고리를 선택하세요.'),
   tagIds: z.array(z.number()),
   skillIds: z.array(z.number()),
   sections: z.array(sectionSchema),
@@ -192,7 +193,7 @@ export function projectToRequest(f: ProjectForm): ProjectRequest {
 export function emptyBlogPost(): BlogPostForm {
   return {
     slug: '', title: '', summary: '', thumbnailUrl: '', published: false, adminNote: '',
-    categoryIds: [], tagIds: [], skillIds: [], sections: [], references: [],
+    categoryId: '', tagIds: [], skillIds: [], sections: [], references: [],
   }
 }
 
@@ -200,7 +201,7 @@ export function blogPostToForm(p: AdminBlogPostDetail): BlogPostForm {
   return {
     slug: p.slug, title: p.title, summary: orEmpty(p.summary), thumbnailUrl: orEmpty(p.thumbnailUrl),
     published: p.published, adminNote: orEmpty(p.adminNote),
-    categoryIds: p.categoryIds, tagIds: p.tagIds, skillIds: p.skillIds, sections: p.sections,
+    categoryId: p.categoryId == null ? '' : String(p.categoryId), tagIds: p.tagIds, skillIds: p.skillIds, sections: p.sections,
     references: toReferences(p.references),
   }
 }
@@ -209,7 +210,7 @@ export function blogPostToRequest(f: BlogPostForm): BlogPostRequest {
   return {
     slug: f.slug.trim(), title: f.title.trim(), summary: orNull(f.summary), thumbnailUrl: orNull(f.thumbnailUrl),
     published: f.published, adminNote: orNull(f.adminNote),
-    categoryIds: f.categoryIds, tagIds: f.tagIds, skillIds: f.skillIds,
+    categoryId: Number(f.categoryId), tagIds: f.tagIds, skillIds: f.skillIds,
     sections: f.sections.map((s) => ({ title: s.title.trim(), bodyMarkdown: s.bodyMarkdown })),
     references: toReferences(f.references),
   }

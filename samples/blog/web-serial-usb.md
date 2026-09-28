@@ -7,7 +7,7 @@ updated_at: 2025-03-05
 published: true
 sample: true
 sample_note: AI가 작성한 샘플 초안. 실제 발행 전 본인 문체와 사실 확인 필요.
-categories: [웹 API, 프론트엔드]
+category: 웹 API
 tags: [web-serial, typescript, 바이너리, 하드웨어]
 skills: [Web Serial API, TypeScript, React]
 related_projects: []

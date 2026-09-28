@@ -8,7 +8,7 @@ published: false
 draft_note: 비공개(Draft) 샘플. RAG의 공개 범위 필터와 Relation 확장 제외를 검증하기 위해 의도적으로 비공개로 둔다.
 sample: true
 sample_note: AI가 작성한 샘플 초안. 실제 발행 전 본인 문체와 사실 확인 필요.
-categories: [아키텍처, 프론트엔드]
+category: 아키텍처
 tags: [offline-first, service-worker, 설계, 동기화]
 skills: [Service Worker, React, Web Serial API]
 related_projects: []

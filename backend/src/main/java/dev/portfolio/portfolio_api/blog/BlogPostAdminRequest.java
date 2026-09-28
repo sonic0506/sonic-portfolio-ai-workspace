@@ -17,7 +17,7 @@ public record BlogPostAdminRequest(
         @Size(max = 500) @Pattern(regexp = "https?://\\S+") String thumbnailUrl,
         boolean published,
         @Size(max = 5000) String adminNote,
-        @NotNull List<@NotNull Long> categoryIds,
+        @NotNull Long categoryId,
         @NotNull List<@NotNull Long> tagIds,
         @NotNull List<@NotNull Long> skillIds,
         @NotNull @Valid List<SectionRequest> sections,

@@ -6,7 +6,7 @@ summary: "병원이 늘 때마다 되풀이하던 컴포넌트 설정과 서버 
 created_at: 2026-09-28
 updated_at: 2026-09-28
 published: true
-categories: ["배포·인프라", "프론트엔드"]
+category: "배포·인프라"
 tags: ["배포 자동화", "멀티 사이트"]
 skills: ["Next.js", "shadcn", "GitHub Actions", "Docker", "AWS ECS"]
 related_projects: []

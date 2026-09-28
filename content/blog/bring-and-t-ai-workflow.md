@@ -6,7 +6,7 @@ summary: "반복 화면 구현에 필요한 규칙, 예시, 공통 컴포넌트�
 created_at: 2026-09-28
 updated_at: 2026-09-28
 published: true
-categories: ["협업·기획", "프론트엔드"]
+category: "협업·기획"
 tags: ["ai 개발", "코드 리뷰"]
 skills: ["Claude Code", "Codex"]
 related_projects: []

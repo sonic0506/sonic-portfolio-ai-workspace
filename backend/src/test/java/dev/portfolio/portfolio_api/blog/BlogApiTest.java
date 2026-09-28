@@ -21,17 +21,16 @@ class BlogApiTest extends ApiTestSupport {
         long react = skill("test-react", "React");
 
         long older = post("web-serial-usb", true, "2025-03-01T00:00:00Z");
-        link("blog_category", "category_id", older, arch);
+        setCategory(older, arch);
         long newer = post("websocket-binary-video", true, "2025-05-01T00:00:00Z");
-        link("blog_category", "category_id", newer, arch);
-        link("blog_category", "category_id", newer, fe);
+        setCategory(newer, fe);
         link("blog_tag", "tag_id", newer, ws);
         link("blog_skill", "skill_id", newer, react);
         jdbc.update("insert into content_section (blog_post_id, title, body_markdown, display_order) values (?, '본문', 'text', 0)", newer);
 
         // Draft sample: must never appear (samples/blog/offline-first-boundary.md)
         long draft = post("offline-first-boundary", false, null);
-        link("blog_category", "category_id", draft, arch);
+        setCategory(draft, arch);
         link("blog_tag", "tag_id", draft, ws);
     }
 
@@ -44,8 +43,9 @@ class BlogApiTest extends ApiTestSupport {
                 .andExpect(jsonPath("$.size").value(20))
                 .andExpect(jsonPath("$.items.length()").value(2))
                 .andExpect(jsonPath("$.items[0].slug").value("websocket-binary-video"))
-                .andExpect(jsonPath("$.items[0].categories[0].code").value("test-fe"))
-                .andExpect(jsonPath("$.items[0].categories[1].code").value("test-arch"))
+                .andExpect(jsonPath("$.items[0].category.code").value("test-fe"))
+                .andExpect(jsonPath("$.items[0].category.name").value("프론트엔드"))
+                .andExpect(jsonPath("$.items[1].category.code").value("test-arch"))
                 .andExpect(jsonPath("$.items[0].tags[0].name").value("websocket"))
                 .andExpect(jsonPath("$.items[0].skills[0].code").value("test-react"))
                 .andExpect(jsonPath("$.items[0].publishedAt").exists())
@@ -68,7 +68,8 @@ class BlogApiTest extends ApiTestSupport {
     @Test
     void filtersByCategoryAndTagWithoutLeakingDrafts() throws Exception {
         mockMvc.perform(get("/api/blog/posts").param("category", "test-arch"))
-                .andExpect(jsonPath("$.totalElements").value(2));
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.items[0].slug").value("web-serial-usb"));
         mockMvc.perform(get("/api/blog/posts").param("tag", "test-websocket"))
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.items[0].slug").value("websocket-binary-video"));
@@ -91,6 +92,10 @@ class BlogApiTest extends ApiTestSupport {
         return insertReturningId(
                 "insert into blog_post (slug, title, summary, published, published_at, admin_note) values (?, ?, ?, ?, ?, 'secret')",
                 slug, slug + " title", slug + " summary", published, at);
+    }
+
+    private void setCategory(long postId, long categoryId) {
+        jdbc.update("update blog_post set category_id = ? where id = ?", categoryId, postId);
     }
 
     private void link(String table, String column, long postId, long otherId) {

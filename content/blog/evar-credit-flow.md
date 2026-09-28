@@ -6,7 +6,7 @@ summary: "크레딧을 만들고 지급하려면 페이지를 따로 오가야 �
 created_at: 2026-09-28
 updated_at: 2026-09-28
 published: true
-categories: ["UX·화면 흐름", "협업·기획"]
+category: "UX·화면 흐름"
 tags: ["관리자", "업무 흐름"]
 skills: ["React"]
 related_projects: []

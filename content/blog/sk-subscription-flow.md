@@ -6,7 +6,7 @@ summary: "버튼을 따로 눌러야 요금이 다시 계산되던 흐름을 바
 created_at: 2026-09-28
 updated_at: 2026-09-28
 published: true
-categories: ["UX·화면 흐름", "협업·기획"]
+category: "UX·화면 흐름"
 tags: ["결제", "테스트 시나리오"]
 skills: ["Webflow", "Vue.js"]
 related_projects: []

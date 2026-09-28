@@ -81,7 +81,7 @@ describe('projectSchema', () => {
 describe('blogPostSchema', () => {
   it('요약은 비워도 되고 제목은 필수다', () => {
     const r = blogPostSchema.safeParse({ ...emptyBlogPost(), slug: 'post' })
-    expect(paths(r)).toEqual(['title'])
+    expect(paths(r)).toEqual(['title', 'categoryId'])
   })
 })
 

@@ -6,7 +6,7 @@ summary: "사용자가 로그아웃을 누르면 서버 응답과 상관없이 �
 created_at: 2026-09-28
 updated_at: 2026-09-28
 published: true
-categories: ["프론트엔드"]
+category: "프론트엔드"
 tags: ["인증", "상태 관리"]
 skills: ["React", "Zustand", "TanStack Query"]
 related_projects: []

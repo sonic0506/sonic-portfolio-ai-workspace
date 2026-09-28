@@ -116,14 +116,19 @@ function PostEditor({ post }: { post?: AdminBlogPostDetail }) {
         >
           <ErrorText error={categories.error ?? tags.error ?? skills.error} />
           <div className="grid gap-6 md:grid-cols-3">
-            <Field label="카테고리">
-              <Controller
-                control={form.control}
-                name="categoryIds"
-                render={({ field }) => (
-                  <IdPicker options={categories.data ?? []} value={field.value} onChange={field.onChange} />
-                )}
-              />
+            <Field label="카테고리" htmlFor="categoryId" error={e.categoryId}>
+              <select
+                id="categoryId"
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                {...register('categoryId')}
+              >
+                <option value="">선택</option>
+                {categories.data?.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
             </Field>
             <Field label="태그">
               <Controller

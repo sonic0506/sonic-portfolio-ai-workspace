@@ -17,7 +17,7 @@ public final class BlogPostAdminResponses {
     public record AdminBlogPostDetail(
             Long id, String slug, String title, String summary, String thumbnailUrl,
             boolean published, Instant publishedAt, String adminNote, Instant createdAt, Instant updatedAt,
-            List<Long> categoryIds, List<Long> tagIds, List<Long> skillIds, List<SectionResponse> sections,
+            Long categoryId, List<Long> tagIds, List<Long> skillIds, List<SectionResponse> sections,
             List<AdminReference> references, List<AdminReference> referencedBy) {
     }
 }

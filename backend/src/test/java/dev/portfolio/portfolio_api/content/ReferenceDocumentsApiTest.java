@@ -22,12 +22,14 @@ class ReferenceDocumentsApiTest extends ApiTestSupport {
 
     long publicPost;
     long privatePost;
+    long category;
 
     @BeforeEach
     void seed() throws Exception {
         jdbc.update("delete from document_relation");
         jdbc.update("delete from project");
         jdbc.update("delete from blog_post");
+        category = insertReturningId("insert into category (code, name) values ('rd-cat', '분류')");
         publicPost = createPost("rd-public", true, "[]");
         privatePost = createPost("rd-private", false, "[]");
     }
@@ -167,8 +169,8 @@ class ReferenceDocumentsApiTest extends ApiTestSupport {
                                    String references) throws Exception {
         return send(request, """
                 {"slug":"%s","title":"%s title","summary":null,"thumbnailUrl":null,"published":%s,
-                 "adminNote":null,"categoryIds":[],"tagIds":[],"skillIds":[],"sections":[],
-                 "references":%s}""".formatted(slug, slug, published, references));
+                 "adminNote":null,"categoryId":%d,"tagIds":[],"skillIds":[],"sections":[],
+                 "references":%s}""".formatted(slug, slug, published, category, references));
     }
 
     private ResultActions send(MockHttpServletRequestBuilder request, String json) throws Exception {

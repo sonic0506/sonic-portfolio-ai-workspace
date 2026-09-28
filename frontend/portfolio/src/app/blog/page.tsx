@@ -46,7 +46,7 @@ export default async function BlogPage({ searchParams }: PageProps<"/blog">) {
             </Link>
             <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
               {post.publishedAt && <span className="mr-1">{post.publishedAt.slice(0, 10)}</span>}
-              {post.categories.map((c) => (
+              {[post.category].filter((c) => c !== null).map((c) => (
                 <Link key={c.code} href={`/blog?category=${encodeURIComponent(c.code)}`}>
                   <Badge variant="secondary">{c.name}</Badge>
                 </Link>

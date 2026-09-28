@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 class BlogPostAdminApiTest extends ApiTestSupport {
 
     long arch;
+    long fe;
     long ws;
     long react;
 
@@ -31,13 +32,14 @@ class BlogPostAdminApiTest extends ApiTestSupport {
         jdbc.update("delete from category");
         jdbc.update("delete from tag");
         arch = insertReturningId("insert into category (code, name) values ('ba-arch', '아키텍처')");
+        fe = insertReturningId("insert into category (code, name) values ('ba-fe', '프론트엔드')");
         ws = insertReturningId("insert into tag (code, name) values ('ba-ws', 'websocket')");
         react = skill("ba-react", "React");
     }
 
     @Test
     void createsPostVisibleToAdminAndPublic() throws Exception {
-        long id = create(body("ws-video", true, "[" + arch + "]", "[" + ws + "]", "[" + react + "]",
+        long id = create(body("ws-video", true, arch, "[" + ws + "]", "[" + react + "]",
                 "[{\"title\":\"본문\",\"bodyMarkdown\":\"text\"}]"));
 
         mockMvc.perform(get("/api/admin/blog/posts/{id}", id).with(admin()))
@@ -45,14 +47,14 @@ class BlogPostAdminApiTest extends ApiTestSupport {
                 .andExpect(jsonPath("$.adminNote").value("memo"))
                 .andExpect(jsonPath("$.publishedAt").isNotEmpty())
                 .andExpect(jsonPath("$.createdAt").isNotEmpty())
-                .andExpect(jsonPath("$.categoryIds[0]").value(arch))
+                .andExpect(jsonPath("$.categoryId").value(arch))
                 .andExpect(jsonPath("$.tagIds[0]").value(ws))
                 .andExpect(jsonPath("$.skillIds[0]").value(react))
                 .andExpect(jsonPath("$.sections[0].title").value("본문"));
 
         mockMvc.perform(get("/api/blog/posts").param("tag", "ba-ws"))
                 .andExpect(jsonPath("$.totalElements").value(1))
-                .andExpect(jsonPath("$.items[0].categories[0].code").value("ba-arch"));
+                .andExpect(jsonPath("$.items[0].category.code").value("ba-arch"));
         mockMvc.perform(get("/api/blog/posts/ws-video"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.adminNote").doesNotExist());
@@ -60,16 +62,16 @@ class BlogPostAdminApiTest extends ApiTestSupport {
 
     @Test
     void draftStaysHiddenAndPublishDateIsKept() throws Exception {
-        long id = create(body("draft", false, "[]", "[]", "[]", "[]"));
+        long id = create(body("draft", false, arch, "[]", "[]", "[]"));
         assertNull(publishedAt(id));
         mockMvc.perform(get("/api/blog/posts/draft")).andExpect(status().isNotFound());
 
-        send(put("/api/admin/blog/posts/{id}", id), body("draft", true, "[]", "[]", "[]", "[]"))
+        send(put("/api/admin/blog/posts/{id}", id), body("draft", true, arch, "[]", "[]", "[]"))
                 .andExpect(status().isOk());
         String first = publishedAt(id);
         assertNotNull(first);
 
-        send(put("/api/admin/blog/posts/{id}", id), body("draft", false, "[]", "[]", "[]", "[]"))
+        send(put("/api/admin/blog/posts/{id}", id), body("draft", false, arch, "[]", "[]", "[]"))
                 .andExpect(status().isOk());
         assertEquals(first, publishedAt(id));
         mockMvc.perform(get("/api/blog/posts/draft")).andExpect(status().isNotFound());
@@ -81,22 +83,20 @@ class BlogPostAdminApiTest extends ApiTestSupport {
 
     @Test
     void updateReplacesLinksAndDeleteRemovesThem() throws Exception {
-        long id = create(body("post", true, "[" + arch + "]", "[" + ws + "]", "[" + react + "]",
+        long id = create(body("post", true, arch, "[" + ws + "]", "[" + react + "]",
                 "[{\"title\":\"t\",\"bodyMarkdown\":\"b\"}]"));
-        send(put("/api/admin/blog/posts/{id}", id), body("post", true, "[]", "[]", "[]", "[]"))
+        send(put("/api/admin/blog/posts/{id}", id), body("post", true, fe, "[]", "[]", "[]"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.categoryIds.length()").value(0))
+                .andExpect(jsonPath("$.categoryId").value(fe))
                 .andExpect(jsonPath("$.tagIds.length()").value(0))
                 .andExpect(jsonPath("$.sections.length()").value(0));
 
-        send(put("/api/admin/blog/posts/{id}", id), body("post", true, "[" + arch + "]", "[" + ws + "]", "[]", "[]"))
+        send(put("/api/admin/blog/posts/{id}", id), body("post", true, arch, "[" + ws + "]", "[]", "[]"))
                 .andExpect(status().isOk());
         mockMvc.perform(delete("/api/admin/blog/posts/{id}", id).with(admin()).with(csrf()))
                 .andExpect(status().isNoContent());
         assertEquals(0, jdbc.queryForObject(
-                "select (select count(*) from blog_category where blog_post_id = ?)"
-                        + " + (select count(*) from blog_tag where blog_post_id = ?)",
-                Integer.class, id, id));
+                "select count(*) from blog_tag where blog_post_id = ?", Integer.class, id));
         // the category is no longer used, so it can be deleted now
         mockMvc.perform(delete("/api/admin/categories/{id}", arch).with(admin()).with(csrf()))
                 .andExpect(status().isNoContent());
@@ -104,26 +104,28 @@ class BlogPostAdminApiTest extends ApiTestSupport {
 
     @Test
     void rejectsConflictsAndInvalidReferences() throws Exception {
-        create(body("taken", true, "[]", "[]", "[]", "[]"));
-        send(post("/api/admin/blog/posts"), body("taken", true, "[]", "[]", "[]", "[]"))
+        create(body("taken", true, arch, "[]", "[]", "[]"));
+        send(post("/api/admin/blog/posts"), body("taken", true, arch, "[]", "[]", "[]"))
                 .andExpect(status().isConflict());
-        send(post("/api/admin/blog/posts"), body("bad-cat", true, "[999999999]", "[]", "[]", "[]"))
+        send(post("/api/admin/blog/posts"), body("bad-cat", true, 999_999_999L, "[]", "[]", "[]"))
                 .andExpect(status().isBadRequest());
-        send(post("/api/admin/blog/posts"), body("bad-tag", true, "[]", "[" + ws + "," + ws + "]", "[]", "[]"))
+        send(post("/api/admin/blog/posts"), body("no-cat", true, null, "[]", "[]", "[]"))
                 .andExpect(status().isBadRequest());
-        send(post("/api/admin/blog/posts"), body("bad-skill", true, "[]", "[]", "[999999999]", "[]"))
+        send(post("/api/admin/blog/posts"), body("bad-tag", true, arch, "[" + ws + "," + ws + "]", "[]", "[]"))
                 .andExpect(status().isBadRequest());
-        send(put("/api/admin/blog/posts/{id}", 999_999_999L), body("ghost", true, "[]", "[]", "[]", "[]"))
+        send(post("/api/admin/blog/posts"), body("bad-skill", true, arch, "[]", "[999999999]", "[]"))
+                .andExpect(status().isBadRequest());
+        send(put("/api/admin/blog/posts/{id}", 999_999_999L), body("ghost", true, arch, "[]", "[]", "[]"))
                 .andExpect(status().isNotFound());
         mockMvc.perform(get("/api/admin/blog/posts")).andExpect(status().isUnauthorized());
     }
 
-    private static String body(String slug, boolean published, String categoryIds, String tagIds,
+    private static String body(String slug, boolean published, Long categoryId, String tagIds,
                                String skillIds, String sections) {
         return ("{\"slug\":\"%s\",\"title\":\"%s title\",\"summary\":\"summary\",\"thumbnailUrl\":null,"
-                + "\"published\":%s,\"adminNote\":\"memo\",\"categoryIds\":%s,\"tagIds\":%s,"
+                + "\"published\":%s,\"adminNote\":\"memo\",\"categoryId\":%s,\"tagIds\":%s,"
                 + "\"skillIds\":%s,\"sections\":%s,\"references\":[]}")
-                .formatted(slug, slug, published, categoryIds, tagIds, skillIds, sections);
+                .formatted(slug, slug, published, categoryId, tagIds, skillIds, sections);
     }
 
     private long create(String json) throws Exception {

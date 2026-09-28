@@ -114,8 +114,8 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 쿼리: `page`(0부터), `size`(기본 20, 1~50으로 보정), `category`(code), `tag`(code). 둘 다 주면 AND.
 응답: `{items: [...], page, size, totalElements}`. 정렬은 `published_at desc nulls last` → `id desc`.
 
-- 항목: `slug, title, summary, thumbnailUrl, publishedAt, updatedAt, categories[{code,name}], tags[{code,name}], skills[]`
-- 카테고리는 `display_order` 순, 태그·기술은 code 순.
+- 항목: `slug, title, summary, thumbnailUrl, publishedAt, updatedAt, category{code,name}, tags[{code,name}], skills[]`
+- 카테고리는 글마다 하나다(ADR-0005 후속 3, 2026-09-29). 태그·기술은 code 순.
 
 ### GET /api/blog/posts/{slug}
 
@@ -218,18 +218,18 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 ### Blog 관리
 
 - `GET /api/admin/blog/posts` → 비공개 포함 `[{id, slug, title, published, publishedAt, updatedAt}]`. 초안(`publishedAt` 없음) 먼저, 이후 최신순.
-- `GET /api/admin/blog/posts/{id}` → 모든 필드 + `adminNote, publishedAt, createdAt, updatedAt, categoryIds[], tagIds[], skillIds[], sections[]`
+- `GET /api/admin/blog/posts/{id}` → 모든 필드 + `adminNote, publishedAt, createdAt, updatedAt, categoryId, tagIds[], skillIds[], sections[]`
 - `POST` → `201`, `PUT /{id}` → `200`, `DELETE /{id}` → `204`(연결·섹션도 삭제)
 
 ```json
 {"slug":"websocket-binary-video","title":"...","summary":null,"thumbnailUrl":null,
  "published":false,"adminNote":null,
- "categoryIds":[1],"tagIds":[2,3],"skillIds":[4],"sections":[{"title":"...","bodyMarkdown":"..."}],
+ "categoryId":1,"tagIds":[2,3],"skillIds":[4],"sections":[{"title":"...","bodyMarkdown":"..."}],
  "references":[{"type":"PROJECT","id":1}]}
 ```
 
 - slug 규칙·중복 `409`와 발행일 규칙은 Project와 같다.
-- `categoryIds`·`tagIds`·`skillIds`에 없는 ID나 중복이 있으면 `400`.
+- `categoryId`는 필수(없으면 `400`). `categoryId`·`tagIds`·`skillIds`에 없는 ID나 중복이 있으면 `400`.
 
 ### Profile 관리
 

@@ -27,6 +27,9 @@ public class BlogPost {
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
 
+    @Column(name = "category_id")
+    private Long categoryId;
+
     @Column(nullable = false)
     private boolean published;
 
@@ -58,6 +61,7 @@ public class BlogPost {
         this.title = r.title().trim();
         this.summary = blankToNull(r.summary());
         this.thumbnailUrl = blankToNull(r.thumbnailUrl());
+        this.categoryId = r.categoryId();
         if (r.published() && this.publishedAt == null) {
             this.publishedAt = now;
         }
@@ -75,6 +79,7 @@ public class BlogPost {
     public String getTitle() { return title; }
     public String getSummary() { return summary; }
     public String getThumbnailUrl() { return thumbnailUrl; }
+    public Long getCategoryId() { return categoryId; }
     public boolean isPublished() { return published; }
     public Instant getPublishedAt() { return publishedAt; }
     public String getAdminNote() { return adminNote; }

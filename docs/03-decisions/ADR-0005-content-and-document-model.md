@@ -55,6 +55,16 @@
 - RAG Relation Expansion과 Graph는 계속 양방향으로 탐색한다. 방향은 화면 표시에만 쓴다.
 - 기존 "저장은 방향이 있고 탐색은 양방향" 원칙에서 **표시**만 방향별로 나뉜다. 샘플의 상호 중복 연결(프로젝트↔블로그 양쪽 기재)은 한 방향으로 정리했다(samples/README).
 
+## 후속 결정 3 — 2026-09-29 (블로그 카테고리 단일 선택)
+
+사용자 결정: 블로그 카테고리를 하나만 고른다. sonic-portfolio UI 적용(위키형 목록에서 글을 카테고리 하나로 묶어 보여줌)과 함께 정했다.
+
+- `blog_category` 연결 테이블을 없애고 `blog_post.category_id`(FK, `on delete restrict`)로 바꾼다(V4 마이그레이션). 기존 연결은 `display_order`가 가장 앞선 하나를 남긴다.
+- 필수다. 관리 API(`categoryId`)에서 검사하며, DB 컬럼은 기존 데이터 때문에 null을 허용한다.
+- 공개 API는 `categories[]` 대신 `category{code,name}`를 준다. 카테고리는 RAG 색인·검색에 쓰이지 않으므로 재색인이 필요 없다.
+- `content/`·`samples/` front matter는 `category:` 한 값으로 바꿨다. 기존 여러 값 중 먼저 적힌 것을 남겼다(사용자 확인).
+- 태그는 계속 여러 개다.
+
 ## Alternatives Considered
 
 **섹션 저장**

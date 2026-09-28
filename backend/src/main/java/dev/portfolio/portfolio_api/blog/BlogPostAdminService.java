@@ -97,7 +97,7 @@ public class BlogPostAdminService {
         return toDetail(existing);
     }
 
-    /** Category/tag/skill links and sections are removed by FK cascade. */
+    /** Tag/skill links and sections are removed by FK cascade. */
     public void delete(long id) {
         posts.delete(find(id));
         posts.flush();
@@ -105,14 +105,13 @@ public class BlogPostAdminService {
     }
 
     private void validate(BlogPostAdminRequest request, Long id) {
-        idChecks.requireExisting(RefTable.CATEGORY, "categoryIds", request.categoryIds());
+        idChecks.requireExisting(RefTable.CATEGORY, "categoryId", List.of(request.categoryId()));
         idChecks.requireExisting(RefTable.TAG, "tagIds", request.tagIds());
         idChecks.requireExisting(RefTable.SKILL, "skillIds", request.skillIds());
         references.validate(RefType.BLOG, id, request.references());
     }
 
     private void replaceChildren(long postId, BlogPostAdminRequest request) {
-        replaceLinks("blog_category", "category_id", postId, request.categoryIds());
         replaceLinks("blog_tag", "tag_id", postId, request.tagIds());
         replaceLinks("blog_skill", "skill_id", postId, request.skillIds());
         sectionWriter.replace(SectionWriter.Owner.BLOG_POST, postId, request.sections());
@@ -128,7 +127,7 @@ public class BlogPostAdminService {
     private AdminBlogPostDetail toDetail(BlogPost p) {
         return new AdminBlogPostDetail(p.getId(), p.getSlug(), p.getTitle(), p.getSummary(), p.getThumbnailUrl(),
                 p.isPublished(), p.getPublishedAt(), p.getAdminNote(), p.getCreatedAt(), p.getUpdatedAt(),
-                linkedIds("blog_category", "category_id", p.getId()),
+                p.getCategoryId(),
                 linkedIds("blog_tag", "tag_id", p.getId()),
                 linkedIds("blog_skill", "skill_id", p.getId()),
                 sectionQuery.forBlogPost(p.getId()),

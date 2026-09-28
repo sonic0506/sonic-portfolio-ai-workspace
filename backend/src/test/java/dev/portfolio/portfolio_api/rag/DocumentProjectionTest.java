@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 class DocumentProjectionTest extends ApiTestSupport {
 
     long java;
+    long category;
 
     @BeforeEach
     void clear() {
@@ -27,6 +28,7 @@ class DocumentProjectionTest extends ApiTestSupport {
         jdbc.update("delete from blog_post");
         jdbc.update("delete from profile");
         java = skill("dp-java", "Java");
+        category = insertReturningId("insert into category (code, name) values ('dp-cat', '분류')");
     }
 
     @Test
@@ -70,8 +72,8 @@ class DocumentProjectionTest extends ApiTestSupport {
     void blogAndProfileAreProjected() throws Exception {
         long post = send(post("/api/admin/blog/posts"), """
                 {"slug":"dp-post","title":"글","summary":null,"thumbnailUrl":null,"published":true,
-                 "adminNote":"secret-memo","categoryIds":[],"tagIds":[],"skillIds":[],
-                 "sections":[{"title":"본문","bodyMarkdown":"내용"}],"references":[]}""", 201);
+                 "adminNote":"secret-memo","categoryId":%d,"tagIds":[],"skillIds":[],
+                 "sections":[{"title":"본문","bodyMarkdown":"내용"}],"references":[]}""".formatted(category), 201);
         assertEquals(true, document("BLOG", post).get("visible"));
 
         send(put("/api/admin/profile"), """

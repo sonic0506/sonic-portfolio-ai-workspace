@@ -54,7 +54,7 @@ class TaxonomyAdminApiTest extends ApiTestSupport {
     void categoryInUseCannotBeDeleted() throws Exception {
         long used = insertReturningId("insert into category (code, name) values ('tx-used', 'used')");
         long unused = insertReturningId("insert into category (code, name) values ('tx-unused', 'unused')");
-        jdbc.update("insert into blog_category (blog_post_id, category_id) values (?, ?)", post, used);
+        jdbc.update("update blog_post set category_id = ? where id = ?", used, post);
 
         mockMvc.perform(delete("/api/admin/categories/{id}", used).with(admin()).with(csrf()))
                 .andExpect(status().isConflict());

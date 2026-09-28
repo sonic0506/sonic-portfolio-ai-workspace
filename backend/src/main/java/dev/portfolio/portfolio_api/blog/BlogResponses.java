@@ -21,13 +21,13 @@ public final class BlogResponses {
     public record BlogPostItem(
             String slug, String title, String summary, String thumbnailUrl,
             Instant publishedAt, Instant updatedAt,
-            List<LabelResponse> categories, List<LabelResponse> tags, List<SkillResponse> skills) {
+            LabelResponse category, List<LabelResponse> tags, List<SkillResponse> skills) {
     }
 
     public record BlogPostDetail(
             String slug, String title, String summary, String thumbnailUrl,
             Instant publishedAt, Instant updatedAt,
-            List<LabelResponse> categories, List<LabelResponse> tags, List<SkillResponse> skills,
+            LabelResponse category, List<LabelResponse> tags, List<SkillResponse> skills,
             List<SectionResponse> sections,
             List<PublicReference> references, List<PublicReference> referencedBy) {
     }

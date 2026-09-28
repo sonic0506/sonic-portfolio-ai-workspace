@@ -133,7 +133,7 @@ export type BlogPostRequest = {
   thumbnailUrl: string | null
   published: boolean
   adminNote: string | null
-  categoryIds: number[]
+  categoryId: number
   tagIds: number[]
   skillIds: number[]
   sections: Section[]

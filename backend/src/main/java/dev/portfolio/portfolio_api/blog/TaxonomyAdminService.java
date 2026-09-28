@@ -50,7 +50,7 @@ public class TaxonomyAdminService {
     public void deleteCategory(long id) {
         Category category = categories.findById(id).orElseThrow(() -> notFound("category"));
         Integer used = jdbc.queryForObject(
-                "select count(*) from blog_category where category_id = ?", Integer.class, id);
+                "select count(*) from blog_post where category_id = ?", Integer.class, id);
         if (used != null && used > 0) {
             throw conflict("category is used by " + used + " blog post(s)");
         }

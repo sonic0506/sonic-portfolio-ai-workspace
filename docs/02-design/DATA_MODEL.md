@@ -31,11 +31,10 @@ erDiagram
     project ||--o{ project_skill : has
     project ||--o{ content_section : has
 
-    blog_post ||--o{ blog_category : has
     blog_post ||--o{ blog_tag : has
     blog_post ||--o{ blog_skill : has
     blog_post ||--o{ content_section : has
-    category  ||--o{ blog_category : referenced
+    category  ||--o{ blog_post : categorizes
     tag       ||--o{ blog_tag : referenced
 
     document ||--o{ document_chunk : has
@@ -170,6 +169,7 @@ create table blog_post (
   title         text not null,
   summary       text,
   thumbnail_url text,
+  category_id   bigint references category(id) on delete restrict, -- 단일 카테고리(V4). 필수 검사는 API
   published     boolean not null default false,
   published_at  timestamptz,
   admin_note    text,
@@ -178,6 +178,7 @@ create table blog_post (
 );
 create index blog_post_published_idx on blog_post (published_at desc, id desc)
   where published;
+create index blog_post_category_id_idx on blog_post (category_id);
 
 create table category (
   id            bigint generated always as identity primary key,
@@ -191,13 +192,6 @@ create table tag (
   code text not null unique,
   name text not null
 );
-
-create table blog_category (
-  blog_post_id bigint not null references blog_post(id) on delete cascade,
-  category_id  bigint not null references category(id) on delete restrict,
-  primary key (blog_post_id, category_id)
-);
-create index blog_category_category_id_idx on blog_category (category_id);
 
 create table blog_tag (
   blog_post_id bigint not null references blog_post(id) on delete cascade,

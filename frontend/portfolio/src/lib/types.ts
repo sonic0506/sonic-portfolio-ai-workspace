@@ -43,7 +43,7 @@ export type BlogPostSummary = {
   thumbnailUrl: string | null;
   publishedAt: string | null;
   updatedAt: string | null;
-  categories: CodeName[];
+  category: CodeName | null;
   tags: CodeName[];
   skills: Skill[];
 };

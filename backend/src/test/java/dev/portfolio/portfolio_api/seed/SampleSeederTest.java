@@ -54,6 +54,7 @@ class SampleSeederTest extends ApiTestSupport {
                 .andExpect(jsonPath("$.totalElements").value(2))
                 .andExpect(jsonPath("$.items[0].slug").value("web-serial-usb"))
                 .andExpect(jsonPath("$.items[0].publishedAt").value("2025-03-05T00:00:00Z"))
+                .andExpect(jsonPath("$.items[0].category.name").value("웹 API"))
                 .andExpect(jsonPath("$.items[1].slug").value("websocket-binary-video"));
         mockMvc.perform(get("/api/blog/posts/offline-first-boundary")).andExpect(status().isNotFound());
         mockMvc.perform(get("/api/blog/posts").param("tag", "closed-network"))

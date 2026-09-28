@@ -2,6 +2,7 @@ package dev.portfolio.portfolio_api.blog;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toList;
 
 import com.querydsl.core.BooleanBuilder;
@@ -17,8 +18,11 @@ import dev.portfolio.portfolio_api.content.SectionQuery;
 import dev.portfolio.portfolio_api.skill.QSkill;
 import dev.portfolio.portfolio_api.skill.SkillResponse;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +36,6 @@ public class BlogQueryService {
     static final int MAX_SIZE = 50;
 
     private static final QBlogPost post = QBlogPost.blogPost;
-    private static final QBlogCategory blogCategory = QBlogCategory.blogCategory;
     private static final QCategory category = QCategory.category;
     private static final QBlogTag blogTag = QBlogTag.blogTag;
     private static final QTag tag = QTag.tag;
@@ -56,9 +59,9 @@ public class BlogQueryService {
 
         BooleanBuilder where = new BooleanBuilder(post.published.isTrue());
         if (categoryCode != null && !categoryCode.isBlank()) {
-            where.and(post.id.in(JPAExpressions.select(blogCategory.blogPostId)
-                    .from(blogCategory, category)
-                    .where(blogCategory.categoryId.eq(category.id), category.code.eq(categoryCode))));
+            where.and(post.categoryId.in(JPAExpressions.select(category.id)
+                    .from(category)
+                    .where(category.code.eq(categoryCode))));
         }
         if (tagCode != null && !tagCode.isBlank()) {
             where.and(post.id.in(JPAExpressions.select(blogTag.blogPostId)
@@ -75,7 +78,7 @@ public class BlogQueryService {
                 .fetch();
 
         List<Long> ids = posts.stream().map(BlogPost::getId).toList();
-        Map<Long, List<LabelResponse>> categories = categoriesByPost(ids);
+        Map<Long, LabelResponse> categories = categoriesById(posts.stream().map(BlogPost::getCategoryId).toList());
         Map<Long, List<LabelResponse>> tags = tagsByPost(ids);
         Map<Long, List<SkillResponse>> skills = skillsByPost(ids);
 
@@ -83,7 +86,7 @@ public class BlogQueryService {
                 .map(p -> new BlogPostItem(
                         p.getSlug(), p.getTitle(), p.getSummary(), p.getThumbnailUrl(),
                         p.getPublishedAt(), p.getUpdatedAt(),
-                        categories.getOrDefault(p.getId(), List.of()),
+                        categories.get(p.getCategoryId()),
                         tags.getOrDefault(p.getId(), List.of()),
                         skills.getOrDefault(p.getId(), List.of())))
                 .toList();
@@ -101,7 +104,7 @@ public class BlogQueryService {
         return new BlogPostDetail(
                 p.getSlug(), p.getTitle(), p.getSummary(), p.getThumbnailUrl(),
                 p.getPublishedAt(), p.getUpdatedAt(),
-                categoriesByPost(ids).getOrDefault(p.getId(), List.of()),
+                categoriesById(Collections.singletonList(p.getCategoryId())).get(p.getCategoryId()),
                 tagsByPost(ids).getOrDefault(p.getId(), List.of()),
                 skillsByPost(ids).getOrDefault(p.getId(), List.of()),
                 sectionQuery.forBlogPost(p.getId()),
@@ -109,18 +112,16 @@ public class BlogQueryService {
                 references.publicReferencedBy(RefType.BLOG, p.getId()));
     }
 
-    private Map<Long, List<LabelResponse>> categoriesByPost(Collection<Long> postIds) {
-        if (postIds.isEmpty()) {
-            return Map.of();
+    private Map<Long, LabelResponse> categoriesById(Collection<Long> categoryIds) {
+        List<Long> ids = categoryIds.stream().filter(Objects::nonNull).distinct().toList();
+        if (ids.isEmpty()) {
+            return new HashMap<>(); // get(null) must return null, Map.of() would throw
         }
-        return queryFactory.select(blogCategory.blogPostId, category.code, category.name)
-                .from(blogCategory, category)
-                .where(blogCategory.categoryId.eq(category.id), blogCategory.blogPostId.in(postIds))
-                .orderBy(category.displayOrder.asc(), category.code.asc())
+        return queryFactory.selectFrom(category)
+                .where(category.id.in(ids))
                 .fetch()
                 .stream()
-                .collect(groupingBy(t -> t.get(blogCategory.blogPostId),
-                        mapping(t -> new LabelResponse(t.get(category.code), t.get(category.name)), toList())));
+                .collect(toMap(Category::getId, c -> new LabelResponse(c.getCode(), c.getName())));
     }
 
     private Map<Long, List<LabelResponse>> tagsByPost(Collection<Long> postIds) {

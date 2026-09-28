@@ -6,7 +6,7 @@ summary: "콘텐츠 화면을 한곳에서 관리하려고 HTML 템플릿과 데
 created_at: 2026-09-28
 updated_at: 2026-09-28
 published: true
-categories: ["아키텍처", "프론트엔드"]
+category: "아키텍처"
 tags: ["템플릿", "webview", "관리자"]
 skills: ["React", "Next.js"]
 related_projects: []

@@ -153,7 +153,7 @@ public class SampleSeeder {
         var request = new BlogPostAdminRequest(
                 md.requiredText("id"), md.requiredText("title"), md.text("summary"), md.text("thumbnail"),
                 md.bool("published"), adminNote(notes),
-                resolve(md, "categories", categoryIds), resolve(md, "tags", tagIds),
+                resolveOne(md, "category", categoryIds), resolve(md, "tags", tagIds),
                 resolve(md, "skills", skillIds), md.sections(), List.of());
         Long id = idBySlug("blog_post", request.slug());
         if (id == null) {
@@ -251,6 +251,15 @@ public class SampleSeeder {
             }
             return id;
         }).toList();
+    }
+
+    private static Long resolveOne(SampleMarkdown md, String key, Map<String, Long> idsByName) {
+        String name = md.requiredText(key);
+        Long id = idsByName.get(name);
+        if (id == null) {
+            throw new IllegalStateException(md.path() + ": " + key + " has no code mapping for '" + name + "'");
+        }
+        return id;
     }
 
     /** Rows of the first markdown table whose header cells equal the given header exactly. */

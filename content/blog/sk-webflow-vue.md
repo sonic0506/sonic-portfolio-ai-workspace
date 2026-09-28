@@ -6,7 +6,7 @@ summary: "Webflow로 만든 사이트에 서버 데이터에 따라 바뀌는 �
 created_at: 2026-09-28
 updated_at: 2026-09-28
 published: true
-categories: ["프론트엔드", "아키텍처"]
+category: "프론트엔드"
 tags: ["webflow", "vue"]
 skills: ["Webflow", "Vue.js"]
 related_projects: []
