@@ -38,7 +38,7 @@ export default async function BlogPage({ searchParams }: PageProps<"/blog">) {
       <header>
         <div className="flex items-baseline gap-2.5">
           {/* 카테고리 색은 이 점에서만 쓴다. */}
-          {category && <CategoryDot code={category} className="translate-y-px" />}
+          {category && <CategoryDot color={current?.color} className="translate-y-px" />}
           <h1 className="min-w-0 flex-1 truncate text-xl">{current?.name ?? (category ? category : "Blog")}</h1>
           {/* 글 수는 데이터라 mono. */}
           <span className="shrink-0 font-mono text-2xs text-text-3">{result.totalElements}</span>

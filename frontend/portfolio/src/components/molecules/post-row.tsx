@@ -27,7 +27,7 @@ export function PostRow({ post, showCategory }: { post: BlogPostSummary; showCat
           <span className="mt-2.5 flex items-center gap-2 font-mono text-2xs text-text-3">
             {showCategory && post.category && (
               <>
-                <CategoryDot code={post.category.code} className="size-1.5" />
+                <CategoryDot color={post.category.color} className="size-1.5" />
                 <span>{post.category.name}</span>
                 <span aria-hidden="true">·</span>
               </>

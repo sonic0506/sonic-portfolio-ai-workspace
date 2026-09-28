@@ -45,7 +45,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
         <ArrowLeft className="size-3.5 shrink-0" strokeWidth={1.5} />
         {post.category ? (
           <>
-            <CategoryDot code={post.category.code} className="size-1.5" />
+            <CategoryDot color={post.category.color} className="size-1.5" />
             {post.category.name}
           </>
         ) : (

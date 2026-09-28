@@ -22,7 +22,14 @@ export type ProjectSummary = {
 export type ProjectList = { featured: ProjectSummary[]; others: ProjectSummary[] };
 
 /** 참고 문서 — 공개 문서만 온다 (ADR-0005 후속 결정) */
-export type DocumentReference = { type: "PROJECT" | "BLOG"; slug: string; title: string; url: string };
+export type DocumentReference = {
+  type: "PROJECT" | "BLOG";
+  slug: string;
+  title: string;
+  url: string;
+  /** 블로그만. 프로젝트는 null. */
+  category: Category | null;
+};
 
 type WithReferences = { references: DocumentReference[]; referencedBy: DocumentReference[] };
 
@@ -36,7 +43,10 @@ export type ProjectDetail = ProjectSummary &
 
 export type CodeName = { code: string; name: string };
 
-export type CategoryCount = CodeName & { postCount: number };
+/** 블로그 카테고리. color는 서버가 정한 "#RRGGBB"이며 점(dot)에만 쓴다. */
+export type Category = CodeName & { color: string };
+
+export type CategoryCount = Category & { postCount: number };
 
 export type BlogPostSummary = {
   slug: string;
@@ -45,7 +55,7 @@ export type BlogPostSummary = {
   thumbnailUrl: string | null;
   publishedAt: string | null;
   updatedAt: string | null;
-  category: CodeName | null;
+  category: Category | null;
   tags: CodeName[];
   skills: Skill[];
 };

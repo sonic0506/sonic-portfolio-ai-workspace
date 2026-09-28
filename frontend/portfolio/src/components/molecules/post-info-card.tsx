@@ -4,7 +4,7 @@ import { CornerDownRight } from 'lucide-react';
 
 import { CategoryDot } from '@/components/atoms/category-dot';
 import { useAskChat } from '@/hooks/use-ask-chat';
-import type { CodeName } from '@/lib/types';
+import type { Category } from '@/lib/types';
 
 /** 우측 aside의 글 정보. 수치는 전부 글과 참고 관계에서 세어 온 값이다. */
 export function PostInfoCard({
@@ -13,7 +13,7 @@ export function PostInfoCard({
   facts,
 }: {
   title: string;
-  category: CodeName | null;
+  category: Category | null;
   facts: string[];
 }) {
   const askChat = useAskChat();
@@ -23,7 +23,7 @@ export function PostInfoCard({
       {category && (
         <h2 className="mb-3 flex items-center gap-2">
           {/* 카테고리 색은 이 점에서만 쓴다. */}
-          <CategoryDot code={category.code} />
+          <CategoryDot color={category.color} />
           <span className="min-w-0 truncate text-sm font-medium">{category.name}</span>
         </h2>
       )}

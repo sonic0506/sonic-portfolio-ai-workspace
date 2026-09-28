@@ -199,7 +199,7 @@ function BlogMenu({ categories, active }: { categories: CategoryCount[]; active:
               >
                 {/* 레일에서도 보이도록 아이콘 자리(16px)에 점을 가운데 둔다. */}
                 <span className="flex size-4 shrink-0 items-center justify-center">
-                  <CategoryDot code={category.code} />
+                  <CategoryDot color={category.color} />
                 </span>
                 <span>{category.name}</span>
               </Link>

@@ -14,10 +14,11 @@ import {
   toTaxonomyRequest,
   type TaxonomyForm,
   type TaxonomyKind,
+  DEFAULT_CATEGORY_COLOR,
 } from '@/features/taxonomy-schemas'
 import { api } from '@/lib/api'
 
-type Row = { id: number; code: string; name: string; iconKey?: string | null; displayOrder?: number }
+type Row = { id: number; code: string; name: string; iconKey?: string | null; displayOrder?: number; color?: string }
 
 const CONFIG: Record<
   TaxonomyKind,
@@ -93,11 +94,15 @@ function TaxonomyTable({ kind, query }: { kind: TaxonomyKind; query: UseQueryRes
             </li>
           ) : (
             <li key={row.id} className="flex items-center gap-2 px-3 py-2 text-sm">
+              {row.color && (
+                <span aria-hidden="true" className="size-3 shrink-0 rounded-full border" style={{ backgroundColor: row.color }} />
+              )}
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{row.name}</p>
                 <p className="truncate text-xs text-muted-foreground">
                   {row.code}
                   {config.extraLabel && extraOf(kind, row) ? ` · ${config.extraLabel} ${extraOf(kind, row)}` : ''}
+                  {row.color ? ` · ${row.color}` : ''}
                 </p>
               </div>
               <Button size="icon" variant="ghost" onClick={() => setEditing(row.id)} aria-label={`${row.name} 수정`}>
@@ -126,12 +131,14 @@ function TaxonomyTable({ kind, query }: { kind: TaxonomyKind; query: UseQueryRes
 function RowForm({ kind, row, onDone }: { kind: TaxonomyKind; row?: Row; onDone?: () => void }) {
   const config = CONFIG[kind]
   const queryClient = useQueryClient()
-  const empty = { code: '', name: '', extra: kind === 'category' ? '0' : '' }
+  const empty = { code: '', name: '', extra: kind === 'category' ? '0' : '', color: DEFAULT_CATEGORY_COLOR }
   const form = useForm<TaxonomyForm>({
     resolver: zodResolver(
       kind === 'category' ? taxonomySchema.extend({ extra: categoryOrderSchema }) : taxonomySchema,
     ),
-    defaultValues: row ? { code: row.code, name: row.name, extra: extraOf(kind, row) } : empty,
+    defaultValues: row
+      ? { code: row.code, name: row.name, extra: extraOf(kind, row), color: row.color ?? DEFAULT_CATEGORY_COLOR }
+      : empty,
   })
   const e = form.formState.errors
   const save = useMutation({
@@ -145,7 +152,7 @@ function RowForm({ kind, row, onDone }: { kind: TaxonomyKind; row?: Row; onDone?
       else form.reset(empty)
     },
   })
-  const message = e.code?.message ?? e.name?.message ?? e.extra?.message
+  const message = e.code?.message ?? e.name?.message ?? e.extra?.message ?? e.color?.message
 
   return (
     <form noValidate className="space-y-1" onSubmit={form.handleSubmit((v) => save.mutate(v))}>
@@ -159,6 +166,16 @@ function RowForm({ kind, row, onDone }: { kind: TaxonomyKind; row?: Row; onDone?
             aria-invalid={!!e.extra}
             className="h-8 w-20 shrink-0"
             {...form.register('extra')}
+          />
+        )}
+        {kind === 'category' && (
+          // 포트폴리오에서 카테고리 점(dot)에만 쓰는 색. 글자는 중립색이라 대비를 따로 맞출 필요는 없다.
+          <input
+            type="color"
+            aria-label="카테고리 색"
+            title="카테고리 색"
+            className="h-8 w-10 shrink-0 cursor-pointer rounded-md border bg-transparent p-0.5"
+            {...form.register('color')}
           />
         )}
       </div>

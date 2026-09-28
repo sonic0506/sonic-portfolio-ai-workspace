@@ -32,13 +32,7 @@
   --s-on-accent: #ffffff;
   --s-danger: #b8425f;
 
-  /* 카테고리 색 — 블로그 카테고리 점 + (나중에) 그래프 노드 전용. content/taxonomy.md의 code와 1:1 */
-  --s-cat-frontend: #c7772a;
-  --s-cat-architecture: #7f5fc0;
-  --s-cat-ux: #2e93a8;
-  --s-cat-collaboration: #2f8a6e;
-  --s-cat-infra: #b35a3f;
-  --s-cat-hardware: #6b7386;
+  /* 카테고리 색은 서버(category.color)가 정한다. 값이 없을 때만 이 회색을 쓴다. */
   --s-cat-default: #8b8b94;
 }
 
@@ -61,12 +55,6 @@
   --s-on-accent: #ffffff;
   --s-danger: #c2536e;
 
-  --s-cat-frontend: #e0913c;
-  --s-cat-architecture: #9b7bd4;
-  --s-cat-ux: #4fb0c4;
-  --s-cat-collaboration: #46a085;
-  --s-cat-infra: #c96f53;
-  --s-cat-hardware: #7e869b;
   --s-cat-default: #5f5f68;
 }
 
@@ -88,12 +76,6 @@
   --color-on-accent: var(--s-on-accent);
   --color-danger: var(--s-danger);
 
-  --color-cat-frontend: var(--s-cat-frontend);
-  --color-cat-architecture: var(--s-cat-architecture);
-  --color-cat-ux: var(--s-cat-ux);
-  --color-cat-collaboration: var(--s-cat-collaboration);
-  --color-cat-infra: var(--s-cat-infra);
-  --color-cat-hardware: var(--s-cat-hardware);
   --color-cat-default: var(--s-cat-default);
 }
 
