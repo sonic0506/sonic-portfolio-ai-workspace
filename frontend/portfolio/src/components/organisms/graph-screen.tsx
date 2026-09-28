@@ -1,0 +1,163 @@
+'use client';
+
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { NodeMark } from '@/components/atoms/node-mark';
+import { GraphFilterCard } from '@/components/molecules/graph-filter-card';
+import { GraphTree } from '@/components/molecules/graph-tree';
+import { GraphCanvas } from '@/components/organisms/graph-canvas';
+import { GraphDetailPanel } from '@/components/organisms/graph-detail-panel';
+import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
+import type { GraphApiResponse, GraphNode, GraphNodeType } from '@/lib/graph';
+import { DEFAULT_HIDDEN, GRAPH_TYPES, buildGraph, visibleCounts } from '@/lib/graph';
+
+/**
+ * 그래프 화면 전체. 필터·검색·선택 상태를 여기서 들고, 캔버스는 그리기와 입력만 맡는다.
+ * initialNodeId: 상세·카테고리 화면에서 `?node=`로 넘어온 노드. 처음에 열고 그리로 옮긴다.
+ */
+export function GraphScreen({ data, initialNodeId }: { data: GraphApiResponse; initialNodeId: string | null }) {
+  const graph = useMemo(() => buildGraph(data), [data]);
+  const entry = initialNodeId ? (graph.byId[initialNodeId] ?? null) : null;
+  const isMobile = useIsMobile();
+
+  const [query, setQuery] = useState('');
+  // 들어온 노드가 스킬이면 스킬을 켠 채로 시작한다.
+  const [hidden, setHidden] = useState<Set<GraphNodeType>>(
+    () => new Set(DEFAULT_HIDDEN.filter((type) => type !== entry?.type)),
+  );
+  const [selectedId, setSelectedId] = useState<string | null>(entry?.id ?? null);
+  // 패널이 닫히는 140ms 동안에도 내용이 남아 있어야 해서 선택과 따로 들고 있는다.
+  const [panelNode, setPanelNode] = useState<GraphNode | null>(entry);
+  const [focus, setFocus] = useState<{ id: string; token: number } | null>(entry ? { id: entry.id, token: 1 } : null);
+
+  const select = useCallback(
+    (id: string | null) => {
+      setSelectedId(id);
+      if (id) setPanelNode(graph.byId[id] ?? null);
+    },
+    [graph],
+  );
+
+  const allHidden = hidden.size === GRAPH_TYPES.length;
+  const counts = useMemo(() => visibleCounts(graph, hidden), [graph, hidden]);
+
+  const toggleType = useCallback(
+    (type: GraphNodeType) => {
+      setHidden((previous) => {
+        const next = new Set(previous);
+        if (next.has(type)) next.delete(type);
+        else next.add(type);
+        return next;
+      });
+      // 방금 끈 종류의 노드를 보고 있었다면 패널도 함께 닫는다.
+      setSelectedId((previous) => (previous && graph.byId[previous]?.type === type ? null : previous));
+    },
+    [graph],
+  );
+
+  const reset = useCallback(() => {
+    setHidden(new Set());
+    setQuery('');
+  }, []);
+
+  useEffect(() => {
+    if (!selectedId) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedId(null);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [selectedId]);
+
+  const navigateTo = useCallback(
+    (id: string) => {
+      // 패널의 연결 목록에서 숨긴 종류(예: 스킬)를 누르면 그 종류를 켠다.
+      const type = graph.byId[id]?.type;
+      if (type) setHidden((previous) => (previous.has(type) ? new Set([...previous].filter((t) => t !== type)) : previous));
+      select(id);
+      setFocus((previous) => ({ id, token: (previous?.token ?? 0) + 1 }));
+    },
+    [graph, select],
+  );
+
+  // 768px 미만에서는 그래프 대신 목록을 편다.
+  if (isMobile) return <GraphTree graph={graph} />;
+
+  return (
+    <div className="relative h-full min-h-0 w-full overflow-hidden">
+      <GraphCanvas
+        graph={graph}
+        query={query}
+        hidden={hidden}
+        selectedId={selectedId}
+        onSelect={select}
+        focus={focus}
+        panelOpen={Boolean(selectedId)}
+      />
+
+      <GraphFilterCard
+        query={query}
+        onQueryChange={setQuery}
+        hidden={hidden}
+        counts={graph.count}
+        onToggle={toggleType}
+        onReset={reset}
+        className="absolute top-4 left-4 z-10"
+      />
+
+      {/* 통계·범례·힌트는 데이터라 mono. 클릭을 가로채지 않는다. */}
+      <p className="pointer-events-none absolute top-5 right-5 font-mono text-2xs text-text-3">
+        {counts.nodes} nodes · {counts.edges} edges
+      </p>
+
+      <div className="pointer-events-none absolute bottom-5 left-5 flex flex-col gap-1 font-mono text-2xs text-text-3">
+        <span className="flex items-center gap-4">
+          <span className="flex items-center gap-2">
+            <NodeMark type="PROJECT" />
+            프로젝트
+          </span>
+          <span className="flex items-center gap-2">
+            <NodeMark type="BLOG" />
+            블로그
+          </span>
+          <span className="flex items-center gap-2">
+            <NodeMark type="CATEGORY" />
+            카테고리
+          </span>
+          <span className="flex items-center gap-2">
+            <NodeMark type="SKILL" />
+            스킬
+          </span>
+        </span>
+        <span>크기 = 연결 수 · 화살표 = 참고 방향</span>
+      </div>
+
+      <p
+        className={`pointer-events-none absolute right-5 bottom-5 font-mono text-2xs text-text-3 transition-opacity ${
+          selectedId ? 'opacity-0' : 'opacity-100'
+        }`}
+      >
+        노드를 선택하면 정보가 표시됩니다
+      </p>
+
+      {/* 종류를 전부 끄면 캔버스가 비므로 다음 행동만 남긴다. */}
+      {allHidden && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3">
+          <p className="text-sm text-text-3">표시할 노드가 없습니다</p>
+          <Button variant="outline" size="sm" onClick={reset}>
+            전체 보기
+          </Button>
+        </div>
+      )}
+
+      <GraphDetailPanel
+        graph={graph}
+        node={panelNode}
+        open={Boolean(selectedId)}
+        onClose={() => setSelectedId(null)}
+        onNavigate={navigateTo}
+      />
+    </div>
+  );
+}

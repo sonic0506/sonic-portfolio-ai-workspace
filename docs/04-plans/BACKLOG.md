@@ -22,7 +22,7 @@
 - Retrieval metrics
 
 ## Graph
-- Graph library 선정
+- ~~Graph library 선정~~ — ADR-0015 (2026-09-29)
 - Node clustering
 - Relation type 시각화
 - Large graph performance

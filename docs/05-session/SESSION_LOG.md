@@ -530,3 +530,13 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 백엔드: V5 `category.color`(기본 `#8B8B94`, 기존 코드는 프론트에서 쓰던 색으로 채움, 대문자 `#RRGGBB` 체크), 관리 요청 `color` 필수, 공개 `category{code,name,color}`, 카테고리 목록 `color`, 참고 문서(블로그)에 `category`. 시드 taxonomy 표에 `color` 열. 118건 통과.
 - 어드민: 카테고리 색 선택·목록 스와치. 포트폴리오: `CategoryDot`이 서버 색을 쓰고 참고 문서에 칩 추가, `lib/categories.ts`와 `--s-cat-*`(기본색 제외) 삭제. 테스트 어드민 15·포트폴리오 19건, build 통과. 실제 백엔드로 라이트·다크 확인(devtools가 V5를 개발 DB에 적용).
 - 미검증: 어드민에서 색 변경 저장(사용자 확인).
+
+## 2026-09-29 — 그래프 (ADR-0015)
+
+- 사용자 요청: 그래프 작업 순서 정리 → "권장안대로". 결정: 라이브러리 `react-force-graph-2d` + `d3-force`, 스킬 노드 기본 숨김, 참고 방향 옅은 화살표, 노드 4종 모양, 종류별 패널, (샘플 정리는 사용자가 어드민에서).
+- 규모(개발 DB, 옛 샘플 포함): 노드 65, 간선 131(스킬 97). 
+- 백엔드: `graph` 패키지 `GET /api/graph`(JdbcTemplate SQL, 공개만, 사용하는 카테고리·스킬만). 테스트 2건, 전체 120건.
+- 포트폴리오: sonic 그래프 이식·확장(`lib/graph.ts` 모델·테스트, `graph-layout`, `graph-canvas`, 필터·패널·모바일 목록·`NodeMark`), 사이드바 메뉴, 상세·카테고리 딥링크. 22건, build 통과.
+- 구현 중 바꾼 것: 숨긴 종류를 시뮬레이션에 남기면 배치가 퍼지고 크기·라벨이 스킬 연결로 부풀어, **보이는 종류만으로 배치**하도록 바꿈(GRAPH_DESIGN 5절). 스킬을 켜면 0.5 배율 하한 때문에 화면에 다 안 들어와 최소 배율을 0.2로 낮춤.
+- 문서: ADR-0015, GRAPH_DESIGN(Accepted, API·간선 표·화면), API_DESIGN, ARCHITECTURE·BACKLOG의 라이브러리 항목 완료, FRONTEND_IMPLEMENTATION 그래프 절.
+- 미검증: 사용자 화면 확인, 태블릿 폭, reduced-motion.

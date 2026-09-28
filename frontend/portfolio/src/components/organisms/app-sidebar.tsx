@@ -3,7 +3,7 @@
 import { Suspense, type ComponentProps } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Archive, FileText, MessageSquarePlus, PanelLeftOpen, Sparkle, User } from 'lucide-react';
+import { Archive, FileText, MessageSquarePlus, PanelLeftOpen, Sparkle, User, Waypoints } from 'lucide-react';
 
 import { CategoryDot } from '@/components/atoms/category-dot';
 import { ConversationItem } from '@/components/molecules/conversation-item';
@@ -35,6 +35,7 @@ import {
 const FEATURES = [
   { name: '소개', href: '/profile', icon: User },
   { name: '프로젝트', href: '/projects', icon: Archive },
+  { name: '그래프', href: '/graph', icon: Waypoints },
 ];
 
 type SidebarProps = ComponentProps<typeof Sidebar> & { categories: CategoryCount[] };

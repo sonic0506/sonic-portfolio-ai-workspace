@@ -59,7 +59,7 @@ Admin Web
 | 항목 | 시점 | 비고 |
 |---|---|---|
 | Authentication session details — 완료 | Admin 인증 구현 시 | [ADR-0010](../03-decisions/ADR-0010-admin-authentication.md): GitHub 숫자 ID 대조, 서버 세션 쿠키, 쿠키 CSRF 토큰. Admin 도메인/CORS는 도메인 결정 시 |
-| Graph library | Graph View 구현 시 | Relation 데이터가 실제로 쌓인 뒤 노드 규모를 보고 고르는 편이 낫다 |
+| Graph library — 완료 | Graph View 구현 시 | [ADR-0015](../03-decisions/ADR-0015-graph-visualization.md): `react-force-graph-2d` + `d3-force`, `GET /api/graph` (2026-09-29) |
 | S3 region / access policy | 이미지 업로드 구현 시 | 본문 Markdown 저장은 `content_section.body_markdown`으로 DATA_MODEL에서 이미 결정됐다. 남은 것은 이미지 등 첨부 파일 정책이다 |
 
 이 문서는 위 표의 "구현 착수 전 필요" 항목이 해소되면 `Accepted`로 올린다. 나머지는 해당 기능 구현 시 ADR로 추가한다.

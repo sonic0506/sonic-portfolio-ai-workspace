@@ -4,6 +4,7 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { siGithub } from "simple-icons";
 import { TechIcon } from "@/components/atoms/tech-icon";
 import { DocPager, neighbors } from "@/components/molecules/doc-pager";
+import { GraphLink } from "@/components/molecules/graph-link";
 import { References } from "@/components/molecules/references";
 import { StackTags } from "@/components/molecules/stack-tags";
 import { DocLayout } from "@/components/organisms/doc-layout";
@@ -88,6 +89,7 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[slug
     <DocLayout key={slug} headings={extractHeadings(project.sections)} header={header}>
       <Sections sections={project.sections} />
       <References references={project.references} referencedBy={project.referencedBy} className="mt-14 border-t border-border pt-14" />
+      <GraphLink nodeId={`project:${project.slug}`} label="이 프로젝트의 연결 보기" className="mt-10 w-full" />
       <DocPager previous={toPager(previous)} next={toPager(next)} />
     </DocLayout>
   );

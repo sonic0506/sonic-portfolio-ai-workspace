@@ -8,6 +8,8 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 
 ## Confirmed
 
+- 2026-09-29 그래프(ADR-0015, 브랜치 `feat/graph`): `GET /api/graph`와 `/graph` 화면. 노드 Project·Blog·Category·Skill(스킬 기본 숨김), 참고 방향 옅은 화살표, 모바일은 목록, 상세·카테고리에서 딥링크. 백엔드 120·포트폴리오 22·어드민 15건, build 통과. 사용자 화면 확인 대기.
+
 - 2026-09-29 sonic-portfolio UI 적용(사용자 결정, 브랜치 `feat/sonic-ui`): 현재 URL 유지, 다크·라이트(시스템 기본), 블로그 카테고리 단일 선택(V4, ADR-0005 후속 3), 대화 여러 개·만료 후 숨김(ADR-0011 후속, 백엔드 변경 없음), 공개 `GET /api/blog/categories`. 그래프는 스킬·카테고리 노드 포함으로 정했고 구현은 뒤로(GRAPH_DESIGN). 백엔드 118·포트폴리오 18·어드민 15건, build 통과. 개발 DB에는 V4가 이미 적용됨(devtools 재시작). 상세는 FRONTEND_IMPLEMENTATION 3단계.
 
 - 2026-09-28 실제 콘텐츠(사용자 결정): Notion 위키를 `content/`(프로젝트 7, 블로그 12, 참고 관계 15)로 변환. README의 `결정사항 / 트러블슈팅` 섹션은 제거하고 링크는 참고 관계로 옮김. `samples/`는 테스트·RAG 측정용으로 유지. 규칙은 `content/README.md`. 시드는 블로그 `open_questions`도 관리자 메모로 저장. 백엔드 117건 통과. 개발 DB 시드·기존 샘플 삭제·색인은 미확인.
@@ -125,7 +127,6 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 - Spring AI 버전·연동 검증 및 제품 RAG 통합 방식(생성·임베딩 모델은 확정)
 - Expected traffic (질문 제한 초기값은 ADR-0002 후속 결정)
 - 프론트 캐시·재검증 정책과 어드민 배포 위치 / S3 policy (백엔드 버전은 ADR-0009, Markdown은 content_section.body_markdown)
-- Graph visualization library (노드 범위는 2026-09-29 결정: Project·Blog·Skill·Category)
 - Exact DB schema — 초기 스키마는 V1 마이그레이션으로 적용. 세션·사용량 관련 테이블은 정책 결정 후 새 마이그레이션으로 추가
 - Exact API contract
 

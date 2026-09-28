@@ -6,7 +6,12 @@ Last Updated: 2026-09-29
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
-## Priority 0 — sonic UI 적용 확인 (브랜치 `feat/sonic-ui`)
+## Priority 0 — 그래프 확인 (브랜치 `feat/graph`)
+
+1. `/graph` 화면 확인: 기본 배치·스킬 켜기·노드 선택·패널·딥링크·다크·모바일 목록. 확인 후 `main` 병합.
+2. 개발 DB에 옛 샘플이 남아 그래프에 섞여 보인다 → 아래 Priority 0-1(샘플 삭제·`content/` 재시드) 후 다시 본다.
+
+## Priority 0-0 — sonic UI 적용 확인 (2026-09-29 `main` 병합 완료)
 
 1. 사용자 화면 확인: 라이트·다크 톤, 사이드바(태블릿 레일·모바일 드로어), 프로젝트·블로그·소개·홈·대화.
 2. 어드민에서 블로그 글 카테고리 select 저장 확인.
@@ -29,7 +34,7 @@ Last Updated: 2026-09-29
 
 ## Priority 3 — 이후 기능 후보
 
-- 그래프 화면(2026-09-29 결정: 노드 Project·Blog·Skill·Category, 노드 UI 확장. 라이브러리 ADR·Graph API·화살표 여부는 착수 시). RAG Playground, FAQ 다른 표현(B) 관리.
+- RAG Playground, FAQ 다른 표현(B) 관리.
 
 ## 사용자 확인 대기 (콘텐츠 사실)
 
@@ -39,7 +44,7 @@ Last Updated: 2026-09-29
 
 - Admin 화면: 도메인이 정해지면 ADR-0010 4절(CORS 허용 출처, 쿠키 SameSite)을 갱신한다.
 - Chat: 질문 제한 집계 기준/기간/수치/해제 설정, 이력 보관·복원·만료·삭제 및 컨텍스트 상한. 정책 결정 후 관련 스키마를 확정한다.
-- Graph: 라이브러리와 Skill/Category 노드 매핑. Document Relation 기준 ID·방향성은 ADR-0005를 유지한다.
+- Graph: ADR-0015로 구현(2026-09-29). 노드가 수백 개를 넘거나 느려지면 라이브러리·클러스터링을 다시 본다.
 - 이미지 업로드: S3 접근 정책과 리전. Markdown 본문 저장 위치는 이미 content_section.body_markdown으로 정했다.
 - 색인: 원본 변경/삭제 시 동기화, 실패 재시도 및 중복 실행을 검증한다. 공개 범위는 ADR-0005의 조회 시점 필터를 유지한다.
 - 배포: 채팅 질문 제한은 `request.getRemoteAddr()` 기준이다. 프록시·Vercel 뒤에서는 실제 방문자 IP(X-Forwarded-For, `server.forward-headers-strategy`)를 신뢰할 경로를 정하고, 본인 IP 제외 목록(`CHAT_LIMIT_EXEMPT_IPS`)을 설정한다.
