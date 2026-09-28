@@ -1,7 +1,7 @@
 # Frontend Implementation
 
-Status: In Progress (1·2단계 완료, 다듬기·배포 대기)
-Last Updated: 2026-09-17
+Status: In Progress (1·2단계 완료, 3단계 디자인 적용 구현 — 사용자 확인 대기)
+Last Updated: 2026-09-29
 
 기준: [ADR-0012](../03-decisions/ADR-0012-frontend-tooling.md), API 계약은 [API_DESIGN](../02-design/API_DESIGN.md).
 
@@ -88,8 +88,24 @@ pnpm dev:admin               # http://localhost:5173
 - 검증(컨테이너): 빌드·lint·테스트 13건. 가짜 백엔드로 브라우저 확인 — 프로젝트 수정 저장(PUT 본문의 기술 순서·섹션·null 변환·CSRF 헤더), 새 프로젝트 검증 문구, 프로필 최초 저장, 태그 추가. 프로필 첫 저장 후 폼이 다시 마운트되며 저장 표시가 사라지는 문제를 고쳤다.
 - 사용자 확인(2026-09-17): 실제 백엔드로 프로젝트·블로그 저장·공개 반영·생성/삭제, 프로필 저장·불러오기, 기술·분류 편집, 중복 slug·사용 중 기술 삭제(409) 안내, 루트 test·lint·build 모두 정상.
 
+## 3단계 — sonic-portfolio 디자인 적용 (2026-09-29)
+
+결정은 [ADR-0012 후속 결정 2](../03-decisions/ADR-0012-frontend-tooling.md), [ADR-0011 후속](../03-decisions/ADR-0011-chat-session-retention.md), [ADR-0005 후속 3](../03-decisions/ADR-0005-content-and-document-model.md). 브랜치 `feat/sonic-ui`.
+
+- [x] 백엔드: 블로그 카테고리 단일화(V4), 공개 `GET /api/blog/categories`(글 수, 사이드바용). 어드민 글 편집은 카테고리 select(필수).
+- [x] 디자인 기반: sonic 토큰 + 새 라이트 토큰(`globals.css`의 `--s-*`), 폰트, `next-themes`(시스템 기본), 사이드바 셸(240px / 태블릿 64px 레일 / 모바일 드로어), ui 컴포넌트(sidebar·dialog·dropdown·alert-dialog 등 radix).
+- [x] 프로젝트: 목록(대표 카드 + 연도별 타임라인), 상세(메타 한 줄, GitHub·서비스 링크, 스택, 하이라이트, 섹션 Markdown, 목차 스크롤스파이, 스레드형 참고 문서, 이전·다음).
+- [x] 블로그: 사이드바 카테고리(점 색 = code, 글 0건은 숨김), 목록(검색 다이얼로그 — 공개 글 최대 50건을 받아 브라우저에서 거름, 태그 필터, 페이지), 상세(읽는 시간, 태그, 정보 카드 "이 글 요약해줘", 같은 카테고리 이전·다음).
+- [x] Markdown: react-markdown 유지, sonic 본문 스타일·코드 블록(복사, 간단 하이라이트), h2/h3 id, `:::questions`는 질문 칩(누르면 새 대화).
+- [x] 소개(`/profile`): 헤드라인·소개, 경력 타임라인, 스킬 그룹, 본문 섹션, 연락처, 목차.
+- [x] 홈·채팅: 떠 있는 채팅 패널을 없애고 홈(히어로 + 추천 질문 + 컴포저 + 바로가기)과 대화 화면(`/chat`, `/chat/[id]`)으로 교체. 대화 여러 개·만료 숨김은 ADR-0011 후속.
+- 레이아웃이 `force-dynamic`이라 모든 경로가 요청마다 렌더된다(사이드바 글 수). 캐시 정책은 배포 때 정한다.
+- 검증(작업 Mac, 2026-09-29): 백엔드 118건, 포트폴리오 테스트 18건(헤딩·프로젝트·블로그·대화 저장소 추가), 어드민 15건, lint, `next build` 통과. 실제 백엔드로 브라우저 확인: 라이트·다크, 모바일 375px 가로 스크롤 없음, 질문 → 세션 발급·주소 `/chat/{id}`·스트리밍·출처, 새로고침 복원, 로컬 만료·서버 404 시 목록·본문 제거.
+- 알려진 제약: 개발 모드(StrictMode)에서 홈 Lottie가 그려지지 않는다(프로덕션 빌드는 정상). 질문 칩·홈에서 넘기는 첫 질문은 메모리로 전달해 새로고침하면 사라진다.
+- 미검증(사용자 확인 대기): 전체 화면 톤, 어드민 글 편집(카테고리 select) 저장, 태블릿 레일, 긴 대화·질문 30개 초과(409) 표시.
+
 ## 2단계 이후
 
 1. ~~공개 상세의 관련 문서 표시~~ — 2026-09-17 참고 문서로 구현(REFERENCE_DOCUMENTS_IMPLEMENTATION, 사용자 확인 완료). Graph View, RAG Playground.
-3. 디자인 다듬기(타이포그래피, 다크 모드 점검, 이미지·썸네일), SEO 메타데이터.
+3. ~~디자인 다듬기~~ — 3단계(sonic 적용)로 진행. 남은 것: SEO 메타데이터, 이미지·썸네일, `next/font`.
 4. 배포: Vercel(Portfolio), 어드민 정적 배포 위치와 도메인(ADR-0010 4절), 캐시/재검증 정책.

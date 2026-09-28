@@ -511,3 +511,14 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - `docs/02-design/RAG_ARCHITECTURE_OVERVIEW.md` 추가(Draft, 코드 기준 현황): 전체 흐름, 색인·질의 시퀀스, Vector + 참고 관계 1-hop, LLM 판단 2곳(FAQ·근거 부족), 미답변 → FAQ 순환, 세션, ERD, 일반 RAG 단계 대비표, 확장 후보(Hybrid, Skill 간선, Reranking, 개체 그래프 — 모두 미결정). RAG_DESIGN에 링크.
 - 코드 변경 없음. 결정 변경 없음. Mermaid 렌더링은 로컬 도구(mmdc) 부재로 미검증.
 - 사용자 요청으로 단독 공유용으로 재구성: 다른 문서 링크를 없애고 결정 이유·측정 수치(청킹, 검색 회수, 임계값 0.030, FAQ 거리 겹침, 판정 분리 결과)·SSE 이벤트·프롬프트 규칙·미답변 기록 항목을 본문에 포함. 문서 규칙(수치는 RAG_MEASUREMENTS 링크)의 예외이며, 문서 머리에 2026-09-28 스냅샷이고 기준 문서가 바뀌면 갱신해야 한다고 적었다.
+
+## 2026-09-29 — sonic-portfolio UI 적용 (프론트 3단계)
+
+- 사용자 요청: 별도 저장소 `sonic-portfolio`의 UI/UX 적용 가능 여부 검토 → 결정 5건 → 구현. sonic은 같은 스택이지만 데이터가 전부 목업이라 화면은 옮기고 데이터는 기존 API에 연결했다.
+- 사용자 결정: 현재 URL 유지, 데이터에 없는 UI는 제외, 블로그 카테고리 단일 선택(필수, 먼저 적힌 것 유지), 대화 여러 개 + 24시간 뒤 목록·본문 숨김, 다크·라이트(기본 시스템), 그래프는 스킬·카테고리 노드까지 넣되 다른 작업 뒤에.
+- 백엔드: V4(`blog_category` → `blog_post.category_id`), 공개 `category{code,name}`, 관리 `categoryId`, 공개 `GET /api/blog/categories`. 시드·`content/`·`samples/` front matter `category:`. 118건 통과.
+- 어드민: 글 편집 카테고리 select, 스키마·테스트 갱신(15건).
+- 포트폴리오: 디자인 토큰(라이트 신규), 사이드바 셸, 프로젝트·블로그·소개·홈·대화 화면 교체, 대화 저장소(`lib/chat-store.ts`) — 본문은 서버에서만, 만료·404 시 제거. 테스트 18건, lint, build 통과. 브라우저로 실제 백엔드 확인(질문 2회 사용).
+- 주의: 작업 중 사용자의 `bootRun`(devtools)이 새 클래스를 다시 읽어 **개발 DB에 V4가 이미 적용됐다.** 기존 글의 카테고리는 `display_order`가 앞선 것 하나로 남았다(예: 프론트엔드). 계획한 매핑은 `content/` 재시드로 반영된다.
+- 문서: ADR-0005 후속 3, ADR-0011 후속, ADR-0012 후속 결정 2, GRAPH_DESIGN 결정, API_DESIGN, DATA_MODEL, CONTENT_SPEC, FRONTEND_IMPLEMENTATION 3단계.
+- 미검증: 사용자 화면 확인, 어드민 카테고리 저장, 태블릿 레일. 개발 모드 홈 Lottie 미표시(프로덕션 정상).

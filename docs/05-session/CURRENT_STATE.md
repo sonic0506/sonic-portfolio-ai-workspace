@@ -1,12 +1,14 @@
 # Current State
 
-Last Updated: 2026-09-28
+Last Updated: 2026-09-29
 
 ## Current Phase
 
-Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 콘텐츠 관리 CRUD(Project, Blog, Profile, Category/Tag)도 완료했다. 샘플 콘텐츠 시드와 Document 색인(가짜 임베딩으로 검증)도 완료했다. 실제 OpenAI 임베딩으로 개발 DB 샘플 7건 READY를 확인했다(사용자 보고). 검색·답변(채팅) 1차(단일 질문, SSE, 질문 제한)도 구현했다. 실제 OpenAI로 PoC 질문 7개를 재현해 기대 출처 7/7, 근거 부족 거부, 비공개 미노출을 확인했다(RAG_MEASUREMENTS 측정 4). 프로필 slug 결함도 수정했다(77건 통과). 채팅 세션(ADR-0011)도 구현했다(89건 통과). 답하지 못한 질문 보관·안내 문구(ADR-0013)도 구현했다(101건 통과). FAQ(ADR-0014)도 구현하고 실제 모델로 확인했다(측정 6·7, 108건 통과). 백엔드 기능은 여기서 일단락했다. 프론트엔드(ADR-0012) 1단계(pnpm workspace, 포트폴리오 조회·채팅, 어드민 미답변·FAQ·색인)를 완료했다. 같은 날 SSE 버퍼링 방지 헤더, FAQ 판정 단계 분리(ADR-0014 후속 2), 질문 제한 제외 IP를 추가했다(백엔드 111건 통과). 2단계(어드민 콘텐츠 관리)도 사용자 확인을 마쳤다. 같은 날 참고 문서 기능(프로젝트·블로그 연결, 상세의 "참고 문서"/"이 문서를 참고한 문서")을 구현하고 사용자 확인을 마쳤다(백엔드 116건). 다음은 프론트 3단계(디자인·SEO·캐시). 2026-09-28 실제 콘텐츠(Notion 위키)를 `content/`로 변환했다(개발 DB 반영은 미확인).
+Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 콘텐츠 관리 CRUD(Project, Blog, Profile, Category/Tag)도 완료했다. 샘플 콘텐츠 시드와 Document 색인(가짜 임베딩으로 검증)도 완료했다. 실제 OpenAI 임베딩으로 개발 DB 샘플 7건 READY를 확인했다(사용자 보고). 검색·답변(채팅) 1차(단일 질문, SSE, 질문 제한)도 구현했다. 실제 OpenAI로 PoC 질문 7개를 재현해 기대 출처 7/7, 근거 부족 거부, 비공개 미노출을 확인했다(RAG_MEASUREMENTS 측정 4). 프로필 slug 결함도 수정했다(77건 통과). 채팅 세션(ADR-0011)도 구현했다(89건 통과). 답하지 못한 질문 보관·안내 문구(ADR-0013)도 구현했다(101건 통과). FAQ(ADR-0014)도 구현하고 실제 모델로 확인했다(측정 6·7, 108건 통과). 백엔드 기능은 여기서 일단락했다. 프론트엔드(ADR-0012) 1단계(pnpm workspace, 포트폴리오 조회·채팅, 어드민 미답변·FAQ·색인)를 완료했다. 같은 날 SSE 버퍼링 방지 헤더, FAQ 판정 단계 분리(ADR-0014 후속 2), 질문 제한 제외 IP를 추가했다(백엔드 111건 통과). 2단계(어드민 콘텐츠 관리)도 사용자 확인을 마쳤다. 같은 날 참고 문서 기능(프로젝트·블로그 연결, 상세의 "참고 문서"/"이 문서를 참고한 문서")을 구현하고 사용자 확인을 마쳤다(백엔드 116건). 다음은 프론트 3단계(디자인·SEO·캐시). 2026-09-28 실제 콘텐츠(Notion 위키)를 `content/`로 변환했다(개발 DB 반영은 미확인). 2026-09-29 프론트 3단계로 sonic-portfolio 디자인을 적용했다(브랜치 `feat/sonic-ui`, 사용자 확인 대기).
 
 ## Confirmed
+
+- 2026-09-29 sonic-portfolio UI 적용(사용자 결정, 브랜치 `feat/sonic-ui`): 현재 URL 유지, 다크·라이트(시스템 기본), 블로그 카테고리 단일 선택(V4, ADR-0005 후속 3), 대화 여러 개·만료 후 숨김(ADR-0011 후속, 백엔드 변경 없음), 공개 `GET /api/blog/categories`. 그래프는 스킬·카테고리 노드 포함으로 정했고 구현은 뒤로(GRAPH_DESIGN). 백엔드 118·포트폴리오 18·어드민 15건, build 통과. 개발 DB에는 V4가 이미 적용됨(devtools 재시작). 상세는 FRONTEND_IMPLEMENTATION 3단계.
 
 - 2026-09-28 실제 콘텐츠(사용자 결정): Notion 위키를 `content/`(프로젝트 7, 블로그 12, 참고 관계 15)로 변환. README의 `결정사항 / 트러블슈팅` 섹션은 제거하고 링크는 참고 관계로 옮김. `samples/`는 테스트·RAG 측정용으로 유지. 규칙은 `content/README.md`. 시드는 블로그 `open_questions`도 관리자 메모로 저장. 백엔드 117건 통과. 개발 DB 시드·기존 샘플 삭제·색인은 미확인.
 
@@ -123,14 +125,14 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 - Spring AI 버전·연동 검증 및 제품 RAG 통합 방식(생성·임베딩 모델은 확정)
 - Expected traffic (질문 제한 초기값은 ADR-0002 후속 결정)
 - 프론트 캐시·재검증 정책과 어드민 배포 위치 / S3 policy (백엔드 버전은 ADR-0009, Markdown은 content_section.body_markdown)
-- Graph visualization library
+- Graph visualization library (노드 범위는 2026-09-29 결정: Project·Blog·Skill·Category)
 - Exact DB schema — 초기 스키마는 V1 마이그레이션으로 적용. 세션·사용량 관련 테이블은 정책 결정 후 새 마이그레이션으로 추가
 - Exact API contract
 
 ## Implementation State
 
 - Application code: `backend/` — 진입점, 설정(`application*.properties`), `compose.yaml`, Flyway V1, `skill`·`project`·`blog`·`profile`·`content` 패키지(엔티티는 연관관계 없이 FK id 매핑, QueryDSL 조회 서비스, record 응답), `admin` 패키지(허용 판정, OAuth 사용자 서비스, `/api/admin/me`), Skill 관리 서비스·컨트롤러, Project·Blog·Profile·Category/Tag 관리 서비스·컨트롤러, `content/SectionWriter`·`IdChecks`, `config/QuerydslConfig`, `config/SecurityConfig`(공개 GET·`/error` 익명, local Swagger, `/api/admin/**` 관리자, 쿠키 CSRF, CORS 설정값), `config/ApiExceptionHandler`. `seed` 패키지(local 전용), `rag` 패키지(투영·청킹·색인·관리 API), `chat` 패키지(검색·생성·SSE·질문 제한·세션). 테스트 116건(`portfolio_test` DB). 마이그레이션 V1~V3. `faq` 패키지 추가. OpenAI 모델 자동 구성은 꺼져 있다.
-- Frontend: 루트 `package.json`·`pnpm-workspace.yaml`, `frontend/portfolio`(페이지·Markdown·채팅 위젯·상세 참고 문서 목록), `frontend/admin`(로그인 확인·미답변·FAQ·색인 상태·콘텐츠 관리·참고 문서 선택).
+- Frontend: 루트 `package.json`·`pnpm-workspace.yaml`, `frontend/portfolio`(sonic 디자인: 사이드바 셸·홈·대화 화면·프로젝트·블로그·소개, 다크·라이트), `frontend/admin`(로그인 확인·미답변·FAQ·색인 상태·콘텐츠 관리·참고 문서 선택).
 - 미검증: `bootRun` 서버 프로세스, Swagger UI 화면, 샘플 콘텐츠 실데이터 적재·조회, Spring AI 호출, RDS 배포.
 - 로컬 환경 참고: 로컬 DB는 Docker로 운영한다(사용자 결정). 사용자 Mac의 docker에는 `docker compose`(v2) 명령이 없어 2026-09-16 테스트는 이미 떠 있던 5433 DB로 실행했다.
 - Project documentation bootstrap: Created. 2026-09-16 기준 미커밋 변경 없음

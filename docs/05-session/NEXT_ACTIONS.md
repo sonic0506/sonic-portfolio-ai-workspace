@@ -1,12 +1,19 @@
 # Next Actions
 
-Last Updated: 2026-09-28
+Last Updated: 2026-09-29
 
 ## 현재 기준
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
-## Priority 0 — 실제 콘텐츠 개발 DB 반영
+## Priority 0 — sonic UI 적용 확인 (브랜치 `feat/sonic-ui`)
+
+1. 사용자 화면 확인: 라이트·다크 톤, 사이드바(태블릿 레일·모바일 드로어), 프로젝트·블로그·소개·홈·대화.
+2. 어드민에서 블로그 글 카테고리 select 저장 확인.
+3. 개발 DB는 V4가 이미 적용됐다. 아래 `content/` 재시드를 하면 글별 카테고리가 계획한 값(먼저 적힌 것)으로 맞춰진다.
+4. 확인 후 `main`으로 병합.
+
+## Priority 0-1 — 실제 콘텐츠 개발 DB 반영
 
 1. 개발 DB의 기존 샘플(프로젝트 yujin-robot·syncmaster, 블로그 websocket-binary-video·web-serial-usb·offline-first-boundary)을 어드민에서 삭제한다(사용자 결정). 채팅 출처로 인용된 문서는 삭제가 막힐 수 있다(`chat_message_source` restrict).
 2. `./gradlew bootRun --args='--spring.profiles.active=local --app.seed.samples-dir=../content'` 실행. viora는 같은 slug라 새 내용으로 교체된다.
@@ -14,15 +21,15 @@ Last Updated: 2026-09-28
 
 ## Priority 1 — 프론트 3단계 (FRONTEND_IMPLEMENTATION)
 
-1·2단계(조회·채팅·어드민 전체)는 2026-09-17 사용자 확인 완료.
+1·2단계(조회·채팅·어드민 전체)는 2026-09-17 사용자 확인 완료. 디자인은 2026-09-29 sonic 적용으로 구현(확인 대기).
 
-1. 디자인 다듬기(타이포그래피, 다크 모드, 썸네일·프로필 이미지), SEO 메타데이터.
+1. SEO 메타데이터, 썸네일·프로필 이미지, `next/font` 검토.
 2. 캐시·재검증 정책(현재 모든 페이지 force-dynamic).
 3. 이후: 배포 준비(도메인, ADR-0010 4절, 방문자 IP 판별).
 
 ## Priority 3 — 이후 기능 후보
 
-- RAG Playground, Graph API(참고 방향 화살표 표시 여부 결정), FAQ 다른 표현(B) 관리.
+- 그래프 화면(2026-09-29 결정: 노드 Project·Blog·Skill·Category, 노드 UI 확장. 라이브러리 ADR·Graph API·화살표 여부는 착수 시). RAG Playground, FAQ 다른 표현(B) 관리.
 
 ## 사용자 확인 대기 (콘텐츠 사실)
 
@@ -48,4 +55,4 @@ Last Updated: 2026-09-28
 
 ## Recommended Next Session Prompt
 
-> 공통 규칙과 세션 문서를 읽고, FRONTEND_IMPLEMENTATION 3단계(디자인·SEO·캐시)를 진행하자.
+> 공통 규칙과 세션 문서를 읽고, `feat/sonic-ui` 화면 확인 결과를 반영한 뒤 SEO·캐시(FRONTEND_IMPLEMENTATION 3단계 나머지)를 진행하자.
