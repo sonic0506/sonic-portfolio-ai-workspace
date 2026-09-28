@@ -9,7 +9,19 @@ import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import type { Graph, GraphNodeType } from '@/lib/graph';
 import { visibleGraph } from '@/lib/graph';
 import type { GraphData, GraphDatum, LinkDatum } from '@/lib/graph-layout';
-import { createGraphData, settleGraphData } from '@/lib/graph-layout';
+import { forceX, forceY } from 'd3-force';
+import {
+  ALPHA_DECAY,
+  ALPHA_MIN,
+  CENTER_ASPECT,
+  CHARGE_STRENGTH,
+  LINK_DISTANCE,
+  SIM_TICKS,
+  VELOCITY_DECAY,
+  centerStrength,
+  createGraphData,
+  settleGraphData,
+} from '@/lib/graph-layout';
 
 /** 상세 패널이 덮는 폭. 노드를 가운데로 옮길 때 이만큼 뺀 영역을 기준으로 삼는다. */
 export const GRAPH_PANEL_WIDTH = 300;
@@ -118,15 +130,16 @@ export function GraphCanvas({ graph, query, hidden, selectedId, onSelect, focus,
   /*
    * 라이브러리가 이 객체들에 좌표를 직접 써넣으므로 한 번 만들어 계속 쓴다.
    * 보이는 종류만으로 배치한다. 종류를 켜고 끄면 다시 배치한다(ADR-0015 3).
-   * 배치는 그리기 전에 끝내고 노드를 고정한다. 애니메이션으로 자리 잡은 뒤에 화면을
+   * 배치는 그리기 전에 끝내 첫 화면부터 맞춘다. 애니메이션으로 자리 잡은 뒤에 화면을
    * 맞추면 "한 번 그리고 다시 정렬하는" 점프가 보였다(2026-09-29 측정: 1초 뒤 배율 1 → 0.39).
+   * 고정은 하지 않는다. 그 뒤 시뮬레이션이 가볍게 튀고, 드래그하면 이웃이 따라온다.
    */
   const hiddenKey = [...hidden].sort().join(',');
   const data: GraphData = useMemo(() => {
     const built = createGraphData(visibleGraph(graph, new Set(hiddenKey.split(',').filter(Boolean) as GraphNodeType[])));
-    settleGraphData(built);
+    settleGraphData(built, reduceMotion);
     return built;
-  }, [graph, hiddenKey]);
+  }, [graph, hiddenKey, reduceMotion]);
 
   const propsRef = useRef({ query, hidden, selectedId, onSelect, panelOpen });
   const hoverRef = useRef<string | null>(null);
@@ -428,6 +441,21 @@ export function GraphCanvas({ graph, query, hidden, selectedId, onSelect, focus,
     ctx.globalAlpha = 1;
   }, []);
 
+  /*
+   * 힘은 라이브러리가 만든 시뮬레이션에 얹는다. 첫 틱 전에 얹어야 라이브러리 기본 힘
+   * (중심 인력·charge -30·거리 30)으로 한 번 오그라드는 일이 없다. 이 이펙트는 캔버스가
+   * 붙은 커밋에서 바로 돌고, 첫 틱은 다음 애니메이션 프레임에서 돈다.
+   */
+  useEffect(() => {
+    const instance = graphRef.current;
+    if (!instance || !size.width) return;
+    instance.d3Force('center', null);
+    instance.d3Force('charge')?.strength(CHARGE_STRENGTH);
+    instance.d3Force('link')?.distance(LINK_DISTANCE);
+    instance.d3Force('x', forceX<GraphDatum>(0).strength(centerStrength));
+    instance.d3Force('y', forceY<GraphDatum>(0).strength((node) => centerStrength(node) * CENTER_ASPECT));
+  }, [data, ForceGraph2D, size.width]);
+
   /** 첫 화면 맞춤. 딥링크로 들어왔으면 곧바로 그 노드로 옮긴다(애니메이션 없음). */
   const fitOnce = useCallback(() => {
     if (fittedRef.current || !graphRef.current) return;
@@ -450,11 +478,6 @@ export function GraphCanvas({ graph, query, hidden, selectedId, onSelect, focus,
   }, []);
   const handleNodeClick = useCallback((node: GraphNodeDatum) => propsRef.current.onSelect(node.id), []);
   const handleBackgroundClick = useCallback(() => propsRef.current.onSelect(null), []);
-  const handleNodeDragEnd = useCallback((node: GraphNodeDatum) => {
-    // 라이브러리는 드래그가 끝나면 고정을 푼다. 놓은 자리에 그대로 두려면 다시 박는다.
-    node.fx = node.x;
-    node.fy = node.y;
-  }, []);
 
   return (
     <div ref={containerRef} className="absolute inset-0">
@@ -468,8 +491,12 @@ export function GraphCanvas({ graph, query, hidden, selectedId, onSelect, focus,
           maxZoom={MAX_ZOOM}
           // 페이드가 프레임마다 진행되므로 쉬는 프레임을 두면 안 된다.
           autoPauseRedraw={false}
-          // 배치는 미리 끝냈다. 라이브러리 시뮬레이션은 돌리지 않는다.
-          cooldownTicks={0}
+          // 미리 끝낸 배치에서 시작해 가볍게 튀고 멎는다. 움직임 줄이기면 돌리지 않는다.
+          cooldownTicks={reduceMotion ? 0 : SIM_TICKS}
+          cooldownTime={Infinity}
+          d3AlphaMin={ALPHA_MIN}
+          d3AlphaDecay={ALPHA_DECAY}
+          d3VelocityDecay={VELOCITY_DECAY}
           // 첫 프레임 전에 맞춤이 끝나지 않았다면 여기서 한 번 더 시도한다.
           onEngineStop={fitOnce}
           onRenderFramePre={advanceFade}
@@ -483,7 +510,6 @@ export function GraphCanvas({ graph, query, hidden, selectedId, onSelect, focus,
           linkPointerAreaPaint={() => {}}
           onNodeHover={handleNodeHover}
           onNodeClick={handleNodeClick}
-          onNodeDragEnd={handleNodeDragEnd}
           onBackgroundClick={handleBackgroundClick}
         />
       )}

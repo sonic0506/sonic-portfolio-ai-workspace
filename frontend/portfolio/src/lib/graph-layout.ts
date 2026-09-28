@@ -42,16 +42,23 @@ export function nodeRadius(node: GraphNode, weight: number) {
 }
 
 // ── 힘 설정 (sonic 측정값 유지) ─────────────────────────────────────
-const LINK_DISTANCE = 85;
-const CHARGE_STRENGTH = -500;
+export const LINK_DISTANCE = 85;
+export const CHARGE_STRENGTH = -500;
 const CENTER_STRENGTH = 0.06;
 /** 캔버스가 가로로 길어 세로 인력에만 더 준다. */
-const CENTER_ASPECT = 1.8;
-const VELOCITY_DECAY = 0.35;
+export const CENTER_ASPECT = 1.8;
+export const VELOCITY_DECAY = 0.35;
 /** 그리기 전에 미리 돌리는 틱 수. 노드 65개 기준 수 ms다. */
 const STATIC_TICKS = 240;
+/**
+ * 화면에 그린 뒤 라이브러리 시뮬레이션이 도는 틱 수(진입 시 가볍게 튀기·드래그 후 정착).
+ * 시간이 아니라 틱으로 끊어야 프레임이 밀려도 같은 결과가 나온다. 60fps에서 약 2초.
+ */
+export const SIM_TICKS = 120;
+export const ALPHA_MIN = 0.001;
+export const ALPHA_DECAY = 1 - Math.pow(ALPHA_MIN, 1 / SIM_TICKS);
 
-function centerStrength(node: GraphDatum) {
+export function centerStrength(node: GraphDatum) {
   return CENTER_STRENGTH * (0.4 + node.weight * 1.6);
 }
 
@@ -100,10 +107,12 @@ export function createGraphData(graph: Graph): GraphData {
 }
 
 /**
- * 그리기 전에 같은 힘으로 미리 돌려 자리를 잡고 고정한다(애니메이션 없음).
+ * 그리기 전에 같은 힘으로 미리 돌려 자리를 잡는다. 첫 화면은 이 배치로 바로 맞추고,
+ * 이후 라이브러리 시뮬레이션은 균형에 가까운 곳에서 시작하므로 가볍게만 튄다.
+ * pin이면 노드를 고정한다(움직임 줄이기 설정: 애니메이션 없음).
  * forceLink가 간선 양끝을 노드 참조로 바꿔 쓰므로 복사본으로 돌린다.
  */
-export function settleGraphData(data: GraphData) {
+export function settleGraphData(data: GraphData, pin: boolean) {
   const links = data.links.map((link) => ({ source: link.source, target: link.target }));
   forceSimulation(data.nodes)
     .randomSource(seededRandom(LAYOUT_SEED))
@@ -120,6 +129,7 @@ export function settleGraphData(data: GraphData) {
     .stop()
     .tick(STATIC_TICKS);
 
+  if (!pin) return;
   for (const node of data.nodes) {
     node.fx = node.x;
     node.fy = node.y;
