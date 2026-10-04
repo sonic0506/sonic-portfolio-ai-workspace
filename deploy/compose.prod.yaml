@@ -1,0 +1,61 @@
+# Production stack on one Lightsail 4GB server (ADR-0017). Run from this directory:
+#   docker compose -f compose.prod.yaml up -d
+name: portfolio
+
+x-logging: &logging
+  driver: json-file
+  options: { max-size: "10m", max-file: "3" }
+
+services:
+  db:
+    # Same image as backend/compose.yaml (local development).
+    image: pgvector/pgvector:0.8.2-pg17
+    environment:
+      POSTGRES_DB: portfolio
+      POSTGRES_USER: portfolio
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in deploy/.env}
+    # Loopback only (never the internet): lets an SSH tunnel run the local-profile seed or psql.
+    ports:
+      - "127.0.0.1:5432:5432"
+    command: ["postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=30"]
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portfolio -d portfolio"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    mem_limit: 1g
+    restart: unless-stopped
+    logging: *logging
+
+  api:
+    image: portfolio-api:latest
+    env_file: .env
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      db: { condition: service_healthy }
+    mem_limit: 1536m
+    restart: unless-stopped
+    logging: *logging
+
+  caddy:
+    image: caddy:2
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on: [api]
+    mem_limit: 256m
+    restart: unless-stopped
+    logging: *logging
+
+volumes:
+  postgres-data:
+  caddy-data:
+  caddy-config:

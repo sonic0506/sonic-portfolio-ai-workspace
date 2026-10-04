@@ -1,6 +1,9 @@
-// 채팅 세션 API (ADR-0008, ADR-0011). 브라우저에서 부르며 /api/*는 Next rewrites로 백엔드에 간다.
+// 채팅 세션 API (ADR-0008, ADR-0011). 브라우저에서 부른다. 개발 중에는 /api/*를 Next rewrites가 넘기고,
+// 운영에서는 NEXT_PUBLIC_API_BASE_URL(api 도메인)을 직접 부른다. Vercel을 거치면 질문 제한이 방문자 IP를 못 본다(ADR-0017).
 import type { StoredConversation } from "./chat-store";
 import type { ChatSource } from "./types";
+
+const BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
 
 export type HistoryMessage = {
   role: "USER" | "ASSISTANT";
@@ -14,7 +17,7 @@ type Session = Pick<StoredConversation, "id" | "key">;
 const keyHeader = (session: Session) => ({ "X-Chat-Session-Key": session.key });
 
 export async function createSession(): Promise<{ id: string; key: string; expiresAt: string }> {
-  const res = await fetch("/api/chat/sessions", { method: "POST" });
+  const res = await fetch(`${BASE}/api/chat/sessions`, { method: "POST" });
   if (!res.ok) throw new ChatHttpError(res.status);
   const body = (await res.json()) as { sessionId: string; sessionKey: string; expiresAt: string };
   return { id: body.sessionId, key: body.sessionKey, expiresAt: body.expiresAt };
@@ -25,20 +28,20 @@ export async function fetchHistory(
   session: Session,
   signal?: AbortSignal,
 ): Promise<{ messages: HistoryMessage[]; expiresAt: string } | null> {
-  const res = await fetch(`/api/chat/sessions/${session.id}`, { headers: keyHeader(session), signal });
+  const res = await fetch(`${BASE}/api/chat/sessions/${session.id}`, { headers: keyHeader(session), signal });
   if (res.status === 404) return null;
   if (!res.ok) throw new ChatHttpError(res.status);
   return (await res.json()) as { messages: HistoryMessage[]; expiresAt: string };
 }
 
 export async function deleteSession(session: Session) {
-  await fetch(`/api/chat/sessions/${session.id}`, { method: "DELETE", headers: keyHeader(session) }).catch(
+  await fetch(`${BASE}/api/chat/sessions/${session.id}`, { method: "DELETE", headers: keyHeader(session) }).catch(
     () => undefined,
   );
 }
 
 export function postQuestion(session: Session, question: string, signal?: AbortSignal) {
-  return fetch(`/api/chat/sessions/${session.id}/messages`, {
+  return fetch(`${BASE}/api/chat/sessions/${session.id}/messages`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "text/event-stream", ...keyHeader(session) },
     body: JSON.stringify({ question }),

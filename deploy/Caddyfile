@@ -1,0 +1,5 @@
+# HTTPS certificates are issued and renewed automatically.
+# Caddy flushes text/event-stream (chat SSE) immediately by default.
+api.sonic-portfolio.com {
+	reverse_proxy api:8080
+}
