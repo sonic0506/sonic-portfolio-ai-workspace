@@ -44,7 +44,7 @@ pnpm dev:admin               # http://localhost:5173
 ```
 
 - 백엔드는 `http://127.0.0.1:8080`(local 프로필은 127.0.0.1에만 바인딩). 바꾸려면 `API_BASE_URL` 환경 변수. `localhost`로 두면 Node가 `::1`(IPv6)로 먼저 연결해 실패할 수 있다(2026-09-17 사용자 Mac에서 포트폴리오 오류 화면 발생).
-- Portfolio: 서버 컴포넌트 조회는 `API_BASE_URL`로 직접, 브라우저의 채팅 `/api/*`는 `next.config.ts` rewrites로 전달. 모든 페이지는 `force-dynamic`(빌드 시 백엔드 불필요, 캐시 정책은 배포 때 정한다).
+- Portfolio: 서버 컴포넌트 조회는 `API_BASE_URL`로 직접, 브라우저의 채팅 `/api/*`는 `next.config.ts` rewrites로 전달. 운영에서는 채팅도 `NEXT_PUBLIC_API_BASE_URL`로 api 도메인을 직접 부른다(ADR-0017, 2026-10-04). 모든 페이지는 `force-dynamic`(빌드 시 백엔드 불필요, 캐시 정책은 배포 때 정한다).
 - Admin: `vite.config.ts` 프록시가 `/api`를 8080으로 전달. 로그인은 `http://localhost:8080/oauth2/authorization/github`로 이동(`VITE_LOGIN_URL`로 변경). 백엔드 `.env`에 `ADMIN_LOGIN_SUCCESS_URL=http://localhost:5173/`을 두면 로그인 후 어드민으로 돌아온다. 쿠키는 포트를 구분하지 않고 localhost끼리는 same-site라 세션(`SameSite=Lax`)과 `XSRF-TOKEN`이 공유된다.
 
 ## 1단계 범위 (이번 작업)
