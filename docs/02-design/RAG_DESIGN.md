@@ -4,6 +4,8 @@ Status: Draft — 모델과 검색·답변 정책은 확정(ADR-0006 / ADR-0007)
 
 답변 및 세션 정책은 [ADR-0004](../03-decisions/ADR-0004-rag-answer-and-session-policy.md), 콘텐츠·Document 모델은 [ADR-0005](../03-decisions/ADR-0005-content-and-document-model.md), 임베딩·검색은 [ADR-0006](../03-decisions/ADR-0006-embedding-model-and-retrieval.md), 생성 모델·프롬프트는 [ADR-0007](../03-decisions/ADR-0007-generation-model-and-answer-prompt.md)로 확정했다. 세션 이력 저장 방식과 Relation 확장 구현은 Draft이다.
 
+현재 구현된 구조를 다이어그램으로 정리한 개요는 [RAG_ARCHITECTURE_OVERVIEW](RAG_ARCHITECTURE_OVERVIEW.md)에 있다.
+
 ## 1. Objective
 
 ### 구현 조합 — 확정

@@ -26,3 +26,4 @@ Public/Admin 데이터 교환과 RAG 답변 진행 과정 표시가 필요하다
 
 - [API Design](../02-design/API_DESIGN.md)
 - [공개 범위 정책](ADR-0005-content-and-document-model.md)
+- [ADR-0016 채팅 SSE 클라이언트](ADR-0016-chat-sse-client-fetch-stream.md) — 브라우저는 `EventSource` 대신 fetch 스트림으로 받는다
