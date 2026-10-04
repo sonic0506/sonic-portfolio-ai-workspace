@@ -567,3 +567,38 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 사용자 질문: 한 번 드래그한 노드가 다시 고정되는지. 확인 결과 **두 번째 드래그부터 물리가 돌지 않는 버그**(sonic 원본에도 있음). force-graph는 매 틱 `alpha < d3AlphaMin`이면 멈추는데, 첫 드래그 후 alpha가 최솟값 아래로 내려가 다음 드래그 첫 틱에 바로 멈췄다. `d3AlphaMin=0`으로 틱 수로만 멈추게 해 해결(같은 노드 두 번 드래그로 확인).
 - 사용자 요청: 노드 클릭 시 부드럽게 가운데로. 클릭하면 선택과 함께 패널 폭을 뺀 영역 가운데로 0.42초 이동.
 - 테스트 23건, build 통과.
+
+## 2026-10-01 — 채팅 SSE 클라이언트 방식 ADR 기록
+
+- 사용자 요청: 프론트엔드 SSE 처리 로직 설명, `EventSource`를 쓰지 않은 이유를 ADR로 남기기.
+- 문서: ADR-0016 신규(fetch + ReadableStream + 자체 파서, 대안 EventSource·fetch-event-source 비교). ADR-0008 Related, API_DESIGN "구현 시 구체화" 항목에 링크. 코드 변경 없음.
+- 확인한 근거: `frontend/portfolio/src/lib/sse.ts`, `lib/chat-api.ts`, `hooks/use-conversation.ts`. 기존 docs에는 "SSE(fetch 스트림)"만 있고 이유는 없었다.
+- 참고: FRONTEND_IMPLEMENTATION 55행의 "404면 새 세션으로 1회 재시도"는 현재 코드(`onExpired`, 새 세션으로 몰래 바꾸지 않음)와 다르다. 이번에는 고치지 않았다(추가 확인 필요).
+
+## 2026-10-04 — 배포 구성 변경(ADR-0017)과 배포 계획
+
+- 사용자 요청: 실제 배포까지 남은 과정과 AWS 배포 절차 정리. 이어서 질의응답으로 구조를 검토했다.
+- 확인한 사실: admin과 포트폴리오 채팅은 상대 경로 `/api`를 개발 서버 프록시(Vite proxy, Next rewrites)로 넘긴다. CORS 미사용과 같은 사이트 쿠키(ADR-0010 4절)를 위한 선택이었고, 배포 경로는 도메인 결정 때 정하기로 미뤄져 있었다(ADR-0012). 운영 프로필이 없다(DB URL, AI 활성화가 local 프로필에만 있음). HTTPS 프록시 도구는 정한 적이 없었다(초안 계획에서 Caddy를 결정된 것처럼 쓴 오류를 사용자가 지적해 정정).
+- 사용자 결정: RDS 대신 같은 서버의 Docker PostgreSQL. 서버는 Lightsail 4GB, 프록시는 Caddy. ADR-0017 신규. ADR-0002 RDS 후속 결정과 ADR-0003 서버·DB 부분을 대체 표시했다.
+- 제안(미확정): admin은 Vercel rewrite(콜백 `redirect-uri` 고정, 성공 URL 전체 주소)로 쿠키를 admin 호스트에 유지. 채팅은 Vercel을 거치면 IP당 제한이 전체 공용이 되므로 api 도메인을 직접 호출.
+- 문서: ADR-0017, DEPLOYMENT_PLAN 신규. ADR-0002, ADR-0003, AWS_COST_PROPOSAL, ARCHITECTURE, CURRENT_PLAN, CURRENT_STATE, NEXT_ACTIONS 갱신. 코드 변경 없음.
+- 미검증: 비용(계산값), 4GB 메모리 실측, Vercel 외부 rewrite의 쿠키·Location 전달, t4g.medium 단가(비교에서 추정치로만 언급).
+- 같은 날 추가 사용자 결정: admin은 Vercel rewrite, 포트폴리오 채팅은 api 도메인 직접 호출. ADR-0017 Decision, ADR-0010 4절, DEPLOYMENT_PLAN, CURRENT_STATE, NEXT_ACTIONS에 반영. 남은 결정은 도메인과 백업 보관 위치.
+
+## 2026-10-04 — 배포 코드 준비
+
+- 사용자 결정: 도메인 `sonic-portfolio.com`, 백업은 우선 Lightsail 스냅샷만. 브랜치 `feat/deploy`(`feat/graph`에서 분기, 기존 미커밋 문서 변경 포함).
+- 백엔드: `application-prod.properties`(DB 환경변수, OpenAI 켜기, `forward-headers-strategy=native`, GitHub `redirect-uri`·성공 URL·CORS 출처 고정), `SecurityConfig`(health 익명, CORS를 `/api/chat/**`·자격 증명 없음으로 축소; 기존 `/api/**`·credentials 설정은 관리 API까지 열 수 있었다), `DeploymentAccessTest` 4건, `Dockerfile`·`.dockerignore`.
+- 배포 파일: `deploy/compose.prod.yaml`(db·api·caddy, 메모리 상한, 로그 제한, db 포트는 서버 loopback만), `Caddyfile`, `.env.example`, `README.md`(서버 준비·배포·시드·백업·Vercel 설정). `.gitignore`에 `deploy/.env`.
+- 프론트: `chat-api.ts`에 `NEXT_PUBLIC_API_BASE_URL`(빈 값이면 개발용 상대 경로), admin `vercel.json`·`.env.production`.
+- 확인한 사실: 시드 러너는 `@Profile("local")`이라 운영 컨테이너에서 못 돌린다 → 코드 변경 대신 SSH 터널로 Mac에서 local 시드 실행. Spring Security 7.1.1은 OAuth 콜백에서 redirect URI를 비교하지 않는다(바이트코드 확인).
+- 검증: 백엔드 124건, 포트폴리오 23·어드민 15건, lint(기존 경고 2건만)·build 통과. prod 프로필 jar 로컬 기동으로 health·CORS·redirect_uri·Swagger 닫힘 확인. amd64 이미지 빌드, compose config 통과. admin 번들에 상대 로그인 경로 반영 확인.
+- 미검증: Caddyfile 문법(caddy 이미지 실행이 멈춰 중단), 운영 메모리, X-Forwarded-For 방문자 IP 판별, Vercel rewrite 쿠키 전달.
+
+## 2026-10-04 — 로컬 메모리 실측
+
+- 사용자 요청: 로컬 메모리 측정. 실제 OpenAI 호출 포함(사용자 선택, 비용 수 센트). 첫 명령은 사용자가 거절해 방식을 물은 뒤 단계별로 다시 실행했다.
+- 방법: scratchpad의 측정용 compose(운영과 같은 메모리 상한·Postgres 설정, arm64 네이티브 이미지, 새 DB). 시드가 컨테이너 안에서 돌도록 api는 local 프로필. 시드+전체 색인(19건 READY), 채팅 5개 순차와 3개 동시, 유휴 20초 동안 `docker stats` 기록.
+- 결과: 최대 api 407 MiB(상한 1536), db 75 MiB(상한 1024), OOM·재시작 없음. 상세는 DEPLOYMENT_PLAN "메모리 실측".
+- 참고: 로컬 Docker가 arm64 VM이라 이전에 받은 amd64 `eclipse-temurin:21-jre`가 태그를 덮어써 arm64 빌드가 실패했다. arm64로 다시 받아 해결. 측정 스택과 이미지는 삭제했다. 저장소 코드 변경 없음.
+- 미검증: 1~2초 간격 측정이라 순간 최대치, 장시간 운영 시 JVM 힙 증가, Caddy 메모리.

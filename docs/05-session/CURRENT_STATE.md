@@ -1,12 +1,18 @@
 # Current State
 
-Last Updated: 2026-09-29
+Last Updated: 2026-10-04
 
 ## Current Phase
 
 Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 콘텐츠 관리 CRUD(Project, Blog, Profile, Category/Tag)도 완료했다. 샘플 콘텐츠 시드와 Document 색인(가짜 임베딩으로 검증)도 완료했다. 실제 OpenAI 임베딩으로 개발 DB 샘플 7건 READY를 확인했다(사용자 보고). 검색·답변(채팅) 1차(단일 질문, SSE, 질문 제한)도 구현했다. 실제 OpenAI로 PoC 질문 7개를 재현해 기대 출처 7/7, 근거 부족 거부, 비공개 미노출을 확인했다(RAG_MEASUREMENTS 측정 4). 프로필 slug 결함도 수정했다(77건 통과). 채팅 세션(ADR-0011)도 구현했다(89건 통과). 답하지 못한 질문 보관·안내 문구(ADR-0013)도 구현했다(101건 통과). FAQ(ADR-0014)도 구현하고 실제 모델로 확인했다(측정 6·7, 108건 통과). 백엔드 기능은 여기서 일단락했다. 프론트엔드(ADR-0012) 1단계(pnpm workspace, 포트폴리오 조회·채팅, 어드민 미답변·FAQ·색인)를 완료했다. 같은 날 SSE 버퍼링 방지 헤더, FAQ 판정 단계 분리(ADR-0014 후속 2), 질문 제한 제외 IP를 추가했다(백엔드 111건 통과). 2단계(어드민 콘텐츠 관리)도 사용자 확인을 마쳤다. 같은 날 참고 문서 기능(프로젝트·블로그 연결, 상세의 "참고 문서"/"이 문서를 참고한 문서")을 구현하고 사용자 확인을 마쳤다(백엔드 116건). 다음은 프론트 3단계(디자인·SEO·캐시). 2026-09-28 실제 콘텐츠(Notion 위키)를 `content/`로 변환했다(개발 DB 반영은 미확인). 2026-09-29 프론트 3단계로 sonic-portfolio 디자인을 적용했다(브랜치 `feat/sonic-ui`, 사용자 확인 대기).
 
 ## Confirmed
+
+- 2026-10-04 배포 코드 준비(브랜치 `feat/deploy`, `feat/graph`에서 분기): 도메인 `sonic-portfolio.com`, 백업은 우선 Lightsail 스냅샷만(사용자 결정). `application-prod.properties`, `backend/Dockerfile`, `deploy/`(compose.prod.yaml·Caddyfile·.env.example·README), 채팅 `NEXT_PUBLIC_API_BASE_URL`, admin `vercel.json`·`.env.production`, CORS를 `/api/chat/**`·자격 증명 없음으로 축소, `/actuator/health` 익명. 백엔드 124·포트폴리오 23·어드민 15건, lint·build, prod 프로필 로컬 기동, amd64 이미지 빌드 통과. Caddyfile 문법·실제 IP 판별은 미검증. 같은 날 로컬 메모리 실측: 운영과 같은 상한에서 시드·색인·채팅 8개 중 최대 api 407 MiB·db 75 MiB, OOM 없음. 시드는 local 전용이라 SSH 터널로 실행한다.
+
+- 2026-10-04 배포 구성 변경(사용자 결정, ADR-0017): 서울 Lightsail 4GB 1대에 Docker Compose로 Spring·PostgreSQL/pgvector(로컬과 같은 이미지)·Caddy를 함께 운영하고 RDS는 쓰지 않는다(약 56,100원/월, 계산값). 프론트는 Vercel 유지(ADR-0003). 백업은 매일 pg_dump 외부 보관 + Lightsail 스냅샷(보관 위치 미정). admin은 Vercel rewrite, 채팅은 api 도메인 직접 호출로 확정(같은 날 사용자 결정). 도메인 미정. 실행 계획은 `docs/04-plans/DEPLOYMENT_PLAN.md`. 코드 변경 없음.
+
+- 2026-10-01 ADR-0016 기록(사용자 요청): 채팅 SSE는 `EventSource` 대신 `fetch` + 자체 파서(`lib/sse.ts`)로 받는다. 이유는 POST·세션 키 헤더·상태 코드별 안내·자동 재연결로 인한 질문 중복 방지. 코드 변경 없음, 2026-09-17 구현의 사후 기록.
 
 - 2026-09-29 그래프(ADR-0015, 브랜치 `feat/graph`): `GET /api/graph`와 `/graph` 화면. 노드 Project·Blog·Category·Skill(기본 전체 보기, 선택·필터·검색은 URL 쿼리로 유지), 참고 방향 옅은 화살표, 모바일은 목록, 상세·카테고리에서 딥링크. 백엔드 120·포트폴리오 22·어드민 15건, build 통과. 사용자 화면 확인 대기.
 
@@ -58,7 +64,7 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 
 - RAG 답변 정책은 ADR-0004로 확정했다: 공개 콘텐츠만 사용, 출처 표시, 근거 부족 명시, 세션별 이전 질문/답변 기억 및 세션 간 분리. 저장/보관/복원 방식은 미정이다.
 
-- 배포 구성은 ADR-0003으로 확정했다: Vercel Hobby(Next.js/React), 서울 Lightsail 2GB(Spring Boot), RDS PostgreSQL micro Single-AZ/gp3 20GB. 실제 배포는 시작하지 않았다.
+- 배포 구성은 ADR-0003으로 확정했다: Vercel Hobby(Next.js/React), 서울 Lightsail 2GB(Spring Boot), RDS PostgreSQL micro Single-AZ/gp3 20GB. 실제 배포는 시작하지 않았다. (2026-10-04 서버·DB 부분은 ADR-0017로 대체)
 
 - 핵심 기술 스택: Next.js(Public), React(Admin), Spring Boot(Java 21), JPA/QueryDSL, PostgreSQL/pgvector, OpenAI(LLM), S3. 기준은 ADR-0001이다.
 - 구현의 핵심은 RAG이며 콘텐츠는 프론트엔드·백엔드·AI 경험을 모두 전달한다. 프론트엔드는 익숙한 기술, 백엔드는 학습 목적이다.

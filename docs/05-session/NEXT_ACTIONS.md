@@ -1,10 +1,19 @@
 # Next Actions
 
-Last Updated: 2026-09-29
+Last Updated: 2026-10-04
 
 ## 현재 기준
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
+
+## Priority 0-2 — 배포 (DEPLOYMENT_PLAN, 브랜치 `feat/deploy`)
+
+구성은 ADR-0017, 도메인 `sonic-portfolio.com`, 백업은 Lightsail 스냅샷만. 코드 준비는 2026-10-04 완료(검증 결과는 DEPLOYMENT_PLAN 끝).
+
+1. (완료 2026-10-04) 로컬 메모리 실측: 최대 api 407 MiB·db 75 MiB, OOM 없음(DEPLOYMENT_PLAN "메모리 실측").
+2. Caddyfile 문법 확인(`docker run --rm -v $PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro caddy:2 caddy adapt --config /etc/caddy/Caddyfile`, 이번 세션에서는 이미지 실행이 멈춤).
+3. 사용자 작업: DEPLOYMENT_PLAN 2단계(AWS 계정 보안·Budgets, Lightsail 4GB·고정 IP·방화벽, DNS, 운영 GitHub OAuth App, OpenAI 한도). 이후 `deploy/README.md` 순서로 서버 구성·배포.
+4. `feat/graph` → `main` 병합 후 `feat/deploy`도 병합해 배포 기준을 `main`으로 맞춘다.
 
 ## Priority 0 — 그래프 확인 (브랜치 `feat/graph`)
 
@@ -47,8 +56,8 @@ Last Updated: 2026-09-29
 - Graph: ADR-0015로 구현(2026-09-29). 노드가 수백 개를 넘거나 느려지면 라이브러리·클러스터링을 다시 본다.
 - 이미지 업로드: S3 접근 정책과 리전. Markdown 본문 저장 위치는 이미 content_section.body_markdown으로 정했다.
 - 색인: 원본 변경/삭제 시 동기화, 실패 재시도 및 중복 실행을 검증한다. 공개 범위는 ADR-0005의 조회 시점 필터를 유지한다.
-- 배포: 채팅 질문 제한은 `request.getRemoteAddr()` 기준이다. 프록시·Vercel 뒤에서는 실제 방문자 IP(X-Forwarded-For, `server.forward-headers-strategy`)를 신뢰할 경로를 정하고, 본인 IP 제외 목록(`CHAT_LIMIT_EXEMPT_IPS`)을 설정한다.
-- 배포: Vercel 무료 조건과 저장소 연결, Lightsail/RDS 사설 연결, 메모리 부하와 실제 비용을 검증한다.
+- 배포: 채팅 질문 제한은 `request.getRemoteAddr()` 기준이다. 프록시·Vercel 뒤에서는 실제 방문자 IP(X-Forwarded-For, `server.forward-headers-strategy`)를 신뢰할 경로를 정하고, 본인 IP 제외 목록(`CHAT_LIMIT_EXEMPT_IPS`)을 설정한다. ADR-0017 구성에서는 Caddy(같은 서버)가 붙인 헤더만 신뢰한다.
+- 배포: Vercel 무료 조건과 저장소 연결, 단일 서버 메모리 부하, 백업·복원, 실제 비용을 검증한다(ADR-0017, DEPLOYMENT_PLAN).
 
 ## 남은 검증과 콘텐츠 확인
 
