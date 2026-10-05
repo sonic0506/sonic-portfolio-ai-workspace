@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 """Rebuild content/ from the Notion wiki export and the study notes (rules: content/README.md).
 
-    python3 content/convert_wiki.py "/path/to/notion-wikis" "/path/to/sonic-study-notes/notes"
+    python3 content/convert_wiki.py "/path/to/notion-wikis" "/path/to/sonic-study-notes/notes" \
+        "/path/to/ai-github-study-automation/learning-notes"
 
 Regenerates projects/, blog/, skills.md and taxonomy.md. Choices that need judgment
 (slugs, categories, tags, featured) live in the tables below; everything else is mechanical.
 """
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
+from urllib.parse import unquote
 
 OUT = Path(__file__).resolve().parent
 CREATED = "2026-10-04"
@@ -69,6 +72,7 @@ CATEGORIES = [  # (code, name, color) in display order
     ("collaboration", "협업·기획", "#2F8A6E"),
     ("infra", "배포·인프라", "#B35A3F"),
     ("hardware", "하드웨어", "#6B7386"),
+    ("ai-tools", "AI 도구", "#5B8C2A"),
 ]
 TAG_CODES = {
     "템플릿": "template", "webview": "webview", "관리자": "admin", "모바일 웹": "mobile-web",
@@ -98,7 +102,22 @@ NOTE_CATEGORIES = [("ai", "AI·RAG"), ("architecture", "아키텍처"), ("devops
                    ("frontend", "프론트엔드"), ("api", "백엔드"), ("network", "백엔드")]
 # [[target]], [[target|label]], [[target\|label]] (escaped inside tables), optional #heading
 WIKILINK_RE = re.compile(r"(?<!!)\[\[([^\]|\\#]+)(?:#[^\]|\\]*)?(?:\\?\|([^\]]+))?\]\]")
-CODE_RE = re.compile(r"(```.*?```|`[^`\n]*`)", re.S)
+# Fenced code closes only on the same fence character at least as long (```` may wrap ```), or inline code.
+CODE_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})[^\n]*\n.*?^[ \t]*\1[`~]*[ \t]*$|`[^`\n]*`", re.S | re.M)
+
+
+def split_code(text):
+    """[(is_code, part)] so prose edits never touch code."""
+    parts, pos = [], 0
+    for m in CODE_RE.finditer(text):
+        parts += [(False, text[pos:m.start()]), (True, m.group(0))]
+        pos = m.end()
+    return parts + [(False, text[pos:])]
+
+# AI tool study series (learning-notes/<tool>/README.md + 01..08): one tool -> one blog post (2026-10-05).
+SERIES_CATEGORY = "AI 도구"
+NAV_RE = re.compile(r"^\[[^\]]+\]\([^)]+\.md\)(\s*·\s*\[[^\]]+\]\([^)]+\.md\))*$")  # ← prev · 목차 · next →
+SERIES_LINK_RE = re.compile(r"\[([^\]]+)\]\(((?:README|\d{2}-[^)#]+)\.md)(?:#([^)]+))?\)")
 
 LINK_RE = re.compile(r"^- \[(.+?)\]\(decisions/([^)]+)\.md\)")
 IMAGE_RE = re.compile(r"^!\[[^\]]*\]\([^)]*\)\s*$")
@@ -195,8 +214,13 @@ def convert_project(folder):
                     current = BLOGS[(folder, m.group(2))][0]
                     related.append(current)
                     blog_summaries[current] = []
-                elif current and line.strip():
+                elif current and line.startswith("  ") and line.strip():
                     blog_summaries[current].append(line.strip())
+                elif line.strip():
+                    # A note after the list ("공통 원칙은 브링앤티 문서에…") links other projects' posts: keep the links as references.
+                    current = None
+                    for other, stem in re.findall(r"\]\(\.\./([^/)]+)/decisions/([^)]+)\.md\)", line):
+                        related.append(BLOGS[(unquote(other), stem)][0])
             continue
         if not heading:
             continue
@@ -276,7 +300,7 @@ def convert_note(path, titles):
         return f"[{(label or titles[target]).strip()}](/blog/{target})"
 
     # Code blocks keep their [[ ]] as written; only prose links become site links.
-    body = "".join(part if CODE_RE.fullmatch(part) else WIKILINK_RE.sub(link, part) for part in CODE_RE.split(body))
+    body = "".join(part if code else WIKILINK_RE.sub(link, part) for code, part in split_code(body))
     note_tags = [t.strip() for t in re.search(r"^tags:\s*\[(.*)\]", fm, re.M).group(1).split(",")]
     category = next(name for tag, name in NOTE_CATEGORIES if tag in note_tags)
     # A note tag whose code an existing tag already uses (embedding -> 임베딩) joins that tag.
@@ -298,6 +322,94 @@ def convert_note(path, titles):
         "related_projects": [], "related_blogs": related, "open_questions": [],
     }
     return slug, tags, front_matter(meta) + "\n" + body + "\n"
+
+
+def plain(text):
+    """Heading text as the page renders it (no inline markdown)."""
+    return re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text).replace("`", "").replace("**", "").strip()
+
+
+def heading_id(text):
+    """Same id as frontend/portfolio/src/lib/headings.ts headingId()."""
+    return "h-" + re.sub(r"[\W_]+", "-", text.strip().lower()).strip("-")
+
+
+def github_slug(text):
+    """GitHub-style anchor the source files use in `file.md#anchor` links."""
+    return re.sub(r"\s", "-", re.sub(r"[^\w\s-]", "", text.strip().lower()))
+
+
+def prose_sub(pattern, repl, text, flags=0):
+    """re.sub outside code blocks and inline code."""
+    return "".join(part if code else re.sub(pattern, repl, part, flags=flags) for code, part in split_code(text))
+
+
+def series_source(series_dir, tool):
+    """(repository, url, date) from studies/<owner>__<tool>.md, else registry + the git add date."""
+    root = series_dir.parent
+    for study in (root / "studies").glob(f"*__{tool}.md"):
+        fm = study.read_text().split("\n---\n", 1)[0]
+        get = lambda key: re.search(rf"^{key}:\s*(\S+)", fm, re.M).group(1)
+        return get("repository"), get("url"), get("studiedAt")
+    repos = json.loads((root / "data" / "registry.json").read_text())["repositories"]
+    repo = next(r for r in repos if r.split("/")[1].lower() == tool)
+    dates = subprocess.run(["git", "log", "--diff-filter=A", "--format=%ad", "--date=short", "--",
+                            f"{tool}/README.md"], cwd=series_dir, capture_output=True,
+                           text=True, check=True).stdout.split()
+    return repo, f"https://github.com/{repo}", dates[-1]
+
+
+def drop_nav(text):
+    """Remove the closing '---' + '← prev · 목차 · next →' line; the merged post has its own table of contents."""
+    lines = text.split("\n")
+    if NAV_RE.match(lines[-1].strip()):
+        lines.pop()
+        while lines and lines[-1].strip() in ("", "---"):
+            lines.pop()
+    return "\n".join(lines)
+
+
+def convert_series(series_dir, tool):
+    folder = series_dir / tool
+    files = [folder / "README.md"] + sorted(folder.glob("[0-9][0-9]-*.md"))
+    docs = {p.name: p.read_text().strip() for p in files}
+    titles = {name: text.split("\n", 1)[0].removeprefix("# ").strip() for name, text in docs.items()}
+    # Chapters become ## sections, their ## become ### (which get ids); README links land on 개요.
+    chapter_anchor = {name: heading_id("개요" if name == "README.md" else plain(t)) for name, t in titles.items()}
+    heading_anchor = {}
+    for name, text in docs.items():
+        for h in re.findall(r"^## (.+)$", "".join(p for code, p in split_code(text) if not code), re.M):
+            heading_anchor[(name, github_slug(plain(h)))] = heading_id(plain(h))
+
+    readme = drop_nav(docs["README.md"].split("\n", 1)[1].strip())
+    intro, _, rest = readme.partition("\n## ")
+    summary = " ".join(l.removeprefix(">").strip() for l in intro.split("\n") if l.startswith(">")).strip()
+    sections = [f"## 개요\n\n{intro.strip()}"]
+    sections += ["## " + s.strip() for s in ("\n" + rest).split("\n## ") if s.strip() and not s.strip().startswith("문서 목차")]
+    for path in files[1:]:
+        body = drop_nav(docs[path.name].split("\n", 1)[1].strip())
+        body = prose_sub(r"^(#{2,5}) ", r"#\1 ", body, re.M)
+        sections.append(f"## {titles[path.name]}\n\n{body}")
+    repo, url, created = series_source(series_dir, tool)
+    sections.append(f"## 원본 저장소\n\n[{repo}]({url})")
+
+    unresolved = []
+
+    def relink(m):
+        label, target, frag = m.groups()
+        anchor = heading_anchor.get((target, frag)) if frag else None
+        if frag and not anchor:
+            unresolved.append(f"{target}#{frag}")
+        return f"[{label}](#{anchor or chapter_anchor[target]})"
+
+    body = prose_sub(SERIES_LINK_RE, relink, "\n\n".join(sections))
+    meta = {
+        "type": "blog", "id": tool, "title": titles["README.md"], "summary": summary,
+        "created_at": created, "updated_at": created, "published": True,
+        "category": SERIES_CATEGORY, "tags": [], "skills": [],
+        "related_projects": [], "related_blogs": [], "open_questions": [],
+    }
+    return front_matter(meta) + "\n" + body + "\n", unresolved
 
 
 def existing_skills():
@@ -357,16 +469,27 @@ def main():
         slug, tags, text = convert_note(path, titles)
         (OUT / "blog" / f"{slug}.md").write_text(text)
         used_tags += [t for t in tags if t not in used_tags]
+
+    tools = sorted(p.name for p in SERIES.iterdir() if (p / "README.md").exists()) if SERIES else []
+    clash = set(tools) & (set(titles) | {slug for slug, _, _ in BLOGS.values()})
+    assert not clash, f"series slugs clash with other blogs: {clash}"
+    for tool in tools:
+        text, unresolved = convert_series(SERIES, tool)
+        (OUT / "blog" / f"{tool}.md").write_text(text)
+        for link in unresolved:
+            print(f"  {tool}: anchor not found, linked to the chapter instead: {link}")
     (OUT / "taxonomy.md").write_text(
         "# Blog Category / Tag Codes\n\n블로그 front matter의 표시명을 DB code로 바꾸는 표다. 표에 없는 이름은 시드가 실패한다. "
         "`convert_wiki.py`가 만든다.\n\n## Categories\n\n| code | name | display_order | color |\n|---|---|---|---|\n"
         + "\n".join(f"| {c} | {n} | {i} | {color} |" for i, (c, n, color) in enumerate(CATEGORIES))
         + "\n\n## Tags\n\n| code | name |\n|---|---|\n"
         + "\n".join(f"| {TAG_CODES[t]} | {t} |" for t in used_tags) + "\n")
-    print(f"projects {len(projects)}, blogs {len(BLOGS)} + notes {len(notes)}, skills {len(rows)}, tags {len(used_tags)}")
+    print(f"projects {len(projects)}, blogs {len(BLOGS)} + notes {len(notes)} + tools {len(tools)}, "
+          f"skills {len(rows)}, tags {len(used_tags)}")
 
 
 if __name__ == "__main__":
     WIKI = Path(sys.argv[1])
     NOTES = Path(sys.argv[2]) if len(sys.argv) > 2 else None
+    SERIES = Path(sys.argv[3]) if len(sys.argv) > 3 else None
     main()

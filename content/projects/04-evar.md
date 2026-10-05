@@ -17,7 +17,7 @@ skills: ["React", "Zustand", "React Hook Form", "Zod", "Tailwind CSS", "shadcn",
 links:
   github: null
   service: null
-related_blogs: ["evar-related-page-tabs", "evar-credit-flow"]
+related_blogs: ["evar-related-page-tabs", "evar-credit-flow", "bring-and-t-fsd-boundaries", "bring-and-t-ai-workflow"]
 open_questions: []
 ---
 

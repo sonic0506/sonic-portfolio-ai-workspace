@@ -14,6 +14,7 @@
 | collaboration | 협업·기획 | 5 | #2F8A6E |
 | infra | 배포·인프라 | 6 | #B35A3F |
 | hardware | 하드웨어 | 7 | #6B7386 |
+| ai-tools | AI 도구 | 8 | #5B8C2A |
 
 ## Tags
 
