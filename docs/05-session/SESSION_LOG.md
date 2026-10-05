@@ -626,3 +626,12 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 고친 결함: (1) 시드 `SampleMarkdown.sections`가 코드 블록 안의 `## ` 줄로 섹션을 나눔 → 펜스 추적, `SampleMarkdownTest` 추가. 이미 커밋된 `rag-chunking`도 해당. (2) 변환기 코드 블록 판정이 ````(4개) 펜스 안의 ```를 잘못 짝지음 → 같은 문자·같거나 긴 펜스로만 닫기. (3) EVAR 블로그 요약에 목록 뒤 안내 문단과 링크가 섞임 → 들여쓴 설명만 요약, 그 링크는 EVAR 참고 문서로(관계 +2). (4) `SampleSeederTest.seedsRealContent`가 10-04 콘텐츠 재변환 이후 실패 상태였음(그 세션에서 백엔드 테스트 미실행) → 현재 콘텐츠 기준으로 갱신.
 - 검증: 도구 15개 원문 글자 비교 통과, 학습 노트 59개 재확인 통과. 임시 DB 시드 블로그 98·관계 247, API로 rag-chunking 섹션 정상·featured·EVAR 참고 4건 확인. 화면: `ecc` 목차·코드 49개·저장소 링크, 15개 글의 이동 링크 141개 모두 대상 있음, `AI 도구` 카테고리 15. 백엔드 125건 통과(첫 실행이 10분 넘게 멈춰 중단, 다시 실행하니 21초에 통과, 원인 미확인).
 - 남은 것: 색인 `Chunker`도 `^## `로 나눠 코드 블록 안 줄에서 조각이 갈린다(검색 품질 영향만, 화면 영향 없음). 별도 작업으로 남김.
+
+## 2026-10-05 — 카테고리 재정리와 카테고리별 채팅 반영(ADR-0018)
+
+- 사용자 요청: `트러블슈팅`·`기술선택` 추가, 프로젝트 경험 글을 그쪽으로 이동, `UX`·`협업`·`AI`로 이름 간소화, 경험(트러블슈팅·기술선택·협업)과 학습(나머지) 구분, 카테고리별로 RAG 반영 여부를 고르는 기능. 계획 후 "추천대로": 분류표 그대로(F1), 빈 `UX`·`하드웨어` 삭제(F2), 경험 3개만 채팅 근거(F3).
+- 콘텐츠: `convert_wiki.py`의 `CATEGORIES`(rag 열 포함)·`BLOGS` 분류·`NOTE_CATEGORIES` 수정. 카테고리 9개, 경험 글 트러블슈팅 5·기술선택 13·협업 6.
+- 기능: V6 `category.rag_enabled`(기본 true), `Retriever.RAG_SCOPE`를 벡터 검색과 참고 관계 확장 쿼리에 추가(검색 시점, 재색인 불필요), `CategoryRequest.ragEnabled`(생략 시 생성 true·수정 유지)·응답 필드, 시드 `taxonomy.md` `rag` 열(`samples/taxonomy.md`도 5열로), 어드민 분류 화면 "채팅 반영" 체크박스와 목록의 "채팅 제외" 표시.
+- 테스트: `ChatApiTest.postsInCategoriesKeptOutOfChatAreNeverEvidence`(검색·확장 제외, 다시 켜면 바로 포함), `TaxonomyAdminApiTest`(기본 true, 끄기, 생략 시 유지), `SampleSeederTest`(경험 3개만 rag), 어드민 스키마 테스트. 백엔드 126·어드민 15·포트폴리오 25건, lint·build 통과.
+- 문서: ADR-0018 신규, API_DESIGN·DATA_MODEL·RAG_DESIGN·content/README 갱신.
+- 미검증: 어드민 화면 직접 확인(GitHub 로그인 필요), 운영 DB 반영.
