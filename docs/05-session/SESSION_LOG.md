@@ -602,3 +602,19 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 결과: 최대 api 407 MiB(상한 1536), db 75 MiB(상한 1024), OOM·재시작 없음. 상세는 DEPLOYMENT_PLAN "메모리 실측".
 - 참고: 로컬 Docker가 arm64 VM이라 이전에 받은 amd64 `eclipse-temurin:21-jre`가 태그를 덮어써 arm64 빌드가 실패했다. arm64로 다시 받아 해결. 측정 스택과 이미지는 삭제했다. 저장소 코드 변경 없음.
 - 미검증: 1~2초 간격 측정이라 순간 최대치, 장시간 운영 시 JVM 힙 증가, Caddy 메모리.
+
+## 2026-10-04 — 실제 콘텐츠 재변환
+
+- 사용자 요청: 운영 시드 전에 새 Notion 위키(`~/Downloads/원티드 프로젝트/notion-wikis`)로 시드 데이터를 다시 만들기. 프로젝트 README의 결정사항/트러블슈팅 섹션은 제거하고, 거기 링크된 파일은 블로그로 만들어 참고 문서로 연결. 기존 프로젝트·블로그 시드는 모두 삭제.
+- 구현: `content/convert_wiki.py`(판단이 필요한 slug·카테고리·태그·featured만 표로 두고 나머지는 기계 변환, 다시 실행 가능). 프로젝트 13·블로그 24·스킬 70·태그 44, 카테고리 8(`백엔드`·`AI·RAG` 추가). `content/README.md` 규칙 갱신.
+- 판단(사용자 확인 필요): `template/`(가상 프로젝트)와 링크되지 않은 `references/fsd-notes.md` 제외, 이미지 10개 제외(업로드 기능 없음, 관리자 메모에 기록), 작성일 2026-10-04, featured는 최근 시작 3건, organization은 VIORA만, `FSD`는 스킬이 아니라 태그, 기간 괄호 설명은 사라짐.
+- 검증: 로컬 Postgres 임시 DB(`portfolio_seedcheck`)에 시드 → 프로젝트 13·블로그 24·관계 25·featured 3, 오류 없음. 임시 DB 삭제. `samples/`는 그대로(테스트용).
+
+## 2026-10-05 — 학습 노트를 시드에 추가
+
+- 사용자 요청: `~/Downloads/sonic-study-notes/notes`(Obsidian llm-wiki, 59개)를 시드에 추가. 내용은 그대로, 연결 관계 분석·연동, 상위 메타데이터는 본문 제외. `/ecc:plan`으로 계획 후 결정: D1 공개, D2 태그로 주제별 기존 카테고리, D3 글자 없는 링크는 연결 노트 제목, D4 채팅 근거 포함.
+- 분석: 메타데이터 6종(aliases·tags·prerequisites·related·status·created), 모두 draft, 본문 위키링크 224·메타 링크 119, 깨진 링크 없음(표 안 `\|` 9개는 정상), 코드 블록 안 `[[` 9개, 이미지 없음. 연결 쌍 220.
+- 구현: `content/convert_wiki.py`에 노트 변환 추가(두 번째 인자). 태그 code 충돌(`embedding`)은 기존 `임베딩`으로 합침. 블로그 83·관계 245·태그 75.
+- 검증: 링크 문법을 걷어 내면 59개 모두 원문과 글자까지 같음. 임시 DB 시드 블로그 83·관계 245·문서 96. 포트폴리오 화면에서 본문 링크·표·코드 블록·참고 문서 두 목록·그래프 확인, 콘솔 오류 없음.
+- 발견·수정: `**청킹(Chunking)**은`처럼 닫는 `**` 뒤에 한글이 붙으면 CommonMark가 굵게로 보지 않아 235곳(50개 파일)에 `**`가 그대로 보였다. 콘텐츠는 바꾸지 않고 포트폴리오 마크다운(본문·채팅 답변)에 `remark-cjk-friendly` 추가, `markdown.test.tsx` 2건. 가장 많던 `clean-architecture`에서 굵게 82곳·남은 `**` 0 확인.
+- 기타: `.claude/launch.json`에 확인용 `portfolio-web-seedcheck` 설정 추가(로컬). 포트폴리오 25·어드민 15건, lint·build 통과.

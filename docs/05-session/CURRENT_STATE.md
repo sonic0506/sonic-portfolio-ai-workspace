@@ -8,6 +8,10 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 
 ## Confirmed
 
+- 2026-10-05 학습 노트 59개를 블로그로 추가(사용자 결정 D1 공개·D2 주제별 기존 카테고리·D3 링크 글자는 노트 제목·D4 채팅 근거 포함): `convert_wiki.py`가 Obsidian 노트도 변환(본문 그대로, 위키링크→`/blog/<slug>`, 참고 관계 220). 합계 블로그 83·관계 245·문서 96. 노트 굵게 표시 235곳이 CommonMark에서 깨져 포트폴리오에 `remark-cjk-friendly` 추가(테스트 2건). 임시 DB 시드와 화면(링크·표·코드·참고 문서·그래프) 확인, 포트폴리오 25·어드민 15건, lint·build 통과. 운영 시드는 아직 안 함.
+
+- 2026-10-04 실제 콘텐츠 재변환(사용자 결정): 새 Notion 위키로 `content/`를 전부 다시 만들었다(프로젝트 13·블로그 24·참고 관계 25, 카테고리 `백엔드`·`AI·RAG` 추가). 변환기 `content/convert_wiki.py`, 규칙은 `content/README.md`. 이미지 10개는 업로드 기능이 없어 뺐다. 임시 DB에 시드해 오류 없음 확인. 운영 DB 시드는 아직 안 함.
+
 - 2026-10-04 배포 코드 준비(브랜치 `feat/deploy`, `feat/graph`에서 분기): 도메인 `sonic-portfolio.com`, 백업은 우선 Lightsail 스냅샷만(사용자 결정). `application-prod.properties`, `backend/Dockerfile`, `deploy/`(compose.prod.yaml·Caddyfile·.env.example·README), 채팅 `NEXT_PUBLIC_API_BASE_URL`, admin `vercel.json`·`.env.production`, CORS를 `/api/chat/**`·자격 증명 없음으로 축소, `/actuator/health` 익명. 백엔드 124·포트폴리오 23·어드민 15건, lint·build, prod 프로필 로컬 기동, amd64 이미지 빌드 통과. Caddyfile 문법·실제 IP 판별은 미검증. 같은 날 로컬 메모리 실측: 운영과 같은 상한에서 시드·색인·채팅 8개 중 최대 api 407 MiB·db 75 MiB, OOM 없음. 시드는 local 전용이라 SSH 터널로 실행한다.
 
 - 2026-10-04 배포 구성 변경(사용자 결정, ADR-0017): 서울 Lightsail 4GB 1대에 Docker Compose로 Spring·PostgreSQL/pgvector(로컬과 같은 이미지)·Caddy를 함께 운영하고 RDS는 쓰지 않는다(약 56,100원/월, 계산값). 프론트는 Vercel 유지(ADR-0003). 백업은 매일 pg_dump 외부 보관 + Lightsail 스냅샷(보관 위치 미정). admin은 Vercel rewrite, 채팅은 api 도메인 직접 호출로 확정(같은 날 사용자 결정). 도메인 미정. 실행 계획은 `docs/04-plans/DEPLOYMENT_PLAN.md`. 코드 변경 없음.

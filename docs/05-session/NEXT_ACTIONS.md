@@ -15,6 +15,13 @@ Last Updated: 2026-10-04
 3. 사용자 작업: DEPLOYMENT_PLAN 2단계(AWS 계정 보안·Budgets, Lightsail 4GB·고정 IP·방화벽, DNS, 운영 GitHub OAuth App, OpenAI 한도). 이후 `deploy/README.md` 순서로 서버 구성·배포.
 4. `feat/graph` → `main` 병합 후 `feat/deploy`도 병합해 배포 기준을 `main`으로 맞춘다.
 
+## Priority 0-3 — 콘텐츠 재변환 확인 후 운영 시드
+
+0. 학습 노트 59개 추가(2026-10-05). 운영 시드 후 색인 READY 96 확인. "RAG 경험 있나요?" 같은 경험 질문에 학습 노트를 경험처럼 섞어 답하는지 확인(D4 위험). 그래프 전체 보기에서 라벨이 많이 겹친다(노드 약 96개): 느리거나 보기 어려우면 ADR-0015 재검토.
+1. 사용자 확인: `content/` 결과(slug, 카테고리·태그, featured 3건, 작성일 2026-10-04, 이미지 제외). 고칠 것은 `convert_wiki.py` 표를 바꾸고 다시 실행.
+2. 운영 DB 시드: `deploy/README.md` 3절(스냅샷 → SSH 터널 → local 시드 → 색인 READY 96건 확인).
+3. 개발 DB에는 옛 콘텐츠(프로젝트 7·블로그 12와 samples)가 남아 있다. 시드는 지우지 않고 upsert만 하므로, 개발 DB를 맞추려면 옛 항목을 어드민에서 지우거나 DB를 새로 만든다.
+
 ## Priority 0 — 그래프 확인 (브랜치 `feat/graph`)
 
 1. `/graph` 화면 확인: 기본 배치·스킬 켜기·노드 선택·패널·딥링크·다크·모바일 목록. 확인 후 `main` 병합.
