@@ -1,18 +1,17 @@
 ---
-type: blog
-id: boostree-seed-and-deploy
+type: "blog"
+id: "boostree-seed-and-deploy"
 title: "병원별 웹 구축에 seed 저장소를 재사용하고 배포를 자동화한 과정"
 summary: "병원이 늘 때마다 되풀이하던 컴포넌트 설정과 서버 연동을 공통 기반으로 묶은 이야기입니다. 동료와 seed 저장소를 만들어 병원별 사이트를 나눠 제작한 과정과, 파트너 명칭으로 배포 대상을 찾게 한 자동화 흐름을 적었습니다."
-created_at: 2026-09-28
-updated_at: 2026-09-28
+created_at: "2026-10-04"
+updated_at: "2026-10-04"
 published: true
 category: "배포·인프라"
 tags: ["배포 자동화", "멀티 사이트"]
-skills: ["Next.js", "shadcn", "GitHub Actions", "Docker", "AWS ECS"]
+skills: ["shadcn", "GitHub Actions", "Docker", "AWS ECS"]
 related_projects: []
 related_blogs: []
-open_questions:
-  - "작성 근거: 프로젝트 정리 원본의 A-001(병원별 배포 구조), A-003·A-007(공통 기반과 반복 작업), A-010·A-013(공동 결정·분담), A-008·A-009(프론트엔드 AWS 설정과 배포·롤백 방식)."
+open_questions: []
 ---
 
 ## 개요
