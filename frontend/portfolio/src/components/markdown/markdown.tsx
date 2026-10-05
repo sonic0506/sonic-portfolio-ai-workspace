@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import ReactMarkdown, { type Components } from "react-markdown";
+import remarkCjkFriendly from "remark-cjk-friendly";
 import remarkDirective from "remark-directive";
 import remarkGfm from "remark-gfm";
 import { SuggestedQuestions } from "@/components/chat/suggested-questions";
@@ -97,7 +98,7 @@ const components = {
 export function Markdown({ children, className }: { children: string; className?: string }) {
   return (
     <div className={cn("font-body text-base leading-[1.75] text-text-1", className)}>
-      <ReactMarkdown remarkPlugins={[remarkGfm, remarkDirective, remarkQuestions]} components={components}>
+      <ReactMarkdown remarkPlugins={[remarkGfm, remarkCjkFriendly, remarkDirective, remarkQuestions]} components={components}>
         {children}
       </ReactMarkdown>
     </div>
