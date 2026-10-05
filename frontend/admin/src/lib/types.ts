@@ -63,7 +63,7 @@ export type FaqRequest = {
 // 콘텐츠 관리 (API_DESIGN "콘텐츠 관리")
 
 export type Skill = { id: number; code: string; name: string; iconKey: string | null }
-export type Category = { id: number; code: string; name: string; displayOrder: number; color: string }
+export type Category = { id: number; code: string; name: string; displayOrder: number; color: string; ragEnabled: boolean }
 export type Tag = { id: number; code: string; name: string }
 export type Section = { title: string; bodyMarkdown: string }
 

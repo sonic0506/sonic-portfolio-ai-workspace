@@ -6,7 +6,7 @@ summary: "대상 하드웨어의 오디오 처리 자원과 응답 속도를 비
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true
-category: "하드웨어"
+category: "기술선택"
 tags: ["온디바이스", "음성 AI", "성능 측정"]
 skills: ["React Native", "Mentra Bluetooth SDK"]
 related_projects: []

@@ -6,7 +6,7 @@ summary: "리랭킹(Reranking)은 1단계 검색이 가져온 후보 문서들�
 created_at: "2026-10-03"
 updated_at: "2026-10-03"
 published: true
-category: "AI·RAG"
+category: "AI"
 tags: ["ai", "rag", "reranking"]
 skills: []
 related_projects: []

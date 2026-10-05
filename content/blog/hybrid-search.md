@@ -6,7 +6,7 @@ summary: "하이브리드 검색(Hybrid Search)은 의미 기반의 벡터 검�
 created_at: "2026-10-03"
 updated_at: "2026-10-03"
 published: true
-category: "AI·RAG"
+category: "AI"
 tags: ["ai", "rag", "search"]
 skills: []
 related_projects: []

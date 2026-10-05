@@ -6,7 +6,7 @@ summary: "RAG(Retrieval-Augmented Generation)는 LLM이 답하기 전에 외부 
 created_at: "2026-10-03"
 updated_at: "2026-10-03"
 published: true
-category: "AI·RAG"
+category: "AI"
 tags: ["ai", "rag", "llm"]
 skills: []
 related_projects: []

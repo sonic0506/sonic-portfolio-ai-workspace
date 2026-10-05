@@ -5,12 +5,12 @@
 
 ## Categories
 
-| code | name | display_order | color |
-|---|---|---|---|
-| frontend | 프론트엔드 | 0 | #C7772A |
-| architecture | 아키텍처 | 1 | #7F5FC0 |
-| web-api | 웹 API | 2 | #2E93A8 |
-| realtime | 실시간 통신 | 3 | #B8425F |
+| code | name | display_order | color | rag |
+|---|---|---|---|---|
+| frontend | 프론트엔드 | 0 | #C7772A | true |
+| architecture | 아키텍처 | 1 | #7F5FC0 | true |
+| web-api | 웹 API | 2 | #2E93A8 | true |
+| realtime | 실시간 통신 | 3 | #B8425F | true |
 
 ## Tags
 

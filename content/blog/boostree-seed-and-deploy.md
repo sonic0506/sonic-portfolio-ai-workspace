@@ -6,7 +6,7 @@ summary: "병원이 늘 때마다 되풀이하던 컴포넌트 설정과 서버 
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true
-category: "배포·인프라"
+category: "기술선택"
 tags: ["배포 자동화", "멀티 사이트"]
 skills: ["shadcn", "GitHub Actions", "Docker", "AWS ECS"]
 related_projects: []

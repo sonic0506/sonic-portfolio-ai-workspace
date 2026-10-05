@@ -218,7 +218,7 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 ### Category / Tag 관리
 
 - `GET /api/admin/categories` (`displayOrder`, code 순), `POST` → `201`, `PUT /{id}`, `DELETE /{id}` → `204`
-  - 본문 `{code, name, displayOrder, color}`. `color`는 필수 `#RRGGBB`이며 대문자로 저장한다(2026-09-29). 블로그가 사용 중인 카테고리 삭제는 `409`
+  - 본문 `{code, name, displayOrder, color, ragEnabled}`. `color`는 필수 `#RRGGBB`이며 대문자로 저장한다(2026-09-29). `ragEnabled`는 그 카테고리 글을 채팅 근거로 쓸지이며 생략하면 생성 시 `true`, 수정 시 기존 값 유지(ADR-0018, 2026-10-05). 블로그가 사용 중인 카테고리 삭제는 `409`
 - `GET /api/admin/tags` (code 순), `POST` → `201`, `PUT /{id}`, `DELETE /{id}` → `204`
   - 본문 `{code, name}`. 사용 중인 태그도 삭제되며 글과의 연결이 함께 지워진다
 - code 형식·중복 규칙은 Skill과 같다

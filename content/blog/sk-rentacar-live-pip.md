@@ -6,7 +6,7 @@ summary: "재생 요소를 라우트 화면 대신 레이아웃 최상위에 두
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true
-category: "프론트엔드"
+category: "트러블슈팅"
 tags: ["라이브 방송", "레이아웃"]
 skills: []
 related_projects: []

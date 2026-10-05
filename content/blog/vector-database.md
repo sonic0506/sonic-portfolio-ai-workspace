@@ -6,7 +6,7 @@ summary: "벡터 데이터베이스(Vector Database)는 임베딩 벡터를 저�
 created_at: "2026-10-03"
 updated_at: "2026-10-03"
 published: true
-category: "AI·RAG"
+category: "AI"
 tags: ["ai", "rag", "vector-database"]
 skills: []
 related_projects: []

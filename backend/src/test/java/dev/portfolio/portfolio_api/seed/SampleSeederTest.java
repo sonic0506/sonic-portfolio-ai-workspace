@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import dev.portfolio.portfolio_api.support.ApiTestSupport;
 import java.nio.file.Path;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,6 +94,9 @@ class SampleSeederTest extends ApiTestSupport {
         // Dropped images (2) and the excluded fsd-notes pointer (1) are kept as admin notes.
         assertEquals(3, jdbc.queryForObject(
                 "select count(*) from blog_post where admin_note is not null", Integer.class));
+        // ADR-0018: only the experience categories are chat evidence
+        assertEquals(List.of("collaboration", "tech-choice", "troubleshooting"), jdbc.queryForList(
+                "select code from category where rag_enabled order by code", String.class));
         // "## " lines inside a code block stay in the section body (rag-chunking has two).
         mockMvc.perform(get("/api/blog/posts/rag-chunking"))
                 .andExpect(jsonPath("$.sections[?(@.title == '교통비')]").isEmpty());

@@ -6,7 +6,7 @@ summary: "요구사항에 없던 URL 상태 보존을 직접 판단해 넣은 �
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true
-category: "UX·화면 흐름"
+category: "기술선택"
 tags: ["url 상태", "관리자"]
 skills: []
 related_projects: []

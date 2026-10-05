@@ -4,17 +4,19 @@
 
 ## Categories
 
-| code | name | display_order | color |
-|---|---|---|---|
-| frontend | 프론트엔드 | 0 | #C7772A |
-| backend | 백엔드 | 1 | #3F6FB5 |
-| ai | AI·RAG | 2 | #C2477A |
-| architecture | 아키텍처 | 3 | #7F5FC0 |
-| ux | UX·화면 흐름 | 4 | #2E93A8 |
-| collaboration | 협업·기획 | 5 | #2F8A6E |
-| infra | 배포·인프라 | 6 | #B35A3F |
-| hardware | 하드웨어 | 7 | #6B7386 |
-| ai-tools | AI 도구 | 8 | #5B8C2A |
+`rag`는 이 카테고리 글을 채팅 근거로 쓸지다(ADR-0018, 어드민에서 바꿀 수 있다).
+
+| code | name | display_order | color | rag |
+|---|---|---|---|---|
+| troubleshooting | 트러블슈팅 | 0 | #C2553A | true |
+| tech-choice | 기술선택 | 1 | #3F6FB5 | true |
+| collaboration | 협업 | 2 | #2F8A6E | true |
+| frontend | 프론트엔드 | 3 | #C7772A | false |
+| backend | 백엔드 | 4 | #5E7FA8 | false |
+| ai | AI | 5 | #C2477A | false |
+| architecture | 아키텍처 | 6 | #7F5FC0 | false |
+| infra | 배포·인프라 | 7 | #B35A3F | false |
+| ai-tools | AI 도구 | 8 | #5B8C2A | false |
 
 ## Tags
 

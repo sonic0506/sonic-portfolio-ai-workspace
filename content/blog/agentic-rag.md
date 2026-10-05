@@ -6,7 +6,7 @@ summary: "Agentic RAG는 언제, 무엇을, 어떤 도구로 검색할지를 LLM
 created_at: "2026-10-03"
 updated_at: "2026-10-03"
 published: true
-category: "AI·RAG"
+category: "AI"
 tags: ["ai", "rag", "agentic-rag"]
 skills: []
 related_projects: []

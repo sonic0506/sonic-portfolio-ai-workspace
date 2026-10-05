@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Cosine search over document_chunk. Only visible documents are ever returned (ADR-0005),
- * including relation expansion.
+ * including relation expansion, and never blog posts whose category is kept out of chat (ADR-0018).
  */
 @Component
 public class Retriever {
@@ -39,12 +39,18 @@ public class Retriever {
     public record Hit(DocumentRef document, List<String> sectionTitles, String text, double distance) {
     }
 
+    /** ADR-0018: a blog post in a category with rag_enabled = false is not chat evidence. Checked at query time. */
+    private static final String RAG_SCOPE = """
+              and not exists (select 1 from blog_post bp join category cat on cat.id = bp.category_id
+                              where d.document_type = 'BLOG' and bp.id = d.source_id and not cat.rag_enabled)
+            """;
+
     private static final String SELECT = """
             select d.id as doc_id, d.document_type, coalesce(d.metadata->>'slug', case when d.document_type = 'PROFILE' then 'profile' end) as slug, d.title,
                    c.section_titles, c.content, c.embedding <=> cast(? as vector) as distance
             from document_chunk c join document d on d.id = c.document_id
             where d.visible and c.embedding is not null
-            """;
+            """ + RAG_SCOPE;
 
     private final JdbcTemplate jdbc;
 
@@ -69,6 +75,7 @@ public class Retriever {
                                                then r.target_document_id else r.source_document_id end
                 where (r.source_document_id = any (?) or r.target_document_id = any (?))
                   and d.visible and not (d.id = any (?))
+                """ + RAG_SCOPE + """
                 order by d.id
                 limit ?""",
                 (rs, n) -> new DocumentRef(rs.getLong("id"), rs.getString("document_type"),

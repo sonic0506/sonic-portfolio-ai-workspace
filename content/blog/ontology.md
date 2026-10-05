@@ -6,7 +6,7 @@ summary: "온톨로지(Ontology)는 어떤 분야에 어떤 종류의 것들이 
 created_at: "2026-10-03"
 updated_at: "2026-10-03"
 published: true
-category: "AI·RAG"
+category: "AI"
 tags: ["ai", "knowledge-graph", "ontology"]
 skills: []
 related_projects: []

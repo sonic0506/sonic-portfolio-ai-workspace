@@ -6,7 +6,7 @@ summary: "사용자가 로그아웃을 누르면 서버 응답과 상관없이 �
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true
-category: "프론트엔드"
+category: "트러블슈팅"
 tags: ["인증", "상태 관리"]
 skills: ["TanStack Query"]
 related_projects: []

@@ -6,7 +6,7 @@ summary: "읽어 온 데이터는 캐시로 보여 주고, 새 데이터는 온�
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true
-category: "아키텍처"
+category: "기술선택"
 tags: ["오프라인", "service worker"]
 skills: ["Web Serial API", "Service Worker", "IndexedDB"]
 related_projects: []

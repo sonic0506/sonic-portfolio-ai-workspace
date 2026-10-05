@@ -28,18 +28,23 @@ public class Category {
     @Column(nullable = false)
     private String color;
 
+    /** Whether posts in this category are chat evidence (ADR-0018). */
+    @Column(name = "rag_enabled", nullable = false)
+    private boolean ragEnabled;
+
     protected Category() {
     }
 
-    Category(String code, String name, int displayOrder, String color) {
-        update(code, name, displayOrder, color);
+    Category(String code, String name, int displayOrder, String color, boolean ragEnabled) {
+        update(code, name, displayOrder, color, ragEnabled);
     }
 
-    void update(String code, String name, int displayOrder, String color) {
+    void update(String code, String name, int displayOrder, String color, boolean ragEnabled) {
         this.code = code;
         this.name = name;
         this.displayOrder = displayOrder;
         this.color = color.toUpperCase(java.util.Locale.ROOT);
+        this.ragEnabled = ragEnabled;
     }
 
     public Long getId() { return id; }
@@ -47,4 +52,5 @@ public class Category {
     public String getName() { return name; }
     public int getDisplayOrder() { return displayOrder; }
     public String getColor() { return color; }
+    public boolean isRagEnabled() { return ragEnabled; }
 }

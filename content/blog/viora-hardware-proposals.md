@@ -6,7 +6,7 @@ summary: "단안 카메라의 근거리 판단 한계와 HFP 미지원을 근거
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true
-category: "하드웨어"
+category: "협업"
 tags: ["센서", "bluetooth"]
 skills: []
 related_projects: []

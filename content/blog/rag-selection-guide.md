@@ -6,7 +6,7 @@ summary: "RAG 시리즈에서는 벡터 RAG, 하이브리드 검색, 리랭킹, 
 created_at: "2026-10-03"
 updated_at: "2026-10-03"
 published: true
-category: "AI·RAG"
+category: "AI"
 tags: ["ai", "rag"]
 skills: []
 related_projects: []

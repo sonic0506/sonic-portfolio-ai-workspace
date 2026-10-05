@@ -6,7 +6,7 @@ summary: "콘텐츠 화면을 한곳에서 관리하려고 HTML 템플릿과 데
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true
-category: "아키텍처"
+category: "기술선택"
 tags: ["템플릿", "webview", "관리자"]
 skills: ["TypeScript"]
 related_projects: []

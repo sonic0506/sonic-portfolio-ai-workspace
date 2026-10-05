@@ -6,7 +6,7 @@ summary: "임베딩(Embedding)은 텍스트, 이미지 같은 데이터를 의�
 created_at: "2026-10-03"
 updated_at: "2026-10-03"
 published: true
-category: "AI·RAG"
+category: "AI"
 tags: ["ai", "rag", "임베딩"]
 skills: []
 related_projects: []

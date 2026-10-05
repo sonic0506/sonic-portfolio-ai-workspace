@@ -6,7 +6,7 @@ summary: "지식 그래프(Knowledge Graph, KG)는 세상의 사실을 \"무엇(
 created_at: "2026-10-03"
 updated_at: "2026-10-03"
 published: true
-category: "AI·RAG"
+category: "AI"
 tags: ["ai", "knowledge-graph"]
 skills: []
 related_projects: []

@@ -6,7 +6,7 @@ summary: "리뉴얼은 계약상 기존 스택을 유지해야 했던 상황에�
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true
-category: "협업·기획"
+category: "기술선택"
 tags: ["기술 도입", "레거시"]
 skills: ["Vue.js", "React", "Thymeleaf", "JSP", "Spring"]
 related_projects: []

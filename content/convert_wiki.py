@@ -35,44 +35,46 @@ PROJECTS = {
 }
 FEATURED = {"ai-portfolio", "viora", "bring-and-t"}
 
-# (wiki folder, decision file stem) -> (slug, category, tags)
+# (wiki folder, decision file stem) -> (slug, category, tags). Category follows the decision doc's "유형" row.
 BLOGS = {
-    ("AI 개발자 포트폴리오", "01-no-answer-judgment"): ("ai-portfolio-no-answer", "AI·RAG", ["rag", "임베딩", "성능 측정"]),
-    ("AI 개발자 포트폴리오", "02-faq-matching"): ("ai-portfolio-faq-matching", "AI·RAG", ["rag", "faq", "프롬프트"]),
-    ("AI 개발자 포트폴리오", "03-docs-driven-ai-workflow"): ("ai-portfolio-docs-workflow", "협업·기획", ["ai 개발", "문서화"]),
-    ("ECOYA EARTH", "01-content-template-management"): ("ecoya-content-template", "아키텍처", ["템플릿", "webview", "관리자"]),
-    ("ECOYA EARTH", "02-mobile-web-navigation"): ("ecoya-mobile-web-navigation", "UX·화면 흐름", ["모바일 웹", "브라우저 히스토리", "실기기 테스트"]),
-    ("EVAR", "01-related-page-navigation"): ("evar-related-page-tabs", "UX·화면 흐름", ["정보 구조", "관리자"]),
-    ("EVAR", "02-credit-creation-and-assignment"): ("evar-credit-flow", "UX·화면 흐름", ["업무 흐름", "관리자"]),
-    ("SK렌터카 다이렉트", "01-live-pip-layout"): ("sk-rentacar-live-pip", "프론트엔드", ["라이브 방송", "레이아웃"]),
-    ("SK렌터카 다이렉트", "02-promotion-section-renderer"): ("sk-rentacar-promotion-sections", "아키텍처", ["관리자", "템플릿"]),
-    ("SK쉴더스·캡스홈·사이버가드", "01-webflow-vue-integration"): ("sk-webflow-vue", "프론트엔드", ["webflow", "vue"]),
-    ("SK쉴더스·캡스홈·사이버가드", "02-subscription-flow"): ("sk-subscription-flow", "UX·화면 흐름", ["결제", "테스트 시나리오"]),
-    ("USB 모뎀 설정 웹", "01-offline-scope"): ("usb-modem-offline-scope", "아키텍처", ["오프라인", "service worker"]),
-    ("VIORA", "01-processing-location"): ("viora-processing-location", "하드웨어", ["온디바이스", "음성 AI", "성능 측정"]),
-    ("VIORA", "02-hardware-proposals"): ("viora-hardware-proposals", "하드웨어", ["센서", "bluetooth"]),
-    ("민팃", "01-react-scope-under-contract"): ("mintit-react-scope", "협업·기획", ["기술 도입", "레거시"]),
-    ("부스트리", "01-hospital-web-and-deployment"): ("boostree-seed-and-deploy", "배포·인프라", ["배포 자동화", "멀티 사이트"]),
-    ("부스트리", "02-aws-infra-cost"): ("boostree-aws-infra-cost", "배포·인프라", ["aws", "비용 절감", "멀티 사이트"]),
-    ("순찰 로봇 관제 PoC", "01-request-response-correlation"): ("patrol-robot-request-correlation", "백엔드", ["websocket", "프로토콜"]),
-    ("순찰 로봇 관제 PoC", "02-stream-process-cleanup"): ("patrol-robot-stream-cleanup", "백엔드", ["websocket", "ffmpeg", "프로세스 관리"]),
-    ("오픈마일", "01-url-query-state"): ("openmile-url-query-state", "UX·화면 흐름", ["url 상태", "관리자"]),
-    ("오픈마일", "02-map-auto-refresh"): ("openmile-map-auto-refresh", "프론트엔드", ["지도", "상태 관리"]),
-    ("플러스팟", "01-client-logout-cleanup"): ("pluspot-logout-cleanup", "프론트엔드", ["인증", "상태 관리"]),
-    ("현대모비스 브링앤티", "01-fsd-boundaries"): ("bring-and-t-fsd-boundaries", "아키텍처", ["fsd", "폴더 구조"]),
-    ("현대모비스 브링앤티", "02-ai-page-workflow"): ("bring-and-t-ai-workflow", "협업·기획", ["ai 개발", "코드 리뷰"]),
+    ("AI 개발자 포트폴리오", "01-no-answer-judgment"): ("ai-portfolio-no-answer", "기술선택", ["rag", "임베딩", "성능 측정"]),
+    ("AI 개발자 포트폴리오", "02-faq-matching"): ("ai-portfolio-faq-matching", "기술선택", ["rag", "faq", "프롬프트"]),
+    ("AI 개발자 포트폴리오", "03-docs-driven-ai-workflow"): ("ai-portfolio-docs-workflow", "협업", ["ai 개발", "문서화"]),
+    ("ECOYA EARTH", "01-content-template-management"): ("ecoya-content-template", "기술선택", ["템플릿", "webview", "관리자"]),
+    ("ECOYA EARTH", "02-mobile-web-navigation"): ("ecoya-mobile-web-navigation", "기술선택", ["모바일 웹", "브라우저 히스토리", "실기기 테스트"]),
+    ("EVAR", "01-related-page-navigation"): ("evar-related-page-tabs", "협업", ["정보 구조", "관리자"]),
+    ("EVAR", "02-credit-creation-and-assignment"): ("evar-credit-flow", "협업", ["업무 흐름", "관리자"]),
+    ("SK렌터카 다이렉트", "01-live-pip-layout"): ("sk-rentacar-live-pip", "트러블슈팅", ["라이브 방송", "레이아웃"]),
+    ("SK렌터카 다이렉트", "02-promotion-section-renderer"): ("sk-rentacar-promotion-sections", "기술선택", ["관리자", "템플릿"]),
+    ("SK쉴더스·캡스홈·사이버가드", "01-webflow-vue-integration"): ("sk-webflow-vue", "기술선택", ["webflow", "vue"]),
+    ("SK쉴더스·캡스홈·사이버가드", "02-subscription-flow"): ("sk-subscription-flow", "협업", ["결제", "테스트 시나리오"]),
+    ("USB 모뎀 설정 웹", "01-offline-scope"): ("usb-modem-offline-scope", "기술선택", ["오프라인", "service worker"]),
+    ("VIORA", "01-processing-location"): ("viora-processing-location", "기술선택", ["온디바이스", "음성 AI", "성능 측정"]),
+    ("VIORA", "02-hardware-proposals"): ("viora-hardware-proposals", "협업", ["센서", "bluetooth"]),
+    ("민팃", "01-react-scope-under-contract"): ("mintit-react-scope", "기술선택", ["기술 도입", "레거시"]),
+    ("부스트리", "01-hospital-web-and-deployment"): ("boostree-seed-and-deploy", "기술선택", ["배포 자동화", "멀티 사이트"]),
+    ("부스트리", "02-aws-infra-cost"): ("boostree-aws-infra-cost", "트러블슈팅", ["aws", "비용 절감", "멀티 사이트"]),
+    ("순찰 로봇 관제 PoC", "01-request-response-correlation"): ("patrol-robot-request-correlation", "기술선택", ["websocket", "프로토콜"]),
+    ("순찰 로봇 관제 PoC", "02-stream-process-cleanup"): ("patrol-robot-stream-cleanup", "트러블슈팅", ["websocket", "ffmpeg", "프로세스 관리"]),
+    ("오픈마일", "01-url-query-state"): ("openmile-url-query-state", "기술선택", ["url 상태", "관리자"]),
+    ("오픈마일", "02-map-auto-refresh"): ("openmile-map-auto-refresh", "트러블슈팅", ["지도", "상태 관리"]),
+    ("플러스팟", "01-client-logout-cleanup"): ("pluspot-logout-cleanup", "트러블슈팅", ["인증", "상태 관리"]),
+    ("현대모비스 브링앤티", "01-fsd-boundaries"): ("bring-and-t-fsd-boundaries", "기술선택", ["fsd", "폴더 구조"]),
+    ("현대모비스 브링앤티", "02-ai-page-workflow"): ("bring-and-t-ai-workflow", "협업", ["ai 개발", "코드 리뷰"]),
 }
 
-CATEGORIES = [  # (code, name, color) in display order
-    ("frontend", "프론트엔드", "#C7772A"),
-    ("backend", "백엔드", "#3F6FB5"),
-    ("ai", "AI·RAG", "#C2477A"),
-    ("architecture", "아키텍처", "#7F5FC0"),
-    ("ux", "UX·화면 흐름", "#2E93A8"),
-    ("collaboration", "협업·기획", "#2F8A6E"),
-    ("infra", "배포·인프라", "#B35A3F"),
-    ("hardware", "하드웨어", "#6B7386"),
-    ("ai-tools", "AI 도구", "#5B8C2A"),
+CATEGORIES = [  # (code, name, color, rag) in display order. rag: used as chat evidence (ADR-0018)
+    # Real project experience (2026-10-05 user decision)
+    ("troubleshooting", "트러블슈팅", "#C2553A", True),
+    ("tech-choice", "기술선택", "#3F6FB5", True),
+    ("collaboration", "협업", "#2F8A6E", True),
+    # Study posts: shown on the site, kept out of chat evidence
+    ("frontend", "프론트엔드", "#C7772A", False),
+    ("backend", "백엔드", "#5E7FA8", False),
+    ("ai", "AI", "#C2477A", False),
+    ("architecture", "아키텍처", "#7F5FC0", False),
+    ("infra", "배포·인프라", "#B35A3F", False),
+    ("ai-tools", "AI 도구", "#5B8C2A", False),
 ]
 TAG_CODES = {
     "템플릿": "template", "webview": "webview", "관리자": "admin", "모바일 웹": "mobile-web",
@@ -98,7 +100,7 @@ SKILL_CODES = {"네이버 지도": "naver-maps", "토스페이먼츠 결제위�
                "나이스평가정보 CheckPlus": "nice-checkplus"}
 
 # Study notes (Obsidian llm-wiki): blog category from the first matching note tag (2026-10-05 user decision).
-NOTE_CATEGORIES = [("ai", "AI·RAG"), ("architecture", "아키텍처"), ("devops", "배포·인프라"),
+NOTE_CATEGORIES = [("ai", "AI"), ("architecture", "아키텍처"), ("devops", "배포·인프라"),
                    ("frontend", "프론트엔드"), ("api", "백엔드"), ("network", "백엔드")]
 # [[target]], [[target|label]], [[target\|label]] (escaped inside tables), optional #heading
 WIKILINK_RE = re.compile(r"(?<!!)\[\[([^\]|\\#]+)(?:#[^\]|\\]*)?(?:\\?\|([^\]]+))?\]\]")
@@ -480,8 +482,10 @@ def main():
             print(f"  {tool}: anchor not found, linked to the chapter instead: {link}")
     (OUT / "taxonomy.md").write_text(
         "# Blog Category / Tag Codes\n\n블로그 front matter의 표시명을 DB code로 바꾸는 표다. 표에 없는 이름은 시드가 실패한다. "
-        "`convert_wiki.py`가 만든다.\n\n## Categories\n\n| code | name | display_order | color |\n|---|---|---|---|\n"
-        + "\n".join(f"| {c} | {n} | {i} | {color} |" for i, (c, n, color) in enumerate(CATEGORIES))
+        "`convert_wiki.py`가 만든다.\n\n## Categories\n\n`rag`는 이 카테고리 글을 채팅 근거로 쓸지다(ADR-0018, 어드민에서 바꿀 수 있다).\n\n"
+        "| code | name | display_order | color | rag |\n|---|---|---|---|---|\n"
+        + "\n".join(f"| {c} | {n} | {i} | {color} | {str(rag).lower()} |"
+                    for i, (c, n, color, rag) in enumerate(CATEGORIES))
         + "\n\n## Tags\n\n| code | name |\n|---|---|\n"
         + "\n".join(f"| {TAG_CODES[t]} | {t} |" for t in used_tags) + "\n")
     print(f"projects {len(projects)}, blogs {len(BLOGS)} + notes {len(notes)} + tools {len(tools)}, "

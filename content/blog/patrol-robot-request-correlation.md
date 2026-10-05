@@ -6,7 +6,7 @@ summary: "응답이 어느 요청에 대한 것인지 알 수 없는 문제를 �
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true
-category: "백엔드"
+category: "기술선택"
 tags: ["websocket", "프로토콜"]
 skills: []
 related_projects: []

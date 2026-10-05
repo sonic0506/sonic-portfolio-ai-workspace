@@ -6,7 +6,7 @@ summary: "온톨로지 RAG는 온톨로지가 정한 스키마에 맞춰 지식 
 created_at: "2026-10-03"
 updated_at: "2026-10-03"
 published: true
-category: "AI·RAG"
+category: "AI"
 tags: ["ai", "rag", "ontology-rag"]
 skills: []
 related_projects: []

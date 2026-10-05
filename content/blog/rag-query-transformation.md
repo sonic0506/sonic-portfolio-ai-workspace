@@ -6,7 +6,7 @@ summary: "쿼리 변환(Query Transformation)은 사용자 질문을 검색하�
 created_at: "2026-10-03"
 updated_at: "2026-10-03"
 published: true
-category: "AI·RAG"
+category: "AI"
 tags: ["ai", "rag", "query-transformation"]
 skills: []
 related_projects: []

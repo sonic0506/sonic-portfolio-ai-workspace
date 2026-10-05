@@ -6,7 +6,7 @@ summary: "짧은 질문은 거리로 같은 뜻을 가를 수 없었고, 프롬�
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true
-category: "AI·RAG"
+category: "기술선택"
 tags: ["rag", "faq", "프롬프트"]
 skills: []
 related_projects: []

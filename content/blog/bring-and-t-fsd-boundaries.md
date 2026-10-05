@@ -6,7 +6,7 @@ summary: "UI 크기만으로 나눌 때 애매했던 도메인·공통 영역을
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true
-category: "아키텍처"
+category: "기술선택"
 tags: ["fsd", "폴더 구조"]
 skills: []
 related_projects: []

@@ -6,7 +6,7 @@ summary: "RAG 평가(RAG Evaluation)는 RAG 시스템이 올바른 문서를 찾
 created_at: "2026-10-03"
 updated_at: "2026-10-03"
 published: true
-category: "AI·RAG"
+category: "AI"
 tags: ["ai", "rag", "evaluation"]
 skills: []
 related_projects: []

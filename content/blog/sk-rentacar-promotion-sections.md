@@ -6,7 +6,7 @@ summary: "매달 추가되는 프로모션 콘텐츠를 유형별 컴포넌트�
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true
-category: "아키텍처"
+category: "기술선택"
 tags: ["관리자", "템플릿"]
 skills: []
 related_projects: []

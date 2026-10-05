@@ -6,7 +6,7 @@ summary: "GNB에 나열된 페이지끼리 상·하위 관계를 알기 어려�
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true
-category: "UX·화면 흐름"
+category: "협업"
 tags: ["정보 구조", "관리자"]
 skills: []
 related_projects: []

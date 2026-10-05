@@ -6,7 +6,7 @@ summary: "지점마다 따로 두던 ALB를 병원 단위로 합치고 Host-base
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true
-category: "배포·인프라"
+category: "트러블슈팅"
 tags: ["aws", "비용 절감", "멀티 사이트"]
 skills: ["Next.js"]
 related_projects: []

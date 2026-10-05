@@ -6,7 +6,7 @@ summary: "Vectorless RAG는 임베딩과 벡터 데이터베이스 없이 검색
 created_at: "2026-10-03"
 updated_at: "2026-10-03"
 published: true
-category: "AI·RAG"
+category: "AI"
 tags: ["ai", "rag", "vectorless-rag"]
 skills: []
 related_projects: []

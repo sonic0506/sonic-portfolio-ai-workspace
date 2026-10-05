@@ -6,7 +6,7 @@ summary: "바텀시트와 브라우저 히스토리, 여러 단계 입력, 작�
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true
-category: "UX·화면 흐름"
+category: "기술선택"
 tags: ["모바일 웹", "브라우저 히스토리", "실기기 테스트"]
 skills: []
 related_projects: []

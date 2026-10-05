@@ -6,7 +6,7 @@ summary: "영상 끊김과 지연을 일으킨 ffmpeg 프로세스를 접속 단
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true
-category: "백엔드"
+category: "트러블슈팅"
 tags: ["websocket", "ffmpeg", "프로세스 관리"]
 skills: ["ffmpeg"]
 related_projects: []

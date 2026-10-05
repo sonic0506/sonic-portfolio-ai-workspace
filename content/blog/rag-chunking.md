@@ -6,7 +6,7 @@ summary: "청킹(Chunking)은 RAG의 인덱싱 단계에서 긴 문서를 검색
 created_at: "2026-10-03"
 updated_at: "2026-10-03"
 published: true
-category: "AI·RAG"
+category: "AI"
 tags: ["ai", "rag", "chunking"]
 skills: []
 related_projects: []

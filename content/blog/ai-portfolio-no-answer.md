@@ -6,7 +6,7 @@ summary: "근거가 있는 질문과 없는 질문의 유사도 차이가 0.030�
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true
-category: "AI·RAG"
+category: "기술선택"
 tags: ["rag", "임베딩", "성능 측정"]
 skills: ["Spring Boot", "pgvector", "React"]
 related_projects: []

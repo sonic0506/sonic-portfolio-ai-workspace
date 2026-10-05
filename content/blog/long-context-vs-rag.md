@@ -6,7 +6,7 @@ summary: "LLM의 컨텍스트 윈도우(Context Window)는 한 번의 요청에 
 created_at: "2026-10-03"
 updated_at: "2026-10-03"
 published: true
-category: "AI·RAG"
+category: "AI"
 tags: ["ai", "rag", "long-context"]
 skills: []
 related_projects: []

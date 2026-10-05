@@ -185,7 +185,8 @@ create table category (
   code          text not null unique,
   name          text not null,
   display_order int not null default 0,
-  color         text not null default '#8B8B94' check (color ~ '^#[0-9A-F]{6}$') -- V5, 점(dot) 색
+  color         text not null default '#8B8B94' check (color ~ '^#[0-9A-F]{6}$'), -- V5, 점(dot) 색
+  rag_enabled   boolean not null default true -- V6, 이 카테고리 글을 채팅 근거로 쓸지(ADR-0018)
 );
 
 create table tag (

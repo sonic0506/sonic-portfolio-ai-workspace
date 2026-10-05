@@ -6,7 +6,7 @@ summary: "30초마다 위치 데이터를 다시 조회할 때 지도가 초기�
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true
-category: "프론트엔드"
+category: "트러블슈팅"
 tags: ["지도", "상태 관리"]
 skills: ["네이버 지도"]
 related_projects: []

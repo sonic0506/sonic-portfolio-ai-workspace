@@ -6,7 +6,7 @@ summary: "Graph RAG는 RAG의 검색 대상에 지식 그래프를 넣은 방식
 created_at: "2026-10-03"
 updated_at: "2026-10-03"
 published: true
-category: "AI·RAG"
+category: "AI"
 tags: ["ai", "rag", "graph-rag"]
 skills: []
 related_projects: []

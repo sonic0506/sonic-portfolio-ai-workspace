@@ -6,7 +6,7 @@ summary: "대화 기억 대신 규칙·결정·세션 인계 문서를 기준으
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true
-category: "협업·기획"
+category: "협업"
 tags: ["ai 개발", "문서화"]
 skills: ["OpenAI"]
 related_projects: []
