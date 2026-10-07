@@ -651,3 +651,4 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 수정: `application.properties`에 Hikari `connection-init-sql=SET hnsw.iterative_scan = strict_order`(모든 프로필). 테스트 `ChatApiTest.vectorSearchKeepsScanningPastFilteredRows`(연결 설정 확인). 백엔드 127건 통과. ADR-0018·RAG_DESIGN에 기록.
 - 반성: ADR-0018 구현 때 로컬 테스트는 데이터가 적어 인덱스 동작이 드러나지 않았다. 큰 데이터의 HNSW + 필터 검증은 NEXT_ACTIONS에 "HNSW 별도 검증"으로 남아 있던 항목이었다.
 - 남은 것: 운영 서버에 새 이미지 재배포 후 채팅 재확인(재색인·재시드 불필요).
+- 같은 날 사용자 재배포 후 확인: "RAG 관련 경험이 있나요?" 출처가 `/projects/ai-portfolio`, `/blog/ai-portfolio-no-answer`·`-faq-matching`·`-docs-workflow`(모두 경험 글)이고 학습 노트는 없음. ADR-0018 동작과 HNSW 수정 모두 운영에서 확인.

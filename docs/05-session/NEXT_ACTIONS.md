@@ -6,7 +6,9 @@ Last Updated: 2026-10-08
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
-. 운영 서버 재배포(2026-10-08 HNSW 반복 스캔 수정) 후 `ask "RAG 관련 경험이 있나요?"`로 출처가 나오는지 확인.
+## Priority 0-A — Vercel 배포와 운영 확인 (2026-10-08 운영 시드 완료)
+
+0. (완료 2026-10-08) HNSW 반복 스캔 수정 재배포 후 운영 채팅 출처 확인: `/projects/ai-portfolio`와 경험 글 3개만, 학습 노트 없음.
 1. Vercel portfolio·admin 프로젝트 생성(deploy/README.md "Vercel 설정"), 도메인 연결 후 Route 53에 `www`·`admin`·apex 레코드.
 2. 운영 확인: 채팅이 경험 글만 출처로 쓰는지(ADR-0018), 관리자 로그인(Vercel rewrite 쿠키 전달), 어드민 "채팅 반영" 체크박스, 질문 제한 IP.
 3. 다른 장소용으로 추가한 SSH 허용 IP(122.202.248.4)는 작업 후 Lightsail 방화벽에서 지운다.
