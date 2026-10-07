@@ -46,16 +46,16 @@ api.sonic-portfolio.com   → Lightsail 4GB: caddy → api(Spring) → db(pgvect
 
 ### 2. AWS·외부 서비스 (사용자가 콘솔에서 직접)
 - [ ] 루트 MFA, IAM 사용자, AWS Budgets 알림(예: 7만·10만 원).
-- [ ] Lightsail 서울 4GB 생성, 고정 IP, 방화벽 22(본인 IP)/80/443.
-- [ ] 도메인 DNS: `api` → 고정 IP, `www`·`admin` → Vercel.
+- [x] Lightsail 서울 4GB 생성(`sonic-portfolio-prod`), 고정 IP `52.78.23.166`, 방화벽 22(본인 IP)/80/443. 다른 장소에서 접속할 때는 콘솔에서 SSH 허용 IP를 추가한다.
+- [ ] 도메인 DNS: `api` → 고정 IP(완료, Route 53), `www`·`admin` → Vercel(Vercel 프로젝트를 만들 때).
 - [ ] GitHub OAuth App(운영): 콜백 `https://admin.sonic-portfolio.com/login/oauth2/code/github`.
 - [ ] OpenAI 사용량 한도 설정.
 
 ### 3. 서버 구성
 - [ ] Docker 설치, swap, `unattended-upgrades`.
-- [ ] 비밀값은 서버의 env 파일(권한 600)에만 둔다. 저장소에 커밋하지 않는다.
-- [ ] 이미지 전달 → `docker compose up -d` → Flyway V1~V5 적용 → `https://api.sonic-portfolio.com/actuator/health` 확인.
-- [ ] 첫 배포 때 한 번만 `content/` 시드: 시드는 local 프로필 전용이라 Mac에서 SSH 터널로 운영 DB에 붙어 실행(`deploy/README.md` 3절) → 어드민에서 색인 확인.
+- [x] 비밀값은 서버의 env 파일(`~/portfolio/.env`, 권한 600)에만 둔다. 저장소에 커밋하지 않는다.
+- [x] 이미지 전달 → `docker compose up -d` → Flyway 적용(V6까지, 2026-10-08 재배포) → `https://api.sonic-portfolio.com/actuator/health` UP.
+- [x] 첫 배포 때 한 번만 `content/` 시드(2026-10-08, 사용자 실행): SSH 터널 + local 시드. 공개 API로 프로젝트 13·블로그 98·카테고리 9개 글 수 확인.
 - [ ] Lightsail 자동 스냅샷 활성화, **복원 1회 연습**.
 
 ### 4. 프론트 배포

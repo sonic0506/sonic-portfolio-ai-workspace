@@ -1,12 +1,14 @@
 # Current State
 
-Last Updated: 2026-10-04
+Last Updated: 2026-10-08
 
 ## Current Phase
 
 Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 콘텐츠 관리 CRUD(Project, Blog, Profile, Category/Tag)도 완료했다. 샘플 콘텐츠 시드와 Document 색인(가짜 임베딩으로 검증)도 완료했다. 실제 OpenAI 임베딩으로 개발 DB 샘플 7건 READY를 확인했다(사용자 보고). 검색·답변(채팅) 1차(단일 질문, SSE, 질문 제한)도 구현했다. 실제 OpenAI로 PoC 질문 7개를 재현해 기대 출처 7/7, 근거 부족 거부, 비공개 미노출을 확인했다(RAG_MEASUREMENTS 측정 4). 프로필 slug 결함도 수정했다(77건 통과). 채팅 세션(ADR-0011)도 구현했다(89건 통과). 답하지 못한 질문 보관·안내 문구(ADR-0013)도 구현했다(101건 통과). FAQ(ADR-0014)도 구현하고 실제 모델로 확인했다(측정 6·7, 108건 통과). 백엔드 기능은 여기서 일단락했다. 프론트엔드(ADR-0012) 1단계(pnpm workspace, 포트폴리오 조회·채팅, 어드민 미답변·FAQ·색인)를 완료했다. 같은 날 SSE 버퍼링 방지 헤더, FAQ 판정 단계 분리(ADR-0014 후속 2), 질문 제한 제외 IP를 추가했다(백엔드 111건 통과). 2단계(어드민 콘텐츠 관리)도 사용자 확인을 마쳤다. 같은 날 참고 문서 기능(프로젝트·블로그 연결, 상세의 "참고 문서"/"이 문서를 참고한 문서")을 구현하고 사용자 확인을 마쳤다(백엔드 116건). 다음은 프론트 3단계(디자인·SEO·캐시). 2026-09-28 실제 콘텐츠(Notion 위키)를 `content/`로 변환했다(개발 DB 반영은 미확인). 2026-09-29 프론트 3단계로 sonic-portfolio 디자인을 적용했다(브랜치 `feat/sonic-ui`, 사용자 확인 대기).
 
 ## Confirmed
+
+- 2026-10-08 운영 배포 진행(사용자 실행): Lightsail 서버·고정 IP·방화벽·Route 53 `api` 레코드·Docker 스택 기동, 새 이미지 재배포(V6), 운영 DB 시드 완료. 공개 API 확인: health UP, 프로젝트 13(featured ai-portfolio·viora·bring-and-t), 블로그 98·카테고리 9개 글 수 일치, `rag-chunking` 섹션·참고 관계 정상. 남은 것: Vercel 2개 프로젝트, `www`·`admin` DNS, 운영 채팅·관리자 로그인 확인.
 
 - 2026-10-05 카테고리 재정리와 카테고리별 채팅 반영(사용자 결정, ADR-0018): 경험 글 24개를 결정 문서 "유형"으로 `트러블슈팅`5·`기술선택`13·`협업`6에 나누고, 이름을 `AI`·`협업`으로 줄이고, 빈 `UX`·`하드웨어`는 삭제. V6 `category.rag_enabled`, `Retriever` 두 쿼리에서 검색 시점에 거름(재색인 불필요), 관리 API·어드민 "채팅 반영" 체크박스, 시드 `rag` 열. 초기값은 경험 3개만 켬(학습 글 채팅 포함 D4·E5를 바꿈). 백엔드 126·어드민 15·포트폴리오 25건, lint·build 통과. 어드민 화면은 GitHub 로그인이 필요해 직접 보지 못함.
 

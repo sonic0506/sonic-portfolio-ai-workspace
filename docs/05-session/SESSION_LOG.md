@@ -635,3 +635,19 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 테스트: `ChatApiTest.postsInCategoriesKeptOutOfChatAreNeverEvidence`(검색·확장 제외, 다시 켜면 바로 포함), `TaxonomyAdminApiTest`(기본 true, 끄기, 생략 시 유지), `SampleSeederTest`(경험 3개만 rag), 어드민 스키마 테스트. 백엔드 126·어드민 15·포트폴리오 25건, lint·build 통과.
 - 문서: ADR-0018 신규, API_DESIGN·DATA_MODEL·RAG_DESIGN·content/README 갱신.
 - 미검증: 어드민 화면 직접 확인(GitHub 로그인 필요), 운영 DB 반영.
+
+## 2026-10-08 — 운영 재배포와 운영 시드 완료
+
+- 사용자가 안내에 따라 운영 서버에 새 이미지를 재배포(V6 적용)하고 운영 DB 시드를 실행했다. 다른 장소에서 작업해 SSH가 시간 초과 → Lightsail 방화벽에 현재 IP(122.202.248.4) 추가로 해결.
+- 확인(공개 API): health UP, 프로젝트 13·featured 3, 블로그 98, 카테고리 9개 글 수(트러블슈팅 5·기술선택 13·협업 6·프론트엔드 5·백엔드 17·AI 17·아키텍처 15·배포·인프라 5·AI 도구 15), `rag-chunking` 섹션 10·참고 3·피참고 4, `ecc` 200.
+- 미확인: 색인 READY 111(사용자 DBeaver 확인 사항), 운영 채팅의 출처 범위, 관리자 로그인.
+- 문서: DEPLOYMENT_PLAN 체크리스트(서버·비밀값·배포·시드 완료), CURRENT_STATE, NEXT_ACTIONS.
+
+## 2026-10-08 — 운영 채팅이 근거를 못 찾던 문제
+
+- 사용자 보고: 운영 채팅 확인 명령이 출처를 하나도 출력하지 않음.
+- 확인: 세션 생성 201, 응답은 `status`·`answer_delta`·`done{sources:[], unanswered:true}`로 `documents` 이벤트 없음. 운영 DB 색인은 정상(READY 111, 임베딩 조각 1828).
+- 원인: `document_chunk` HNSW 인덱스가 후보를 기본 40개만 뽑고 `WHERE`(공개·ADR-0018 카테고리)로 거른다. 질문과 가까운 조각이 모두 꺼진 학습 글이면 0건. 운영 DB에서 `rag-chunking` 조각 벡터로 같은 조건 검색 시 기본 0건, `hnsw.iterative_scan = strict_order`로 5건 재현.
+- 수정: `application.properties`에 Hikari `connection-init-sql=SET hnsw.iterative_scan = strict_order`(모든 프로필). 테스트 `ChatApiTest.vectorSearchKeepsScanningPastFilteredRows`(연결 설정 확인). 백엔드 127건 통과. ADR-0018·RAG_DESIGN에 기록.
+- 반성: ADR-0018 구현 때 로컬 테스트는 데이터가 적어 인덱스 동작이 드러나지 않았다. 큰 데이터의 HNSW + 필터 검증은 NEXT_ACTIONS에 "HNSW 별도 검증"으로 남아 있던 항목이었다.
+- 남은 것: 운영 서버에 새 이미지 재배포 후 채팅 재확인(재색인·재시드 불필요).
