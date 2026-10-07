@@ -41,6 +41,7 @@ ADR-0002는 관리자 로그인을 GitHub으로 하고 운영자 본인 계정�
 - 도메인이 정해지지 않았으므로 허용 출처는 설정값 `app.cors.allowed-origins`로만 두고 기본은 비워 둔다(CORS 비활성).
 - 권장 배치: Admin 화면과 API를 **같은 사이트**(예: `admin.<도메인>`과 `api.<도메인>`, 또는 같은 호스트의 경로)로 둔다. 그래야 `SameSite=Lax` 세션 쿠키가 그대로 동작한다. 서로 다른 사이트로 두면 `SameSite=None`과 CORS 자격 증명 설정이 필요하고 CSRF 위험이 커진다.
 - 도메인이 정해지면 이 절을 갱신한다.
+- 2026-10-04 배치 결정([ADR-0017](ADR-0017-single-server-docker-deployment.md)): admin은 Vercel rewrite로 API·로그인 경로를 같은 호스트에서 전달하므로 위 권장 배치(같은 사이트, `SameSite=Lax`, CORS 없음)를 그대로 따른다. 도메인은 `sonic-portfolio.com`(admin: `admin.sonic-portfolio.com`).
 
 ## Alternatives Considered
 

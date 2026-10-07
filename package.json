@@ -6,6 +6,8 @@
     "node": ">=22.22.0"
   },
   "scripts": {
+    "build:portfolio": "pnpm --filter portfolio-web build",
+    "start:portfolio": "pnpm --filter portfolio-web start",
     "dev:portfolio": "pnpm --filter portfolio-web dev",
     "dev:admin": "pnpm --filter portfolio-admin dev",
     "build": "pnpm -r build",

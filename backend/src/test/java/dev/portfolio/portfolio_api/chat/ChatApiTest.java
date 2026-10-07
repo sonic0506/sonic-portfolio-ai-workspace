@@ -100,6 +100,30 @@ class ChatApiTest extends ApiTestSupport {
     }
 
     @Test
+    void postsInCategoriesKeptOutOfChatAreNeverEvidence() throws Exception {
+        // ADR-0018: a public post whose category has rag_enabled = false is skipped by search and expansion.
+        long study = insertReturningId("insert into category (code, name, rag_enabled) values ('study', '학습', false)");
+        long post = insertReturningId("insert into blog_post (slug, title, published, category_id) values ('s-note', '학습 S', true, ?)", study);
+        long s = document("BLOG", post, "s-note", "학습 S", true);
+        chunk(s, 0, "S 학습 내용", oneHot(0, 1f)); // the closest chunk of all
+        jdbc.update("insert into document_relation (source_document_id, target_document_id) values (?, ?)", a, s);
+
+        String body = chat("A 경험이 있나요?");
+        assertFalse(body.contains("s-note"));
+        assertFalse(generator.userPrompts.get(0).contains("S 학습 내용"));
+
+        jdbc.update("update category set rag_enabled = true where id = ?", study);
+        assertTrue(chat("A 경험이 있나요?").contains("s-note"), "turning it back on needs no reindex");
+    }
+
+    @Test
+    void vectorSearchKeepsScanningPastFilteredRows() {
+        // With HNSW's default 40 candidates, a query close to many filtered-out chunks returned nothing
+        // in production (2026-10-08). Every connection turns on pgvector 0.8's iterative scan.
+        assertEquals("strict_order", jdbc.queryForObject("show hnsw.iterative_scan", String.class));
+    }
+
+    @Test
     void answersEvenWithoutEvidence() throws Exception {
         jdbc.update("update document set visible = false");
         generator.deltas = List.of("등록되어 있지 않습니다.");

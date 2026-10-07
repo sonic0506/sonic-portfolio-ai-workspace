@@ -17,7 +17,7 @@ Status: Active
 - [x] MVP 범위 최종 확정 — REQUIREMENTS의 전체 기능 포함, Graph View 및 RAG Playground 포함
 - [x] 핵심 기술 스택 결정 — 사용자 선택을 ADR-0001에 기록
 - [ ] 배포/인증/모델 등 남은 기술 결정 및 비용·호환성 검증
-  - [x] 배포 — ADR-0003
+  - [x] 배포 — ADR-0003, ADR-0017(2026-10-04 단일 서버 Docker로 변경). 실행 계획은 DEPLOYMENT_PLAN
   - [x] 모델 — ADR-0006 / ADR-0007
   - [x] 인증 상세 — ADR-0010 (Admin 도메인/CORS 값은 도메인 결정 시)
   - [ ] 비용 검증 — 계산만 완료. 실제 배포·청구 미검증

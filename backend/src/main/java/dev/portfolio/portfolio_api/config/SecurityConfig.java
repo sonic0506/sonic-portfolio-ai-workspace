@@ -34,7 +34,7 @@ public class SecurityConfig {
     private static final String[] PUBLIC_GET = {
             "/api/skills",
             "/api/projects", "/api/projects/*",
-            "/api/blog/posts", "/api/blog/posts/*", "/api/blog/categories",
+            "/api/blog/posts", "/api/blog/posts/*", "/api/blog/categories", "/api/graph",
             "/api/profile",
     };
 
@@ -51,6 +51,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(auth -> {
             auth.requestMatchers("/error").permitAll();
+            auth.requestMatchers(HttpMethod.GET, "/actuator/health").permitAll();
             auth.requestMatchers(HttpMethod.GET, PUBLIC_GET).permitAll();
             auth.requestMatchers(HttpMethod.POST, "/api/chat", "/api/chat/sessions", "/api/chat/sessions/*/messages")
                     .permitAll();
@@ -102,7 +103,11 @@ public class SecurityConfig {
         };
     }
 
-    /** Empty by default: no cross-origin access until the admin domain is decided (ADR-0010 section 4). */
+    /**
+     * Only the portfolio's browser chat calls the API cross-origin (ADR-0017). Chat carries no cookies,
+     * so credentials stay off; admin goes through a same-host Vercel rewrite and gets no CORS at all.
+     * Empty origins (local default) means no cross-origin access.
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource(
             @Value("${app.cors.allowed-origins:}") String allowedOrigins) {
@@ -112,10 +117,9 @@ public class SecurityConfig {
         if (!origins.isEmpty()) {
             CorsConfiguration config = new CorsConfiguration();
             config.setAllowedOrigins(origins);
-            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
-            config.setAllowedHeaders(List.of("Content-Type", "X-XSRF-TOKEN", "X-Chat-Session-Key"));
-            config.setAllowCredentials(true);
-            source.registerCorsConfiguration("/api/**", config);
+            config.setAllowedMethods(List.of("GET", "POST", "DELETE"));
+            config.setAllowedHeaders(List.of("Content-Type", "X-Chat-Session-Key"));
+            source.registerCorsConfiguration("/api/chat/**", config);
         }
         return source;
     }

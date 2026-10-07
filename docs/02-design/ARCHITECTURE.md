@@ -40,7 +40,7 @@ Admin Web
 
 ## 4. Pending Decisions
 
-배포 구성은 [ADR-0003](../03-decisions/ADR-0003-initial-deployment.md)을 따른다: Vercel Hobby, 서울 Lightsail 2GB, RDS PostgreSQL micro Single-AZ/gp3 20GB. 나머지 상세 설계는 Draft이다.
+배포 구성은 [ADR-0003](../03-decisions/ADR-0003-initial-deployment.md)과 [ADR-0017](../03-decisions/ADR-0017-single-server-docker-deployment.md)을 따른다: 프론트는 Vercel Hobby, 백엔드는 서울 Lightsail 4GB 1대에 Docker Compose(Spring·PostgreSQL/pgvector·Caddy). RDS는 쓰지 않는다. 실행 계획은 [DEPLOYMENT_PLAN](../04-plans/DEPLOYMENT_PLAN.md).
 
 모델과 검색·답변 정책은 [ADR-0006](../03-decisions/ADR-0006-embedding-model-and-retrieval.md), [ADR-0007](../03-decisions/ADR-0007-generation-model-and-answer-prompt.md)로 확정했다. 콘텐츠·Document 모델은 [ADR-0005](../03-decisions/ADR-0005-content-and-document-model.md)를 따른다.
 
@@ -58,13 +58,13 @@ Admin Web
 
 | 항목 | 시점 | 비고 |
 |---|---|---|
-| Authentication session details — 완료 | Admin 인증 구현 시 | [ADR-0010](../03-decisions/ADR-0010-admin-authentication.md): GitHub 숫자 ID 대조, 서버 세션 쿠키, 쿠키 CSRF 토큰. Admin 도메인/CORS는 도메인 결정 시 |
-| Graph library | Graph View 구현 시 | Relation 데이터가 실제로 쌓인 뒤 노드 규모를 보고 고르는 편이 낫다 |
+| Authentication session details — 완료 | Admin 인증 구현 시 | [ADR-0010](../03-decisions/ADR-0010-admin-authentication.md): GitHub 숫자 ID 대조, 서버 세션 쿠키, 쿠키 CSRF 토큰. Admin 도메인/CORS는 ADR-0017(2026-10-04): admin은 같은 호스트 rewrite로 CORS 없음, CORS는 채팅에만 |
+| Graph library — 완료 | Graph View 구현 시 | [ADR-0015](../03-decisions/ADR-0015-graph-visualization.md): `react-force-graph-2d` + `d3-force`, `GET /api/graph` (2026-09-29) |
 | S3 region / access policy | 이미지 업로드 구현 시 | 본문 Markdown 저장은 `content_section.body_markdown`으로 DATA_MODEL에서 이미 결정됐다. 남은 것은 이미지 등 첨부 파일 정책이다 |
 
 이 문서는 위 표의 "구현 착수 전 필요" 항목이 해소되면 `Accepted`로 올린다. 나머지는 해당 기능 구현 시 ADR로 추가한다.
 
-배포 구성은 ADR-0003으로 정했으나 실제 배포·성능·청구는 미검증이다.
+배포 구성은 ADR-0017로 정했으나 실제 배포·성능·청구는 미검증이다.
 
 로컬 개발 데이터: `samples/`를 local 전용 시드(`app.seed.samples-dir`)로 등록한다. 테스트는 같은 서버의 별도 DB `portfolio_test`를 쓴다(backend/README).
 

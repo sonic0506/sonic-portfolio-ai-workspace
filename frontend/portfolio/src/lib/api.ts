@@ -1,4 +1,5 @@
 import "server-only";
+import type { GraphApiResponse } from "./graph";
 import { notFound } from "next/navigation";
 import type { BlogPostDetail, CategoryCount, BlogPostPage, ProjectDetail, ProjectList, Profile } from "./types";
 
@@ -20,6 +21,7 @@ async function get<T>(path: string): Promise<T> {
 export const getProjects = () => get<ProjectList>("/api/projects");
 export const getProject = (slug: string) => get<ProjectDetail>(`/api/projects/${encodeURIComponent(slug)}`);
 export const getProfile = () => get<Profile>("/api/profile");
+export const getGraph = () => get<GraphApiResponse>("/api/graph");
 export const getPost = (slug: string) => get<BlogPostDetail>(`/api/blog/posts/${encodeURIComponent(slug)}`);
 
 export function getPosts(params: { page?: number; size?: number; category?: string; tag?: string }) {

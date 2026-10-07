@@ -530,3 +530,125 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 백엔드: V5 `category.color`(기본 `#8B8B94`, 기존 코드는 프론트에서 쓰던 색으로 채움, 대문자 `#RRGGBB` 체크), 관리 요청 `color` 필수, 공개 `category{code,name,color}`, 카테고리 목록 `color`, 참고 문서(블로그)에 `category`. 시드 taxonomy 표에 `color` 열. 118건 통과.
 - 어드민: 카테고리 색 선택·목록 스와치. 포트폴리오: `CategoryDot`이 서버 색을 쓰고 참고 문서에 칩 추가, `lib/categories.ts`와 `--s-cat-*`(기본색 제외) 삭제. 테스트 어드민 15·포트폴리오 19건, build 통과. 실제 백엔드로 라이트·다크 확인(devtools가 V5를 개발 DB에 적용).
 - 미검증: 어드민에서 색 변경 저장(사용자 확인).
+
+## 2026-09-29 — 그래프 (ADR-0015)
+
+- 사용자 요청: 그래프 작업 순서 정리 → "권장안대로". 결정: 라이브러리 `react-force-graph-2d` + `d3-force`, 스킬 노드 기본 숨김, 참고 방향 옅은 화살표, 노드 4종 모양, 종류별 패널, (샘플 정리는 사용자가 어드민에서).
+- 규모(개발 DB, 옛 샘플 포함): 노드 65, 간선 131(스킬 97). 
+- 백엔드: `graph` 패키지 `GET /api/graph`(JdbcTemplate SQL, 공개만, 사용하는 카테고리·스킬만). 테스트 2건, 전체 120건.
+- 포트폴리오: sonic 그래프 이식·확장(`lib/graph.ts` 모델·테스트, `graph-layout`, `graph-canvas`, 필터·패널·모바일 목록·`NodeMark`), 사이드바 메뉴, 상세·카테고리 딥링크. 22건, build 통과.
+- 구현 중 바꾼 것: 숨긴 종류를 시뮬레이션에 남기면 배치가 퍼지고 크기·라벨이 스킬 연결로 부풀어, **보이는 종류만으로 배치**하도록 바꿈(GRAPH_DESIGN 5절). 스킬을 켜면 0.5 배율 하한 때문에 화면에 다 안 들어와 최소 배율을 0.2로 낮춤.
+- 문서: ADR-0015, GRAPH_DESIGN(Accepted, API·간선 표·화면), API_DESIGN, ARCHITECTURE·BACKLOG의 라이브러리 항목 완료, FRONTEND_IMPLEMENTATION 그래프 절.
+- 미검증: 사용자 화면 확인, 태블릿 폭, reduced-motion.
+
+## 2026-09-29 — 그래프 기본 전체 보기·URL 상태
+
+- 사용자 요청: 기본 노출을 전체 보기로, 노드 필터와 선택을 URL 파라미터로 유지해 새로고침·뒤로 가기에도 남게.
+- 구현: `DEFAULT_HIDDEN` 제거, `parseGraphParams`/`toGraphParams`(`node`, `hide`, `q`, 기본값 생략, 알 수 없는 종류 무시) + 테스트. 화면은 `useSearchParams`로 초기 상태를 읽고 `history.replaceState`로 쓴다. 바깥에서 들어온 쿼리(사이드바·딥링크)는 마지막으로 쓴 값과 비교해 반영.
+- 브라우저 확인: 기본 65노드, 필터 → `?hide=category`, 검색 → `&q=`, 쿼리로 진입 시 선택·필터·검색 복원, "글 열기" 후 뒤로·다른 메뉴 후 뒤로·새로고침에서 유지, 사이드바 "그래프"로 초기화.
+- 문서: ADR-0015 후속 결정, GRAPH_DESIGN, FRONTEND_IMPLEMENTATION.
+
+## 2026-09-29 — 그래프 "두 번 렌더" 원인과 수정
+
+- 사용자 보고: 진입·새로고침 때 그래프가 그려진 뒤 다시 렌더되며 가운데 정렬되는 느낌.
+- 측정(임시 계측, 제거함): 캔버스 삽입 1회, 시뮬레이션 시작 1회. 356ms부터 배율 1로 120틱 애니메이션, 1371ms 엔진 정지 시 맞춤 배율 0.39를 즉시 적용 → 점프. 개발 모드 StrictMode의 이중 호출(데이터 생성·라이브러리 로드)은 화면과 무관.
+- 사용자 선택 A: 배치를 미리 계산(`settleGraphData`를 항상)하고 캔버스가 붙으면 즉시 맞춤, 딥링크는 애니메이션 없이 그 노드로. 라이브러리 시뮬레이션 미사용. ADR-0015 후속 결정 2.
+- 확인: 0.5초·2초 스크린샷이 같음(진입·딥링크·필터 전환). 테스트 23건, build 통과. 드래그 감각은 미검증.
+
+## 2026-09-29 — 그래프 튀기·드래그 효과 복원
+
+- 사용자 보고: 통통 튀는 효과와 드래그 시 이웃이 따라오는 애니메이션이 사라짐. 원인은 직전 수정에서 모든 노드 고정(`fx/fy`), `cooldownTicks=0`, 라이브러리 힘 설정 삭제. 드래그 효과까지 사라진다는 점을 미리 분명히 알리지 못했다.
+- 사용자 선택: 진입 시 가볍게 튀기 + 놓은 노드도 움직이게.
+- 수정: 미리 계산한 배치로 첫 화면 맞춤은 유지, 고정 해제, 라이브러리 시뮬레이션에 우리 힘을 첫 틱 전에 다시 얹음, 120틱 냉각, 드래그 종료 시 재고정 제거. 움직임 줄이기면 고정·시뮬레이션 없음.
+- 확인: 진입 0.4초 → 0.9초 사이 노드만 살짝 이동하고 틀은 유지, 드래그 후 이웃이 끌려오고 놓은 노드가 되튀어 정착. 테스트 23건, build 통과.
+
+## 2026-09-29 — 반복 드래그 버그, 클릭 시 가운데 이동
+
+- 사용자 질문: 한 번 드래그한 노드가 다시 고정되는지. 확인 결과 **두 번째 드래그부터 물리가 돌지 않는 버그**(sonic 원본에도 있음). force-graph는 매 틱 `alpha < d3AlphaMin`이면 멈추는데, 첫 드래그 후 alpha가 최솟값 아래로 내려가 다음 드래그 첫 틱에 바로 멈췄다. `d3AlphaMin=0`으로 틱 수로만 멈추게 해 해결(같은 노드 두 번 드래그로 확인).
+- 사용자 요청: 노드 클릭 시 부드럽게 가운데로. 클릭하면 선택과 함께 패널 폭을 뺀 영역 가운데로 0.42초 이동.
+- 테스트 23건, build 통과.
+
+## 2026-10-01 — 채팅 SSE 클라이언트 방식 ADR 기록
+
+- 사용자 요청: 프론트엔드 SSE 처리 로직 설명, `EventSource`를 쓰지 않은 이유를 ADR로 남기기.
+- 문서: ADR-0016 신규(fetch + ReadableStream + 자체 파서, 대안 EventSource·fetch-event-source 비교). ADR-0008 Related, API_DESIGN "구현 시 구체화" 항목에 링크. 코드 변경 없음.
+- 확인한 근거: `frontend/portfolio/src/lib/sse.ts`, `lib/chat-api.ts`, `hooks/use-conversation.ts`. 기존 docs에는 "SSE(fetch 스트림)"만 있고 이유는 없었다.
+- 참고: FRONTEND_IMPLEMENTATION 55행의 "404면 새 세션으로 1회 재시도"는 현재 코드(`onExpired`, 새 세션으로 몰래 바꾸지 않음)와 다르다. 이번에는 고치지 않았다(추가 확인 필요).
+
+## 2026-10-04 — 배포 구성 변경(ADR-0017)과 배포 계획
+
+- 사용자 요청: 실제 배포까지 남은 과정과 AWS 배포 절차 정리. 이어서 질의응답으로 구조를 검토했다.
+- 확인한 사실: admin과 포트폴리오 채팅은 상대 경로 `/api`를 개발 서버 프록시(Vite proxy, Next rewrites)로 넘긴다. CORS 미사용과 같은 사이트 쿠키(ADR-0010 4절)를 위한 선택이었고, 배포 경로는 도메인 결정 때 정하기로 미뤄져 있었다(ADR-0012). 운영 프로필이 없다(DB URL, AI 활성화가 local 프로필에만 있음). HTTPS 프록시 도구는 정한 적이 없었다(초안 계획에서 Caddy를 결정된 것처럼 쓴 오류를 사용자가 지적해 정정).
+- 사용자 결정: RDS 대신 같은 서버의 Docker PostgreSQL. 서버는 Lightsail 4GB, 프록시는 Caddy. ADR-0017 신규. ADR-0002 RDS 후속 결정과 ADR-0003 서버·DB 부분을 대체 표시했다.
+- 제안(미확정): admin은 Vercel rewrite(콜백 `redirect-uri` 고정, 성공 URL 전체 주소)로 쿠키를 admin 호스트에 유지. 채팅은 Vercel을 거치면 IP당 제한이 전체 공용이 되므로 api 도메인을 직접 호출.
+- 문서: ADR-0017, DEPLOYMENT_PLAN 신규. ADR-0002, ADR-0003, AWS_COST_PROPOSAL, ARCHITECTURE, CURRENT_PLAN, CURRENT_STATE, NEXT_ACTIONS 갱신. 코드 변경 없음.
+- 미검증: 비용(계산값), 4GB 메모리 실측, Vercel 외부 rewrite의 쿠키·Location 전달, t4g.medium 단가(비교에서 추정치로만 언급).
+- 같은 날 추가 사용자 결정: admin은 Vercel rewrite, 포트폴리오 채팅은 api 도메인 직접 호출. ADR-0017 Decision, ADR-0010 4절, DEPLOYMENT_PLAN, CURRENT_STATE, NEXT_ACTIONS에 반영. 남은 결정은 도메인과 백업 보관 위치.
+
+## 2026-10-04 — 배포 코드 준비
+
+- 사용자 결정: 도메인 `sonic-portfolio.com`, 백업은 우선 Lightsail 스냅샷만. 브랜치 `feat/deploy`(`feat/graph`에서 분기, 기존 미커밋 문서 변경 포함).
+- 백엔드: `application-prod.properties`(DB 환경변수, OpenAI 켜기, `forward-headers-strategy=native`, GitHub `redirect-uri`·성공 URL·CORS 출처 고정), `SecurityConfig`(health 익명, CORS를 `/api/chat/**`·자격 증명 없음으로 축소; 기존 `/api/**`·credentials 설정은 관리 API까지 열 수 있었다), `DeploymentAccessTest` 4건, `Dockerfile`·`.dockerignore`.
+- 배포 파일: `deploy/compose.prod.yaml`(db·api·caddy, 메모리 상한, 로그 제한, db 포트는 서버 loopback만), `Caddyfile`, `.env.example`, `README.md`(서버 준비·배포·시드·백업·Vercel 설정). `.gitignore`에 `deploy/.env`.
+- 프론트: `chat-api.ts`에 `NEXT_PUBLIC_API_BASE_URL`(빈 값이면 개발용 상대 경로), admin `vercel.json`·`.env.production`.
+- 확인한 사실: 시드 러너는 `@Profile("local")`이라 운영 컨테이너에서 못 돌린다 → 코드 변경 대신 SSH 터널로 Mac에서 local 시드 실행. Spring Security 7.1.1은 OAuth 콜백에서 redirect URI를 비교하지 않는다(바이트코드 확인).
+- 검증: 백엔드 124건, 포트폴리오 23·어드민 15건, lint(기존 경고 2건만)·build 통과. prod 프로필 jar 로컬 기동으로 health·CORS·redirect_uri·Swagger 닫힘 확인. amd64 이미지 빌드, compose config 통과. admin 번들에 상대 로그인 경로 반영 확인.
+- 미검증: Caddyfile 문법(caddy 이미지 실행이 멈춰 중단), 운영 메모리, X-Forwarded-For 방문자 IP 판별, Vercel rewrite 쿠키 전달.
+
+## 2026-10-04 — 로컬 메모리 실측
+
+- 사용자 요청: 로컬 메모리 측정. 실제 OpenAI 호출 포함(사용자 선택, 비용 수 센트). 첫 명령은 사용자가 거절해 방식을 물은 뒤 단계별로 다시 실행했다.
+- 방법: scratchpad의 측정용 compose(운영과 같은 메모리 상한·Postgres 설정, arm64 네이티브 이미지, 새 DB). 시드가 컨테이너 안에서 돌도록 api는 local 프로필. 시드+전체 색인(19건 READY), 채팅 5개 순차와 3개 동시, 유휴 20초 동안 `docker stats` 기록.
+- 결과: 최대 api 407 MiB(상한 1536), db 75 MiB(상한 1024), OOM·재시작 없음. 상세는 DEPLOYMENT_PLAN "메모리 실측".
+- 참고: 로컬 Docker가 arm64 VM이라 이전에 받은 amd64 `eclipse-temurin:21-jre`가 태그를 덮어써 arm64 빌드가 실패했다. arm64로 다시 받아 해결. 측정 스택과 이미지는 삭제했다. 저장소 코드 변경 없음.
+- 미검증: 1~2초 간격 측정이라 순간 최대치, 장시간 운영 시 JVM 힙 증가, Caddy 메모리.
+
+## 2026-10-04 — 실제 콘텐츠 재변환
+
+- 사용자 요청: 운영 시드 전에 새 Notion 위키(`~/Downloads/원티드 프로젝트/notion-wikis`)로 시드 데이터를 다시 만들기. 프로젝트 README의 결정사항/트러블슈팅 섹션은 제거하고, 거기 링크된 파일은 블로그로 만들어 참고 문서로 연결. 기존 프로젝트·블로그 시드는 모두 삭제.
+- 구현: `content/convert_wiki.py`(판단이 필요한 slug·카테고리·태그·featured만 표로 두고 나머지는 기계 변환, 다시 실행 가능). 프로젝트 13·블로그 24·스킬 70·태그 44, 카테고리 8(`백엔드`·`AI·RAG` 추가). `content/README.md` 규칙 갱신.
+- 판단(사용자 확인 필요): `template/`(가상 프로젝트)와 링크되지 않은 `references/fsd-notes.md` 제외, 이미지 10개 제외(업로드 기능 없음, 관리자 메모에 기록), 작성일 2026-10-04, featured는 최근 시작 3건, organization은 VIORA만, `FSD`는 스킬이 아니라 태그, 기간 괄호 설명은 사라짐.
+- 검증: 로컬 Postgres 임시 DB(`portfolio_seedcheck`)에 시드 → 프로젝트 13·블로그 24·관계 25·featured 3, 오류 없음. 임시 DB 삭제. `samples/`는 그대로(테스트용).
+
+## 2026-10-05 — 학습 노트를 시드에 추가
+
+- 사용자 요청: `~/Downloads/sonic-study-notes/notes`(Obsidian llm-wiki, 59개)를 시드에 추가. 내용은 그대로, 연결 관계 분석·연동, 상위 메타데이터는 본문 제외. `/ecc:plan`으로 계획 후 결정: D1 공개, D2 태그로 주제별 기존 카테고리, D3 글자 없는 링크는 연결 노트 제목, D4 채팅 근거 포함.
+- 분석: 메타데이터 6종(aliases·tags·prerequisites·related·status·created), 모두 draft, 본문 위키링크 224·메타 링크 119, 깨진 링크 없음(표 안 `\|` 9개는 정상), 코드 블록 안 `[[` 9개, 이미지 없음. 연결 쌍 220.
+- 구현: `content/convert_wiki.py`에 노트 변환 추가(두 번째 인자). 태그 code 충돌(`embedding`)은 기존 `임베딩`으로 합침. 블로그 83·관계 245·태그 75.
+- 검증: 링크 문법을 걷어 내면 59개 모두 원문과 글자까지 같음. 임시 DB 시드 블로그 83·관계 245·문서 96. 포트폴리오 화면에서 본문 링크·표·코드 블록·참고 문서 두 목록·그래프 확인, 콘솔 오류 없음.
+- 발견·수정: `**청킹(Chunking)**은`처럼 닫는 `**` 뒤에 한글이 붙으면 CommonMark가 굵게로 보지 않아 235곳(50개 파일)에 `**`가 그대로 보였다. 콘텐츠는 바꾸지 않고 포트폴리오 마크다운(본문·채팅 답변)에 `remark-cjk-friendly` 추가, `markdown.test.tsx` 2건. 가장 많던 `clean-architecture`에서 굵게 82곳·남은 `**` 0 확인.
+- 기타: `.claude/launch.json`에 확인용 `portfolio-web-seedcheck` 설정 추가(로컬). 포트폴리오 25·어드민 15건, lint·build 통과.
+
+## 2026-10-05 — AI 도구 학습 노트 추가
+
+- 사용자 요청: `ai-github-study-automation/learning-notes`(도구 15종 × README + 01~08장, 메타데이터 없음)를 우리 형식으로 저장. `/ecc:plan`으로 계획 후 "추천대로 진행": 도구별 한 글로 합침(E1), 카테고리 `AI 도구`(E2), 작성일 `studiedAt`(E3), `## 원본 저장소` 섹션(E4), 채팅 근거 포함(E5), 태그 없음(E6).
+- 구현: `convert_wiki.py` 세 번째 인자. README 목차·이동 줄 제거, 장 제목 단계 내림, 장 링크→같은 글 안 이동 링크(`lib/headings.ts` 규칙), GitHub 주소·날짜는 원본 저장소 `studies/`·`data/registry.json`·git에서.
+- 고친 결함: (1) 시드 `SampleMarkdown.sections`가 코드 블록 안의 `## ` 줄로 섹션을 나눔 → 펜스 추적, `SampleMarkdownTest` 추가. 이미 커밋된 `rag-chunking`도 해당. (2) 변환기 코드 블록 판정이 ````(4개) 펜스 안의 ```를 잘못 짝지음 → 같은 문자·같거나 긴 펜스로만 닫기. (3) EVAR 블로그 요약에 목록 뒤 안내 문단과 링크가 섞임 → 들여쓴 설명만 요약, 그 링크는 EVAR 참고 문서로(관계 +2). (4) `SampleSeederTest.seedsRealContent`가 10-04 콘텐츠 재변환 이후 실패 상태였음(그 세션에서 백엔드 테스트 미실행) → 현재 콘텐츠 기준으로 갱신.
+- 검증: 도구 15개 원문 글자 비교 통과, 학습 노트 59개 재확인 통과. 임시 DB 시드 블로그 98·관계 247, API로 rag-chunking 섹션 정상·featured·EVAR 참고 4건 확인. 화면: `ecc` 목차·코드 49개·저장소 링크, 15개 글의 이동 링크 141개 모두 대상 있음, `AI 도구` 카테고리 15. 백엔드 125건 통과(첫 실행이 10분 넘게 멈춰 중단, 다시 실행하니 21초에 통과, 원인 미확인).
+- 남은 것: 색인 `Chunker`도 `^## `로 나눠 코드 블록 안 줄에서 조각이 갈린다(검색 품질 영향만, 화면 영향 없음). 별도 작업으로 남김.
+
+## 2026-10-05 — 카테고리 재정리와 카테고리별 채팅 반영(ADR-0018)
+
+- 사용자 요청: `트러블슈팅`·`기술선택` 추가, 프로젝트 경험 글을 그쪽으로 이동, `UX`·`협업`·`AI`로 이름 간소화, 경험(트러블슈팅·기술선택·협업)과 학습(나머지) 구분, 카테고리별로 RAG 반영 여부를 고르는 기능. 계획 후 "추천대로": 분류표 그대로(F1), 빈 `UX`·`하드웨어` 삭제(F2), 경험 3개만 채팅 근거(F3).
+- 콘텐츠: `convert_wiki.py`의 `CATEGORIES`(rag 열 포함)·`BLOGS` 분류·`NOTE_CATEGORIES` 수정. 카테고리 9개, 경험 글 트러블슈팅 5·기술선택 13·협업 6.
+- 기능: V6 `category.rag_enabled`(기본 true), `Retriever.RAG_SCOPE`를 벡터 검색과 참고 관계 확장 쿼리에 추가(검색 시점, 재색인 불필요), `CategoryRequest.ragEnabled`(생략 시 생성 true·수정 유지)·응답 필드, 시드 `taxonomy.md` `rag` 열(`samples/taxonomy.md`도 5열로), 어드민 분류 화면 "채팅 반영" 체크박스와 목록의 "채팅 제외" 표시.
+- 테스트: `ChatApiTest.postsInCategoriesKeptOutOfChatAreNeverEvidence`(검색·확장 제외, 다시 켜면 바로 포함), `TaxonomyAdminApiTest`(기본 true, 끄기, 생략 시 유지), `SampleSeederTest`(경험 3개만 rag), 어드민 스키마 테스트. 백엔드 126·어드민 15·포트폴리오 25건, lint·build 통과.
+- 문서: ADR-0018 신규, API_DESIGN·DATA_MODEL·RAG_DESIGN·content/README 갱신.
+- 미검증: 어드민 화면 직접 확인(GitHub 로그인 필요), 운영 DB 반영.
+
+## 2026-10-08 — 운영 재배포와 운영 시드 완료
+
+- 사용자가 안내에 따라 운영 서버에 새 이미지를 재배포(V6 적용)하고 운영 DB 시드를 실행했다. 다른 장소에서 작업해 SSH가 시간 초과 → Lightsail 방화벽에 현재 IP(122.202.248.4) 추가로 해결.
+- 확인(공개 API): health UP, 프로젝트 13·featured 3, 블로그 98, 카테고리 9개 글 수(트러블슈팅 5·기술선택 13·협업 6·프론트엔드 5·백엔드 17·AI 17·아키텍처 15·배포·인프라 5·AI 도구 15), `rag-chunking` 섹션 10·참고 3·피참고 4, `ecc` 200.
+- 미확인: 색인 READY 111(사용자 DBeaver 확인 사항), 운영 채팅의 출처 범위, 관리자 로그인.
+- 문서: DEPLOYMENT_PLAN 체크리스트(서버·비밀값·배포·시드 완료), CURRENT_STATE, NEXT_ACTIONS.
+
+## 2026-10-08 — 운영 채팅이 근거를 못 찾던 문제
+
+- 사용자 보고: 운영 채팅 확인 명령이 출처를 하나도 출력하지 않음.
+- 확인: 세션 생성 201, 응답은 `status`·`answer_delta`·`done{sources:[], unanswered:true}`로 `documents` 이벤트 없음. 운영 DB 색인은 정상(READY 111, 임베딩 조각 1828).
+- 원인: `document_chunk` HNSW 인덱스가 후보를 기본 40개만 뽑고 `WHERE`(공개·ADR-0018 카테고리)로 거른다. 질문과 가까운 조각이 모두 꺼진 학습 글이면 0건. 운영 DB에서 `rag-chunking` 조각 벡터로 같은 조건 검색 시 기본 0건, `hnsw.iterative_scan = strict_order`로 5건 재현.
+- 수정: `application.properties`에 Hikari `connection-init-sql=SET hnsw.iterative_scan = strict_order`(모든 프로필). 테스트 `ChatApiTest.vectorSearchKeepsScanningPastFilteredRows`(연결 설정 확인). 백엔드 127건 통과. ADR-0018·RAG_DESIGN에 기록.
+- 반성: ADR-0018 구현 때 로컬 테스트는 데이터가 적어 인덱스 동작이 드러나지 않았다. 큰 데이터의 HNSW + 필터 검증은 NEXT_ACTIONS에 "HNSW 별도 검증"으로 남아 있던 항목이었다.
+- 남은 것: 운영 서버에 새 이미지 재배포 후 채팅 재확인(재색인·재시드 불필요).
+- 같은 날 사용자 재배포 후 확인: "RAG 관련 경험이 있나요?" 출처가 `/projects/ai-portfolio`, `/blog/ai-portfolio-no-answer`·`-faq-matching`·`-docs-workflow`(모두 경험 글)이고 학습 노트는 없음. ADR-0018 동작과 HNSW 수정 모두 운영에서 확인.

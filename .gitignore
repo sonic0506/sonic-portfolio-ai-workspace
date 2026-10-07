@@ -2,3 +2,6 @@
 
 # frontend (pnpm workspace)
 node_modules/
+
+# production secrets
+deploy/.env

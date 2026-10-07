@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { CategoryDot } from "@/components/atoms/category-dot";
 import { DocPager, neighbors } from "@/components/molecules/doc-pager";
+import { GraphLink } from "@/components/molecules/graph-link";
 import { PostInfoCard } from "@/components/molecules/post-info-card";
 import { References } from "@/components/molecules/references";
 import { DocLayout } from "@/components/organisms/doc-layout";
@@ -91,6 +92,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
     >
       <Sections sections={post.sections} />
       <References references={post.references} referencedBy={post.referencedBy} className="mt-14 border-t border-border pt-14" />
+      <GraphLink nodeId={`blog:${post.slug}`} label="이 글의 연결 보기" className="mt-10 w-full" />
       <DocPager previous={toPager(previous)} next={toPager(next)} />
     </DocLayout>
   );

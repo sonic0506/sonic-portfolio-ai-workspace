@@ -34,7 +34,8 @@ public class TaxonomyAdminService {
         if (categories.existsByCode(r.code())) {
             throw conflict("category code already exists");
         }
-        return CategoryResponse.from(categories.saveAndFlush(new Category(r.code(), r.name().trim(), r.displayOrder(), r.color())));
+        return CategoryResponse.from(categories.saveAndFlush(new Category(r.code(), r.name().trim(), r.displayOrder(), r.color(),
+                r.ragEnabled() == null || r.ragEnabled())));
     }
 
     public CategoryResponse updateCategory(long id, CategoryRequest r) {
@@ -42,7 +43,8 @@ public class TaxonomyAdminService {
         if (categories.existsByCodeAndIdNot(r.code(), id)) {
             throw conflict("category code already exists");
         }
-        category.update(r.code(), r.name().trim(), r.displayOrder(), r.color());
+        category.update(r.code(), r.name().trim(), r.displayOrder(), r.color(),
+                r.ragEnabled() == null ? category.isRagEnabled() : r.ragEnabled());
         return CategoryResponse.from(categories.saveAndFlush(category));
     }
 

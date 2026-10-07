@@ -1,6 +1,6 @@
 # AWS Cost Proposal
 
-Status: Comparison history — Vercel Hobby + Lightsail 2GB + RDS micro 구성을 ADR-0003으로 채택했다. 아래 후보별 검토 당시 기록을 보존한다. 실제 배포하지 않음.
+Status: Comparison history — ADR-0003(Vercel + Lightsail 2GB + RDS)을 거쳐 2026-10-04 ADR-0017(Vercel + Lightsail 4GB에 앱·DB·Caddy를 Docker로 통합, 약 56,100원)로 변경했다. 아래는 검토 당시 기록이다. 실제 배포하지 않음.
 
 Checked: 2026-09-09
 

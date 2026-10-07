@@ -10,12 +10,17 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 /** A sample file: YAML front matter + body split into "## " sections. */
 record SampleMarkdown(Path path, Map<String, Object> meta, List<SectionRequest> sections) {
+
+    // A fence opens on ``` or ~~~ (any info string) and closes on the same character, at least as long, alone.
+    private static final Pattern FENCE = Pattern.compile("^\\s*(`{3,}|~{3,})(.*)$");
 
     static SampleMarkdown read(Path path) {
         String text;
@@ -42,13 +47,27 @@ record SampleMarkdown(Path path, Map<String, Object> meta, List<SectionRequest> 
         return new SampleMarkdown(path, meta, sections(text.substring(end + 5)));
     }
 
-    /** Splits on level-2 headings; text before the first heading is ignored. */
+    /**
+     * Splits on level-2 headings; text before the first heading is ignored.
+     * "## " lines inside fenced code (an example document, say) stay in the body.
+     */
     static List<SectionRequest> sections(String body) {
         List<SectionRequest> result = new ArrayList<>();
         String title = null;
+        String fence = null;
         StringBuilder current = new StringBuilder();
         for (String line : body.split("\n", -1)) {
-            if (line.startsWith("## ")) {
+            Matcher marker = FENCE.matcher(line);
+            if (marker.matches()) {
+                String run = marker.group(1);
+                if (fence == null) {
+                    fence = run;
+                } else if (run.charAt(0) == fence.charAt(0) && run.length() >= fence.length()
+                        && marker.group(2).isBlank()) {
+                    fence = null;
+                }
+            }
+            if (fence == null && line.startsWith("## ")) {
                 if (title != null) {
                     result.add(new SectionRequest(title, current.toString().strip()));
                 }

@@ -1,6 +1,6 @@
 # ADR-0003: Initial Deployment
 
-- Status: Accepted
+- Status: Accepted — 서버 사양과 DB(RDS) 부분은 ADR-0017로 대체(2026-10-04). Vercel 프론트 결정은 유지.
 - Date: 2026-09-09
 
 ## Context
@@ -29,5 +29,6 @@
 
 ## Related Documents
 
+- [ADR-0017](ADR-0017-single-server-docker-deployment.md) — 단일 Lightsail 4GB + Docker(앱·DB·Caddy)
 - [Cost Proposal](../02-design/AWS_COST_PROPOSAL.md)
 - [Operating Conditions](ADR-0002-operating-budget-auth-and-limits.md)

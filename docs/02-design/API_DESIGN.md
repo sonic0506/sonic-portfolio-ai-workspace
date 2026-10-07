@@ -69,6 +69,7 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 
 - 질문 전송과 SSE 응답 연결 방식, 세션 식별자, 이벤트 payload를 확정한다.
 - 오류/취소/연결 끊김의 종료 처리와 재시도 시 중복 생성 방지 정책을 정한다.
+  - 클라이언트 쪽은 [ADR-0016](../03-decisions/ADR-0016-chat-sse-client-fetch-stream.md)로 정했다: fetch 스트림으로 받고, 자동 재연결·재전송 없음(사용자 "다시 시도"만), `done` 없이 끝나면 받은 데까지 완료, 취소는 `AbortController`.
 - 배포 경로에서 버퍼링 없이 이벤트가 도착하는지 확인한다.
 - 상태 → 문서 목록 → 답변 → 완료의 순서, 근거 없음, 비공개 문서 미노출을 검증한다.
 
@@ -124,6 +125,11 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 ### GET /api/blog/posts/{slug}
 
 목록 항목 필드 + `sections[]`.
+
+### GET /api/graph
+
+그래프 전체(ADR-0015). `{nodes:[{id, type, key, title, url, summary, color, periodStart, periodEnd, publishedAt, tags}], edges:[{source, target, kind}]}`. 
+`id`는 `project:{slug}`·`blog:{slug}`·`category:{code}`·`skill:{code}`, `kind`는 `REFERENCE`(source가 target을 참고)·`SKILL`(문서 → 스킬)·`CATEGORY`(블로그 → 카테고리). 공개 문서만, 카테고리·스킬은 공개 문서가 쓰는 것만. 형태와 순서는 [GRAPH_DESIGN](GRAPH_DESIGN.md) 4절.
 
 ### GET /api/profile
 
@@ -212,7 +218,7 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 ### Category / Tag 관리
 
 - `GET /api/admin/categories` (`displayOrder`, code 순), `POST` → `201`, `PUT /{id}`, `DELETE /{id}` → `204`
-  - 본문 `{code, name, displayOrder, color}`. `color`는 필수 `#RRGGBB`이며 대문자로 저장한다(2026-09-29). 블로그가 사용 중인 카테고리 삭제는 `409`
+  - 본문 `{code, name, displayOrder, color, ragEnabled}`. `color`는 필수 `#RRGGBB`이며 대문자로 저장한다(2026-09-29). `ragEnabled`는 그 카테고리 글을 채팅 근거로 쓸지이며 생략하면 생성 시 `true`, 수정 시 기존 값 유지(ADR-0018, 2026-10-05). 블로그가 사용 중인 카테고리 삭제는 `409`
 - `GET /api/admin/tags` (code 순), `POST` → `201`, `PUT /{id}`, `DELETE /{id}` → `204`
   - 본문 `{code, name}`. 사용 중인 태그도 삭제되며 글과의 연결이 함께 지워진다
 - code 형식·중복 규칙은 Skill과 같다

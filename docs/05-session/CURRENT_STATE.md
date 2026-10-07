@@ -1,12 +1,30 @@
 # Current State
 
-Last Updated: 2026-09-29
+Last Updated: 2026-10-08
 
 ## Current Phase
 
 Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 콘텐츠 관리 CRUD(Project, Blog, Profile, Category/Tag)도 완료했다. 샘플 콘텐츠 시드와 Document 색인(가짜 임베딩으로 검증)도 완료했다. 실제 OpenAI 임베딩으로 개발 DB 샘플 7건 READY를 확인했다(사용자 보고). 검색·답변(채팅) 1차(단일 질문, SSE, 질문 제한)도 구현했다. 실제 OpenAI로 PoC 질문 7개를 재현해 기대 출처 7/7, 근거 부족 거부, 비공개 미노출을 확인했다(RAG_MEASUREMENTS 측정 4). 프로필 slug 결함도 수정했다(77건 통과). 채팅 세션(ADR-0011)도 구현했다(89건 통과). 답하지 못한 질문 보관·안내 문구(ADR-0013)도 구현했다(101건 통과). FAQ(ADR-0014)도 구현하고 실제 모델로 확인했다(측정 6·7, 108건 통과). 백엔드 기능은 여기서 일단락했다. 프론트엔드(ADR-0012) 1단계(pnpm workspace, 포트폴리오 조회·채팅, 어드민 미답변·FAQ·색인)를 완료했다. 같은 날 SSE 버퍼링 방지 헤더, FAQ 판정 단계 분리(ADR-0014 후속 2), 질문 제한 제외 IP를 추가했다(백엔드 111건 통과). 2단계(어드민 콘텐츠 관리)도 사용자 확인을 마쳤다. 같은 날 참고 문서 기능(프로젝트·블로그 연결, 상세의 "참고 문서"/"이 문서를 참고한 문서")을 구현하고 사용자 확인을 마쳤다(백엔드 116건). 다음은 프론트 3단계(디자인·SEO·캐시). 2026-09-28 실제 콘텐츠(Notion 위키)를 `content/`로 변환했다(개발 DB 반영은 미확인). 2026-09-29 프론트 3단계로 sonic-portfolio 디자인을 적용했다(브랜치 `feat/sonic-ui`, 사용자 확인 대기).
 
 ## Confirmed
+
+- 2026-10-08 운영 배포 진행(사용자 실행): Lightsail 서버·고정 IP·방화벽·Route 53 `api` 레코드·Docker 스택 기동, 새 이미지 재배포(V6), 운영 DB 시드 완료. 공개 API 확인: health UP, 프로젝트 13(featured ai-portfolio·viora·bring-and-t), 블로그 98·카테고리 9개 글 수 일치, `rag-chunking` 섹션·참고 관계 정상. 남은 것: Vercel 2개 프로젝트, `www`·`admin` DNS, 운영 채팅·관리자 로그인 확인.
+
+- 2026-10-05 카테고리 재정리와 카테고리별 채팅 반영(사용자 결정, ADR-0018): 경험 글 24개를 결정 문서 "유형"으로 `트러블슈팅`5·`기술선택`13·`협업`6에 나누고, 이름을 `AI`·`협업`으로 줄이고, 빈 `UX`·`하드웨어`는 삭제. V6 `category.rag_enabled`, `Retriever` 두 쿼리에서 검색 시점에 거름(재색인 불필요), 관리 API·어드민 "채팅 반영" 체크박스, 시드 `rag` 열. 초기값은 경험 3개만 켬(학습 글 채팅 포함 D4·E5를 바꿈). 백엔드 126·어드민 15·포트폴리오 25건, lint·build 통과. 어드민 화면은 GitHub 로그인이 필요해 직접 보지 못함.
+
+- 2026-10-05 AI 도구 학습 노트 15종을 블로그로 추가(사용자: 추천안대로): 도구 하나 = 글 하나(README + 8개 장 합침), 새 카테고리 `AI 도구`, 작성일은 `studiedAt`, 끝에 `## 원본 저장소`(GitHub). 원문 글자 비교 통과, 같은 글 안 이동 링크 141개 모두 대상 있음. 같은 작업에서 고친 결함: 시드가 코드 블록 안 `## ` 줄로 섹션을 나누던 문제(`SampleMarkdown`, 테스트 추가), 4개 백틱 펜스 오판, EVAR 블로그 요약에 섞인 안내 문단, 10-04 이후 실패하던 `SampleSeederTest.seedsRealContent` 기대값(10-04 세션에서 백엔드 테스트를 돌리지 않아 놓침). 합계 블로그 98·관계 247·문서 111, 백엔드 125건 통과.
+
+- 2026-10-05 학습 노트 59개를 블로그로 추가(사용자 결정 D1 공개·D2 주제별 기존 카테고리·D3 링크 글자는 노트 제목·D4 채팅 근거 포함): `convert_wiki.py`가 Obsidian 노트도 변환(본문 그대로, 위키링크→`/blog/<slug>`, 참고 관계 220). 합계 블로그 83·관계 245·문서 96. 노트 굵게 표시 235곳이 CommonMark에서 깨져 포트폴리오에 `remark-cjk-friendly` 추가(테스트 2건). 임시 DB 시드와 화면(링크·표·코드·참고 문서·그래프) 확인, 포트폴리오 25·어드민 15건, lint·build 통과. 운영 시드는 아직 안 함.
+
+- 2026-10-04 실제 콘텐츠 재변환(사용자 결정): 새 Notion 위키로 `content/`를 전부 다시 만들었다(프로젝트 13·블로그 24·참고 관계 25, 카테고리 `백엔드`·`AI·RAG` 추가). 변환기 `content/convert_wiki.py`, 규칙은 `content/README.md`. 이미지 10개는 업로드 기능이 없어 뺐다. 임시 DB에 시드해 오류 없음 확인. 운영 DB 시드는 아직 안 함.
+
+- 2026-10-04 배포 코드 준비(브랜치 `feat/deploy`, `feat/graph`에서 분기): 도메인 `sonic-portfolio.com`, 백업은 우선 Lightsail 스냅샷만(사용자 결정). `application-prod.properties`, `backend/Dockerfile`, `deploy/`(compose.prod.yaml·Caddyfile·.env.example·README), 채팅 `NEXT_PUBLIC_API_BASE_URL`, admin `vercel.json`·`.env.production`, CORS를 `/api/chat/**`·자격 증명 없음으로 축소, `/actuator/health` 익명. 백엔드 124·포트폴리오 23·어드민 15건, lint·build, prod 프로필 로컬 기동, amd64 이미지 빌드 통과. Caddyfile 문법·실제 IP 판별은 미검증. 같은 날 로컬 메모리 실측: 운영과 같은 상한에서 시드·색인·채팅 8개 중 최대 api 407 MiB·db 75 MiB, OOM 없음. 시드는 local 전용이라 SSH 터널로 실행한다.
+
+- 2026-10-04 배포 구성 변경(사용자 결정, ADR-0017): 서울 Lightsail 4GB 1대에 Docker Compose로 Spring·PostgreSQL/pgvector(로컬과 같은 이미지)·Caddy를 함께 운영하고 RDS는 쓰지 않는다(약 56,100원/월, 계산값). 프론트는 Vercel 유지(ADR-0003). 백업은 매일 pg_dump 외부 보관 + Lightsail 스냅샷(보관 위치 미정). admin은 Vercel rewrite, 채팅은 api 도메인 직접 호출로 확정(같은 날 사용자 결정). 도메인 미정. 실행 계획은 `docs/04-plans/DEPLOYMENT_PLAN.md`. 코드 변경 없음.
+
+- 2026-10-01 ADR-0016 기록(사용자 요청): 채팅 SSE는 `EventSource` 대신 `fetch` + 자체 파서(`lib/sse.ts`)로 받는다. 이유는 POST·세션 키 헤더·상태 코드별 안내·자동 재연결로 인한 질문 중복 방지. 코드 변경 없음, 2026-09-17 구현의 사후 기록.
+
+- 2026-09-29 그래프(ADR-0015, 브랜치 `feat/graph`): `GET /api/graph`와 `/graph` 화면. 노드 Project·Blog·Category·Skill(기본 전체 보기, 선택·필터·검색은 URL 쿼리로 유지), 참고 방향 옅은 화살표, 모바일은 목록, 상세·카테고리에서 딥링크. 백엔드 120·포트폴리오 22·어드민 15건, build 통과. 사용자 화면 확인 대기.
 
 - 2026-09-29 sonic-portfolio UI 적용(사용자 결정, 브랜치 `feat/sonic-ui`): 현재 URL 유지, 다크·라이트(시스템 기본), 블로그 카테고리 단일 선택(V4, ADR-0005 후속 3), 대화 여러 개·만료 후 숨김(ADR-0011 후속, 백엔드 변경 없음), 공개 `GET /api/blog/categories`. 그래프는 스킬·카테고리 노드 포함으로 정했고 구현은 뒤로(GRAPH_DESIGN). 백엔드 118·포트폴리오 18·어드민 15건, build 통과. 개발 DB에는 V4가 이미 적용됨(devtools 재시작). 상세는 FRONTEND_IMPLEMENTATION 3단계.
 
@@ -56,7 +74,7 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 
 - RAG 답변 정책은 ADR-0004로 확정했다: 공개 콘텐츠만 사용, 출처 표시, 근거 부족 명시, 세션별 이전 질문/답변 기억 및 세션 간 분리. 저장/보관/복원 방식은 미정이다.
 
-- 배포 구성은 ADR-0003으로 확정했다: Vercel Hobby(Next.js/React), 서울 Lightsail 2GB(Spring Boot), RDS PostgreSQL micro Single-AZ/gp3 20GB. 실제 배포는 시작하지 않았다.
+- 배포 구성은 ADR-0003으로 확정했다: Vercel Hobby(Next.js/React), 서울 Lightsail 2GB(Spring Boot), RDS PostgreSQL micro Single-AZ/gp3 20GB. 실제 배포는 시작하지 않았다. (2026-10-04 서버·DB 부분은 ADR-0017로 대체)
 
 - 핵심 기술 스택: Next.js(Public), React(Admin), Spring Boot(Java 21), JPA/QueryDSL, PostgreSQL/pgvector, OpenAI(LLM), S3. 기준은 ADR-0001이다.
 - 구현의 핵심은 RAG이며 콘텐츠는 프론트엔드·백엔드·AI 경험을 모두 전달한다. 프론트엔드는 익숙한 기술, 백엔드는 학습 목적이다.
@@ -125,7 +143,6 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 - Spring AI 버전·연동 검증 및 제품 RAG 통합 방식(생성·임베딩 모델은 확정)
 - Expected traffic (질문 제한 초기값은 ADR-0002 후속 결정)
 - 프론트 캐시·재검증 정책과 어드민 배포 위치 / S3 policy (백엔드 버전은 ADR-0009, Markdown은 content_section.body_markdown)
-- Graph visualization library (노드 범위는 2026-09-29 결정: Project·Blog·Skill·Category)
 - Exact DB schema — 초기 스키마는 V1 마이그레이션으로 적용. 세션·사용량 관련 테이블은 정책 결정 후 새 마이그레이션으로 추가
 - Exact API contract
 

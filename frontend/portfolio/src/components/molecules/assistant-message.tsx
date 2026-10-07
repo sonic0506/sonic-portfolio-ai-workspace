@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkCjkFriendly from 'remark-cjk-friendly';
 import remarkGfm from 'remark-gfm';
 import { Check, Copy, TriangleAlert } from 'lucide-react';
 
@@ -18,7 +19,7 @@ const COPIED_MS = 1500;
 function AnswerText({ text, streaming }: { text: string; streaming: boolean }) {
   return (
     <div className="font-body text-md leading-[1.75] break-keep text-text-1 [&_a]:text-accent-text [&_a:hover]:underline [&_code]:rounded-xs [&_code]:bg-surface [&_code]:px-1 [&_code]:font-mono [&_code]:text-sm [&_li]:my-1 [&_ol]:my-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:my-3 [&_strong]:font-medium [&_ul]:my-3 [&_ul]:list-disc [&_ul]:pl-5 [&>*:first-child]:mt-0">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{stripCitations(text)}</ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm, remarkCjkFriendly]}>{stripCitations(text)}</ReactMarkdown>
       {streaming && <StreamCursor />}
     </div>
   );

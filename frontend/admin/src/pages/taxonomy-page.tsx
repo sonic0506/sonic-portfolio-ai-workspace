@@ -18,7 +18,15 @@ import {
 } from '@/features/taxonomy-schemas'
 import { api } from '@/lib/api'
 
-type Row = { id: number; code: string; name: string; iconKey?: string | null; displayOrder?: number; color?: string }
+type Row = {
+  id: number
+  code: string
+  name: string
+  iconKey?: string | null
+  displayOrder?: number
+  color?: string
+  ragEnabled?: boolean
+}
 
 const CONFIG: Record<
   TaxonomyKind,
@@ -33,7 +41,7 @@ const CONFIG: Record<
   },
   category: {
     title: '카테고리',
-    description: '블로그 분류. 글이 사용 중인 카테고리는 삭제할 수 없습니다.',
+    description: '블로그 분류. 글이 사용 중인 카테고리는 삭제할 수 없습니다. "채팅 반영"을 끄면 그 카테고리 글은 채팅 근거에서 빠집니다(재색인 불필요).',
     base: '/api/admin/categories',
     key: keys.categories,
     extraLabel: '순서',
@@ -103,6 +111,7 @@ function TaxonomyTable({ kind, query }: { kind: TaxonomyKind; query: UseQueryRes
                   {row.code}
                   {config.extraLabel && extraOf(kind, row) ? ` · ${config.extraLabel} ${extraOf(kind, row)}` : ''}
                   {row.color ? ` · ${row.color}` : ''}
+                  {row.ragEnabled === false ? ' · 채팅 제외' : ''}
                 </p>
               </div>
               <Button size="icon" variant="ghost" onClick={() => setEditing(row.id)} aria-label={`${row.name} 수정`}>
@@ -131,13 +140,19 @@ function TaxonomyTable({ kind, query }: { kind: TaxonomyKind; query: UseQueryRes
 function RowForm({ kind, row, onDone }: { kind: TaxonomyKind; row?: Row; onDone?: () => void }) {
   const config = CONFIG[kind]
   const queryClient = useQueryClient()
-  const empty = { code: '', name: '', extra: kind === 'category' ? '0' : '', color: DEFAULT_CATEGORY_COLOR }
+  const empty = { code: '', name: '', extra: kind === 'category' ? '0' : '', color: DEFAULT_CATEGORY_COLOR, ragEnabled: true }
   const form = useForm<TaxonomyForm>({
     resolver: zodResolver(
       kind === 'category' ? taxonomySchema.extend({ extra: categoryOrderSchema }) : taxonomySchema,
     ),
     defaultValues: row
-      ? { code: row.code, name: row.name, extra: extraOf(kind, row), color: row.color ?? DEFAULT_CATEGORY_COLOR }
+      ? {
+          code: row.code,
+          name: row.name,
+          extra: extraOf(kind, row),
+          color: row.color ?? DEFAULT_CATEGORY_COLOR,
+          ragEnabled: row.ragEnabled ?? true,
+        }
       : empty,
   })
   const e = form.formState.errors
@@ -179,6 +194,12 @@ function RowForm({ kind, row, onDone }: { kind: TaxonomyKind; row?: Row; onDone?
           />
         )}
       </div>
+      {kind === 'category' && (
+        <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <input type="checkbox" className="size-3.5" {...form.register('ragEnabled')} />
+          채팅 반영
+        </label>
+      )}
       <div className="flex items-center gap-1.5">
         <Button type="submit" size="sm" disabled={save.isPending}>
           {save.isPending && <Spinner />}

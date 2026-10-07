@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { CategoryDot } from "@/components/atoms/category-dot";
+import { GraphLink } from "@/components/molecules/graph-link";
 import { MiniChatPrompt } from "@/components/molecules/mini-chat-prompt";
 import { PostRow } from "@/components/molecules/post-row";
 import { BlogSearchButton } from "@/components/organisms/blog-search-dialog";
@@ -46,6 +47,9 @@ export default async function BlogPage({ searchParams }: PageProps<"/blog">) {
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <BlogSearchButton />
+          {current && current.postCount > 0 && (
+            <GraphLink nodeId={`category:${current.code}`} label="그래프에서 보기" className="h-auto px-2.5 py-[5px]" />
+          )}
           {tag && (
             <Link
               href={category ? `/blog?category=${encodeURIComponent(category)}` : "/blog"}

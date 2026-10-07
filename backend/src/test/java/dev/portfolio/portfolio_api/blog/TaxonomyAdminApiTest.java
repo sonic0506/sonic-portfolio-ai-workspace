@@ -33,7 +33,9 @@ class TaxonomyAdminApiTest extends ApiTestSupport {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("프론트엔드"))
                 // stored uppercase so the DB check and clients see one form
-                .andExpect(jsonPath("$.color").value("#C7772A"));
+                .andExpect(jsonPath("$.color").value("#C7772A"))
+                // ADR-0018: chat evidence by default
+                .andExpect(jsonPath("$.ragEnabled").value(true));
         long arch = insertReturningId("insert into category (code, name, display_order) values ('tx-arch', '아키텍처', 0)");
 
         mockMvc.perform(get("/api/admin/categories").with(admin()))
@@ -48,6 +50,12 @@ class TaxonomyAdminApiTest extends ApiTestSupport {
         send(put("/api/admin/categories/{id}", arch), "{\"code\":\"tx-architecture\",\"name\":\"설계\",\"displayOrder\":5,\"color\":\"#c7772a\"}")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.displayOrder").value(5));
+        send(put("/api/admin/categories/{id}", arch),
+                "{\"code\":\"tx-architecture\",\"name\":\"설계\",\"displayOrder\":5,\"color\":\"#c7772a\",\"ragEnabled\":false}")
+                .andExpect(jsonPath("$.ragEnabled").value(false));
+        // leaving ragEnabled out keeps the stored value
+        send(put("/api/admin/categories/{id}", arch), "{\"code\":\"tx-architecture\",\"name\":\"설계 2\",\"displayOrder\":5,\"color\":\"#c7772a\"}")
+                .andExpect(jsonPath("$.ragEnabled").value(false));
         send(post("/api/admin/categories"), "{\"code\":\"Bad Code\",\"name\":\"x\",\"displayOrder\":0,\"color\":\"#c7772a\"}")
                 .andExpect(status().isBadRequest());
         // color is required and must be #RRGGBB

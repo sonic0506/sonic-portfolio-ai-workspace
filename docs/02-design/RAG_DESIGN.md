@@ -4,6 +4,8 @@ Status: Draft — 모델과 검색·답변 정책은 확정(ADR-0006 / ADR-0007)
 
 답변 및 세션 정책은 [ADR-0004](../03-decisions/ADR-0004-rag-answer-and-session-policy.md), 콘텐츠·Document 모델은 [ADR-0005](../03-decisions/ADR-0005-content-and-document-model.md), 임베딩·검색은 [ADR-0006](../03-decisions/ADR-0006-embedding-model-and-retrieval.md), 생성 모델·프롬프트는 [ADR-0007](../03-decisions/ADR-0007-generation-model-and-answer-prompt.md)로 확정했다. 세션 이력 저장 방식과 Relation 확장 구현은 Draft이다.
 
+현재 구현된 구조를 다이어그램으로 정리한 개요는 [RAG_ARCHITECTURE_OVERVIEW](RAG_ARCHITECTURE_OVERVIEW.md)에 있다.
+
 ## 1. Objective
 
 ### 구현 조합 — 확정
@@ -69,7 +71,7 @@ Context Assembly
 LLM Answer
 ```
 
-Public 검색과 Relation 확장은 현재 공개 상태를 적용한다. Context Assembly에서는 허용된 세션 이력과 공개 근거를 구분하고 토큰 상한을 적용한다. 답변에는 사용한 출처를 표시하며 근거 부족 시 명시한다. 대화 이력이나 이전 모델 답변이 공개 필터를 우회하지 않아야 한다.
+Public 검색과 Relation 확장은 현재 공개 상태를 적용한다. 같은 시점에 채팅 반영이 꺼진 카테고리(`category.rag_enabled = false`)의 블로그 글도 뺀다(ADR-0018, 2026-10-05: 경험 카테고리만 근거). 걸러지는 조각이 많아도 결과가 비지 않도록 HNSW 반복 스캔(`hnsw.iterative_scan = strict_order`)을 모든 연결에 켠다(2026-10-08). Context Assembly에서는 허용된 세션 이력과 공개 근거를 구분하고 토큰 상한을 적용한다. 답변에는 사용한 출처를 표시하며 근거 부족 시 명시한다. 대화 이력이나 이전 모델 답변이 공개 필터를 우회하지 않아야 한다.
 
 후속 질문 해석의 별도 모델 호출 여부, 최근 이력 범위/요약, 세션 저장/만료/복원 정책은 후속 설계 대상이다.
 
