@@ -30,6 +30,7 @@
 ## Consequences
 
 - 검색 쿼리마다 `blog_post`·`category`를 한 번 더 조회한다(문서 수 백 건 규모라 무시할 수준, 실측 안 함).
+- 2026-10-08 운영에서 발견: HNSW 인덱스는 후보를 기본 40개만 뽑은 뒤 조건으로 거르므로, 꺼진 학습 글 조각이 가까운 질문("RAG 관련 경험")에서 결과가 0건이 됐다. 모든 DB 연결에 pgvector 0.8의 `hnsw.iterative_scan = strict_order`를 켜서(`application.properties`의 Hikari `connection-init-sql`) 조건을 통과한 결과가 LIMIT을 채울 때까지 더 읽게 했다. 운영 DB에서 같은 조건 검색이 0건 → 5건으로 바뀜을 확인했다.
 - 꺼진 카테고리의 글은 채팅에서 출처로도 나오지 않는다. 이미 저장된 대화 기록의 출처는 그대로 남는다.
 - 학습 글을 다시 근거로 쓰려면 어드민에서 카테고리를 켜면 바로 반영된다.
 

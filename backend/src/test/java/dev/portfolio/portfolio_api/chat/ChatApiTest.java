@@ -117,6 +117,13 @@ class ChatApiTest extends ApiTestSupport {
     }
 
     @Test
+    void vectorSearchKeepsScanningPastFilteredRows() {
+        // With HNSW's default 40 candidates, a query close to many filtered-out chunks returned nothing
+        // in production (2026-10-08). Every connection turns on pgvector 0.8's iterative scan.
+        assertEquals("strict_order", jdbc.queryForObject("show hnsw.iterative_scan", String.class));
+    }
+
+    @Test
     void answersEvenWithoutEvidence() throws Exception {
         jdbc.update("update document set visible = false");
         generator.deltas = List.of("등록되어 있지 않습니다.");
