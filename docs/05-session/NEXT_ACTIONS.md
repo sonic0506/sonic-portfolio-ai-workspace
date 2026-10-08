@@ -8,6 +8,7 @@ Last Updated: 2026-10-08
 
 ## Priority 0-A — Vercel 배포와 운영 확인 (2026-10-08 운영 시드 완료)
 
+0-1. ADR-0019 운영 반영: 이미지 재배포(V7) 후 `content/profile.md` 시드. 운영 프로필을 덮어쓰므로 시드 전 스냅샷, 어드민에서 고친 값이 있으면 먼저 파일로 옮긴다. 시드 후 프로필 화면·"슬로그업에서 한 일" 채팅 확인. 성과의 직무·직책은 어드민에서 채운다.
 0. (완료 2026-10-08) HNSW 반복 스캔 수정 재배포 후 운영 채팅 출처 확인: `/projects/ai-portfolio`와 경험 글 3개만, 학습 노트 없음.
 1. Vercel portfolio·admin 프로젝트 생성(deploy/README.md "Vercel 설정"), 도메인 연결 후 Route 53에 `www`·`admin`·apex 레코드.
 2. 운영 확인: 채팅이 경험 글만 출처로 쓰는지(ADR-0018), 관리자 로그인(Vercel rewrite 쿠키 전달), 어드민 "채팅 반영" 체크박스, 질문 제한 IP.

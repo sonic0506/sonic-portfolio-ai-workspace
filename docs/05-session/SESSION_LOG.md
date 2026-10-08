@@ -652,3 +652,14 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 반성: ADR-0018 구현 때 로컬 테스트는 데이터가 적어 인덱스 동작이 드러나지 않았다. 큰 데이터의 HNSW + 필터 검증은 NEXT_ACTIONS에 "HNSW 별도 검증"으로 남아 있던 항목이었다.
 - 남은 것: 운영 서버에 새 이미지 재배포 후 채팅 재확인(재색인·재시드 불필요).
 - 같은 날 사용자 재배포 후 확인: "RAG 관련 경험이 있나요?" 출처가 `/projects/ai-portfolio`, `/blog/ai-portfolio-no-answer`·`-faq-matching`·`-docs-workflow`(모두 경험 글)이고 학습 노트는 없음. ADR-0018 동작과 HNSW 수정 모두 운영에서 확인.
+
+## 2026-10-08 — 원티드식 경력 구조(ADR-0019)
+
+- 사용자 요청: 이력서 슬로그업 경력(약 1만 자)이 경력 설명 5천 자 제한에 걸림 → 원티드처럼 경력 아래 프로젝트별 주요 성과(기간·직무·직책·상세)를 묶어 관리하는 구조로. 계획(G1~G7) 후 "추천대로", 화면은 첨부한 원티드 화면 형태(로고는 자리 표시).
+- 이력서 PDF 추출: poppler·pypdf가 없어 macOS PDFKit(Swift)으로 글자 조각과 좌표를 뽑아 줄을 다시 만들고, 글자 단위 줄바꿈을 문맥으로 검토해 합쳤다(빠진 글자 "션" 1곳은 좌표의 빈칸으로 확인). 프리랜서 부분도 같은 방식, 합자 `ﬀ` 정리.
+- 백엔드: V7, `Career` 필드, `ProfileAdminRequest.AchievementRequest`(기간·프로젝트 id 검사), 관리 저장·조회, 공개 `AchievementResponse`(공개 프로젝트만 링크), `DocumentProjector.careerContent`, 시드 `achievements`(프로젝트 slug), `IdChecks.RefTable.PROJECT`. 테스트: `ProfileAdminApiTest` 2건, `SampleSeederTest`(경력 2·성과 11·연결 11), 스키마 테이블 수 22→23과 V6·V7 적용 확인.
+- 어드민: `achievements-editor.tsx`(성과 추가·이동·삭제, 프로젝트 선택, 마크다운 상세), 경력에 고용형태·직책, 스키마·매핑·테스트.
+- 포트폴리오: `career-entry.tsx` 원티드식(로고 자리, `기간 (n년 m개월) | 고용형태 | 직무 | 직책`, 성과 제목·프로젝트 링크·마크다운 상세), `formatTenure`(시작·끝 달 포함), 테스트 3건.
+- 검증: 백엔드 129·어드민 16·포트폴리오 28건, lint·build. 임시 DB 시드(profile=true), 프로필 화면에서 메타 줄·성과 9개·프로젝트 링크·콘솔 오류 없음 확인.
+- 문서: ADR-0019, DATA_MODEL, API_DESIGN, content/README.
+- 남은 것: 운영 반영(재배포 + 프로필 시드), 성과 직무·직책 입력, 로고 이미지(이미지 업로드 기능 후).
