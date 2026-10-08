@@ -12,7 +12,10 @@ import { getPost, getPosts } from "@/lib/api";
 import { blogPath, categoryPath, formatDate, readMinutes } from "@/lib/blog";
 import { extractHeadings } from "@/lib/headings";
 
-export const dynamic = "force-dynamic";
+// 빌드 때는 만들지 않고 첫 방문 때 만들어 캐시한다(ISR, 주기는 layout).
+export async function generateStaticParams() {
+  return [];
+}
 
 export async function generateMetadata({ params }: PageProps<"/blog/[slug]">): Promise<Metadata> {
   const { slug } = await params;

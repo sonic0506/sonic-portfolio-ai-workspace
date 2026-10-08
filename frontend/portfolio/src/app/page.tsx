@@ -1,10 +1,7 @@
 import { Fragment } from "react";
 import { Mono } from "@/components/atoms/mono";
 import { HomeScreen } from "@/components/organisms/home-screen";
-import { getCategoriesOrEmpty, getProfileOrNull, getProjects } from "@/lib/api";
-
-// 백엔드 데이터를 요청마다 읽는다(빌드 시 백엔드가 없어도 된다).
-export const dynamic = "force-dynamic";
+import { getCategories, getProfileOrNull, getProjects } from "@/lib/api";
 
 /** 짧은 소개를 문장 단위로 나눠 히어로 슬라이드로 쓴다. */
 function sentences(text: string | null | undefined): string[] {
@@ -16,7 +13,7 @@ function sentences(text: string | null | undefined): string[] {
 }
 
 export default async function HomePage() {
-  const [profile, projects, categories] = await Promise.all([getProfileOrNull(), getProjects(), getCategoriesOrEmpty()]);
+  const [profile, projects, categories] = await Promise.all([getProfileOrNull(), getProjects(), getCategories()]);
   const projectCount = projects.featured.length + projects.others.length;
   const postCount = categories.reduce((sum, c) => sum + c.postCount, 0);
 

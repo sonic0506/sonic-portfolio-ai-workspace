@@ -12,7 +12,6 @@ import { extractHeadings, type DocHeading } from "@/lib/headings";
 import type { SkillGroupCode } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "소개" };
 
 // 그룹 표시명은 프론트에서 정한다(API_DESIGN).

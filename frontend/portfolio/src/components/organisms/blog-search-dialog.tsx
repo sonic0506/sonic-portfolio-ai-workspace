@@ -7,10 +7,12 @@ import { FileText, Search } from 'lucide-react';
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { blogPath } from '@/lib/blog';
-import type { BlogPostPage, BlogPostSummary } from '@/lib/types';
+import { usePosts } from '@/lib/queries';
+import type { BlogPostSummary } from '@/lib/types';
 
 // ponytail: 공개 글을 한 번에 최대 50건 받아 브라우저에서 거른다. 글이 더 늘면 서버 검색 API로 바꾼다.
-const SEARCH_URL = '/api/blog/posts?size=50';
+// 목록 캐시(ADR-0021)를 같이 써서 다시 열 때는 요청하지 않는다.
+const SEARCH_PARAMS = { size: 50 };
 
 function matches(post: BlogPostSummary, needle: string) {
   if (!needle) return true;
@@ -38,22 +40,11 @@ export function BlogSearchDialog({ open, onOpenChange }: { open: boolean; onOpen
 
 function SearchPanel({ onClose }: { onClose: () => void }) {
   const router = useRouter();
-  const [posts, setPosts] = useState<BlogPostSummary[] | null>(null);
-  const [failed, setFailed] = useState(false);
+  const { data, isError: failed } = usePosts(SEARCH_PARAMS);
+  const posts = data?.items ?? null;
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
   const listRef = useRef<HTMLUListElement>(null);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    fetch(SEARCH_URL, { signal: controller.signal })
-      .then((res) => (res.ok ? (res.json() as Promise<BlogPostPage>) : Promise.reject(new Error(String(res.status)))))
-      .then((page) => setPosts(page.items))
-      .catch(() => {
-        if (!controller.signal.aborted) setFailed(true);
-      });
-    return () => controller.abort();
-  }, []);
 
   const needle = query.trim().toLowerCase();
   const results = useMemo(() => (posts ?? []).filter((post) => matches(post, needle)), [posts, needle]);

@@ -13,7 +13,10 @@ import { getProject, getProjects } from "@/lib/api";
 import { extractHeadings } from "@/lib/headings";
 import { projectMeta, projectPath } from "@/lib/projects";
 
-export const dynamic = "force-dynamic";
+// 빌드 때는 만들지 않고 첫 방문 때 만들어 캐시한다(ISR, 주기는 layout).
+export async function generateStaticParams() {
+  return [];
+}
 
 export async function generateMetadata({ params }: PageProps<"/projects/[slug]">): Promise<Metadata> {
   const { slug } = await params;
