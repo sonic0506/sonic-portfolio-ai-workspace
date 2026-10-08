@@ -168,12 +168,13 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 요청 본문:
 
 ```json
-{"code":"web-serial","name":"Web Serial API","iconKey":null}
+{"code":"web-serial","name":"Web Serial API","iconKey":null,"iconUrl":null}
 ```
 
 - `code`: 필수, 60자 이하, 소문자·숫자와 하이픈(`[a-z0-9]+(-[a-z0-9]+)*`). 다른 기술과 중복이면 `409`
 - `name`: 필수, 100자 이하, 앞뒤 공백 제거
 - `iconKey`: 선택, 100자 이하, 공백만 있으면 `null`
+- `iconUrl`: 선택, 올린 로고 주소(ADR-0020). 있으면 `iconKey`보다 우선. 공개 `GET /api/skills`·프로필 기술에도 나온다
 
 검증: `AdminAccessPolicyTest`, `AdminSecurityTest`, `CsrfCookieTest`, `SkillAdminApiTest` (2026-09-16)
 
@@ -250,7 +251,7 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 ```json
 {"headline":"...","shortBio":"...","imageUrl":null,"githubUrl":"https://github.com/sonic0506","email":null,
  "careers":[{"company":"...","role":"...","periodStart":"2021-02-01","periodEnd":null,"description":null,
-   "employmentType":"정규직","position":null,
+   "employmentType":"정규직","position":null,"logoUrl":null,
    "achievements":[{"title":"VIORA","periodStart":"2026-07-01","periodEnd":"2026-09-01","job":null,"position":null,
      "bodyMarkdown":"...","projectId":12}]}],
  "skills":[{"skillId":1,"group":"PRIMARY"}],
@@ -308,3 +309,12 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 - 저장 시 RAG 문서(`FAQ`, 제목 "자주 묻는 질문: {질문}")로 투영되고 색인된다. 채팅 검색에 FAQ가 걸리면 먼저 같은 질문인지 판정하고(ADR-0014 후속 결정 2), 같으면 생성 없이 등록 답변을 `answer_delta` 한 번으로 보낸다. 출처는 `{type: "FAQ", slug: "faq-{id}", url: null}`이다.
 
 검증: `FaqAdminApiTest` (2026-09-17), RAG_MEASUREMENTS 측정 6
+
+### 이미지 업로드 (ADR-0020)
+
+- `POST /api/admin/media/uploads` `{fileName, contentType, sizeBytes, purpose}` → `201 {id, uploadUrl, headers{Content-Type}, publicUrl}`. 브라우저가 `uploadUrl`로 `PUT`(받은 헤더 그대로, 본문은 파일)하고 성공하면 `publicUrl`을 콘텐츠에 저장한다. 업로드 주소는 10분 유효.
+- `purpose`: `PROFILE | THUMBNAIL | CAREER_LOGO | SKILL_ICON | CONTENT`. 형식 jpg·png·webp·gif(svg는 `SKILL_ICON`만), 10MB 이하. 위반 `400`, 저장소 미설정 `503`.
+- `GET /api/admin/media?purpose=` → 최근 200건 `[{id, url, originalName, contentType, sizeBytes, purpose, createdAt}]`.
+- 공개 응답: 경력 `logoUrl`, 기술 `iconUrl`.
+
+검증: `MediaAdminApiTest`, `MediaUploadDisabledTest`, `S3UploadSignerTest`, `SkillAdminApiTest`, `ProfileAdminApiTest` (2026-10-08). 실제 S3 presigned PUT·CloudFront·CORS는 2026-10-08 실연 확인.

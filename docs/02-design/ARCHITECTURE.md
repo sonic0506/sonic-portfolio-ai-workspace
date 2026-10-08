@@ -60,7 +60,7 @@ Admin Web
 |---|---|---|
 | Authentication session details — 완료 | Admin 인증 구현 시 | [ADR-0010](../03-decisions/ADR-0010-admin-authentication.md): GitHub 숫자 ID 대조, 서버 세션 쿠키, 쿠키 CSRF 토큰. Admin 도메인/CORS는 ADR-0017(2026-10-04): admin은 같은 호스트 rewrite로 CORS 없음, CORS는 채팅에만 |
 | Graph library — 완료 | Graph View 구현 시 | [ADR-0015](../03-decisions/ADR-0015-graph-visualization.md): `react-force-graph-2d` + `d3-force`, `GET /api/graph` (2026-09-29) |
-| S3 region / access policy | 이미지 업로드 구현 시 | 본문 Markdown 저장은 `content_section.body_markdown`으로 DATA_MODEL에서 이미 결정됐다. 남은 것은 이미지 등 첨부 파일 정책이다 |
+| S3 region / access policy — 완료 | 이미지 업로드 구현 시 | [ADR-0020](../03-decisions/ADR-0020-image-upload-and-markdown-editor.md): 서울 비공개 버킷 + CloudFront(OAC) `images.sonic-portfolio.com`, presigned PUT(형식·크기 서명), 업로드 전용 IAM 키, `media` 테이블 (2026-10-08). 본문 Markdown은 `content_section.body_markdown` |
 
 이 문서는 위 표의 "구현 착수 전 필요" 항목이 해소되면 `Accepted`로 올린다. 나머지는 해당 기능 구현 시 ADR로 추가한다.
 

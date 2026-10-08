@@ -1,6 +1,6 @@
 # Images (S3) and Markdown Editor Implementation
 
-Status: In progress (2026-10-08, 사용자 승인: "추천대로 진행")
+Status: Implemented (2026-10-08, 사용자 승인: "추천대로 진행"). 남은 것: 로그인 상태 실제 업로드 확인, PR
 
 ## 결정 (계획 단계에서 사용자 확인)
 
@@ -37,7 +37,7 @@ Status: In progress (2026-10-08, 사용자 승인: "추천대로 진행")
 4. [x] 포트폴리오(2026-10-08): 경력 카드 로고 자리에 이미지, 프로필 기술 칩에 로고. 스택 태그(프로젝트 카드·블로그)는 sonic UI 규칙(아이콘 없이 보더만, `stack-tag.tsx`)대로 그대로 둔다
 5. [x] 공유 렌더러 패키지(2026-10-08) `frontend/markdown`(`@portfolio/markdown`; 워크스페이스 glob `frontend/*`에 맞춰 위치 변경): `Markdown`·`CodeBlock`·`remark-questions`·`headingId`. 사이트 전용 링크·추천 질문은 `slots`로 주입. 어드민 미리보기용 토큰은 `theme.css`(globals.css 일부 복사 — 값을 바꾸면 함께 바꾼다). 포트폴리오 기존 29건 통과
 6. [x] 에디터(2026-10-08, 어드민 26건) `MarkdownEditor`: 툴바(H3 H4 | B I S | 인용 링크 이미지 코드 | 표 목록 | 질문블록 문서링크), 단축키(⌘B ⌘I ⌘K), 이미지 붙여넣기·끌어놓기 업로드, 우측 미리보기(스크롤 따라감), 좁은 화면은 탭. 적용: 섹션 본문, 경력 성과 상세, FAQ 답변
-7. [ ] 문서·검증: ADR-0020, ADR-0001 S3 항목 해소, ARCHITECTURE Pending 갱신, 화면 확인, 운영 반영(S3 키 `.env` + 재배포)
+7. [x] 문서(2026-10-08): ADR-0020, ADR-0001 후속 메모, ARCHITECTURE Pending 완료 처리, DATA_MODEL·API_DESIGN 반영. 운영 백엔드(S3 키·V8)는 2026-10-08 반영 완료. 남은 검증: Vercel 어드민에서 로그인 후 실제 업로드(이미지 칸·에디터 붙여넣기)와 포트폴리오 표시
 
 ## 백엔드 구현 메모 (2026-10-08)
 

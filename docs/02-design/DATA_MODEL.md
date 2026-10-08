@@ -59,6 +59,7 @@ create table skill (
   code       text not null unique,   -- 참조 키: web-serial
   name       text not null,          -- 표시명: Web Serial API
   icon_key   text,
+  icon_url   text,                   -- V8, 올린 로고. 있으면 icon_key보다 우선 (ADR-0020)
   created_at timestamptz not null default now()
 );
 ```
@@ -88,6 +89,7 @@ create table career (
   description   text,          -- 경력 요약
   employment_type text,        -- V7, 고용형태 (ADR-0019)
   position      text,          -- V7, 직책. role은 직무
+  logo_url      text,          -- V8, 회사 로고 (ADR-0020)
   display_order int not null default 0
 );
 create index career_profile_id_idx on career (profile_id);
@@ -388,6 +390,10 @@ create index chat_message_source_document_idx on chat_message_source (document_i
 ### faq / faq_alias (V3, ADR-0014)
 
 관리자가 등록한 질문·답변. `document_type = 'FAQ'`로 투영된다. `faq_alias`는 같은 뜻의 다른 표현(현재 API 미노출, 투영에는 포함).
+
+### media (V8, ADR-0020)
+
+S3에 올린 이미지 기록. `object_key`(unique), `url`(공개 주소), `original_name`, `content_type`, `size_bytes`, `purpose`(`PROFILE | THUMBNAIL | CAREER_LOGO | SKILL_ICON | CONTENT`), `created_at`. 업로드 허가서를 만들 때 기록하므로 실제 업로드가 실패한 행도 남는다. 콘텐츠는 이 테이블을 참조하지 않고 주소 문자열을 저장한다(주소 직접 입력과 같은 모양).
 
 ## 5. 두지 않은 테이블
 

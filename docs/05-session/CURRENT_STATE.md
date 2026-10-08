@@ -8,7 +8,7 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 
 ## Confirmed
 
-- 2026-10-08 공유 마크다운 렌더러·어드민 에디터(이미지 계획 5·6단계): `frontend/markdown` 패키지를 포트폴리오 본문과 어드민 미리보기가 함께 쓴다. 어드민 `MarkdownEditor`(툴바·단축키·이미지 업로드·문서 링크·질문 블록·미리보기)를 섹션 본문·경력 성과·FAQ 답변에 적용. 포트폴리오 29·어드민 26건, lint·build 통과. 로그인 상태 실제 업로드는 미확인.
+- 2026-10-08 공유 마크다운 렌더러·어드민 에디터(이미지 계획 5·6단계): `frontend/markdown` 패키지를 포트폴리오 본문과 어드민 미리보기가 함께 쓴다. 어드민 `MarkdownEditor`(툴바·단축키·이미지 업로드·문서 링크·질문 블록·미리보기)를 섹션 본문·경력 성과·FAQ 답변에 적용. 포트폴리오 29·어드민 26건, lint·build 통과. 로그인 상태 실제 업로드는 미확인. 결정 기록은 ADR-0020(Accepted), `feat/images` → `main` PR 생성.
 
 - 2026-10-08 이미지 업로드 백엔드(ADR-0020 예정): presigned PUT 업로드 허가서 `POST /api/admin/media/uploads`, 목록 `GET /api/admin/media`, V8(`media`·`career.logo_url`·`skill.icon_url`), 키 없으면 업로드만 503. 백엔드 136건. 사용자 AWS 준비(`deploy/S3_SETUP.md`)와 어드민·포트폴리오·에디터는 남음.
 

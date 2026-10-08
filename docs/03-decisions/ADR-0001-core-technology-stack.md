@@ -51,3 +51,5 @@
 API Style은 설명/추천 단계이며 아직 사용자 확정 전이다.
 
 > 2026-09-16 후속: 위 Boot 3.5.x / AI 1.1.x 기준과 API Style 미확정 문장은 당시 기록이다. 현재 버전 기준은 [ADR-0009](ADR-0009-backend-build-baseline.md)(Boot 4.1.1 / AI 2.0.1), API Style은 [ADR-0008](ADR-0008-rest-and-chat-sse.md)을 따른다.
+
+> 2026-10-08 후속: S3 리전·접근 정책은 [ADR-0020](ADR-0020-image-upload-and-markdown-editor.md)으로 정했다(서울 비공개 버킷 + CloudFront, presigned PUT, 업로드 전용 IAM 키). Markdown 본문 저장은 `content_section.body_markdown`(DATA_MODEL), Graph 라이브러리는 [ADR-0015](ADR-0015-graph-visualization.md).
