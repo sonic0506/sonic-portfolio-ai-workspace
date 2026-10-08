@@ -94,6 +94,10 @@ class SampleSeederTest extends ApiTestSupport {
         // Dropped images (2) and the excluded fsd-notes pointer (1) are kept as admin notes.
         assertEquals(3, jdbc.queryForObject(
                 "select count(*) from blog_post where admin_note is not null", Integer.class));
+        // ADR-0019: content/profile.md carries careers with achievements linked to portfolio projects
+        assertEquals("2/11/11", jdbc.queryForObject("select (select count(*) from career) || '/'"
+                + " || (select count(*) from career_achievement) || '/'"
+                + " || (select count(*) from career_achievement where project_id is not null)", String.class));
         // ADR-0018: only the experience categories are chat evidence
         assertEquals(List.of("collaboration", "tech-choice", "troubleshooting"), jdbc.queryForList(
                 "select code from category where rag_enabled order by code", String.class));

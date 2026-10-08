@@ -85,10 +85,26 @@ create table career (
   role          text,
   period_start  date not null,
   period_end    date,          -- null = 재직 중
-  description   text,
+  description   text,          -- 경력 요약
+  employment_type text,        -- V7, 고용형태 (ADR-0019)
+  position      text,          -- V7, 직책. role은 직무
   display_order int not null default 0
 );
 create index career_profile_id_idx on career (profile_id);
+
+-- V7: 경력 아래 프로젝트별 주요 성과 (ADR-0019, 원티드식)
+create table career_achievement (
+  id            bigint generated always as identity primary key,
+  career_id     bigint not null references career(id) on delete cascade,
+  title         text not null,
+  period_start  date not null,
+  period_end    date,          -- null = 진행 중
+  job           text,          -- 직무
+  position      text,          -- 직책
+  body_markdown text,
+  project_id    bigint references project(id) on delete set null,
+  display_order int not null default 0
+);
 
 create table profile_skill (
   profile_id    bigint not null references profile(id) on delete cascade,

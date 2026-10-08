@@ -151,12 +151,27 @@ export type AdminBlogPostDetail = Omit<BlogPostRequest, 'references'> & {
 
 export type SkillGroup = 'PRIMARY' | 'PROJECT_EXPERIENCE' | 'LEARNING' | 'COLLABORATION'
 
+/** One project under a career (ADR-0019). projectId links a portfolio project. */
+export type Achievement = {
+  title: string
+  periodStart: string
+  periodEnd: string | null
+  job: string | null
+  position: string | null
+  bodyMarkdown: string | null
+  projectId: number | null
+}
+
+/** role is the job (직무), position the title (직책). */
 export type Career = {
   company: string
   role: string | null
   periodStart: string
   periodEnd: string | null
   description: string | null
+  employmentType: string | null
+  position: string | null
+  achievements: Achievement[]
 }
 
 export type ProfileRequest = {

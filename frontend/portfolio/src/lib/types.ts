@@ -64,12 +64,27 @@ export type BlogPostPage = { items: BlogPostSummary[]; page: number; size: numbe
 
 export type BlogPostDetail = BlogPostSummary & WithReferences & { sections: Section[] };
 
+/** 경력 아래 프로젝트별 주요 성과(ADR-0019). project는 공개 프로젝트에 연결됐을 때만 온다. */
+export type Achievement = {
+  title: string;
+  periodStart: string;
+  periodEnd: string | null;
+  job: string | null;
+  position: string | null;
+  bodyMarkdown: string | null;
+  project: { slug: string; title: string; url: string } | null;
+};
+
+/** role은 직무, position은 직책. */
 export type Career = {
   company: string;
   role: string | null;
   periodStart: string | null;
   periodEnd: string | null;
   description: string | null;
+  employmentType: string | null;
+  position: string | null;
+  achievements: Achievement[];
 };
 
 export type SkillGroupCode = "PRIMARY" | "PROJECT_EXPERIENCE" | "LEARNING" | "COLLABORATION";

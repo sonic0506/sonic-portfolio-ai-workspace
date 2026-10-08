@@ -107,15 +107,41 @@ export const SKILL_GROUPS: { value: SkillGroup; label: string }[] = [
   { value: 'COLLABORATION', label: '협업 도구' },
 ]
 
+// 원티드식 경력(ADR-0019): 경력 아래 프로젝트별 주요 성과. projectId는 '' 또는 프로젝트 id 문자열(select 값).
+export const achievementSchema = z
+  .object({
+    title: required(200, '성과명'),
+    periodStart: requiredDate,
+    periodEnd: optionalDate,
+    job: optional(100),
+    position: optional(100),
+    bodyMarkdown: optional(20000),
+    projectId: z.string(),
+  })
+  .superRefine(periodCheck)
+
 export const careerSchema = z
   .object({
     company: required(200, '회사'),
     role: optional(200),
+    employmentType: optional(100),
+    position: optional(100),
     periodStart: requiredDate,
     periodEnd: optionalDate,
     description: optional(5000),
+    achievements: z.array(achievementSchema),
   })
   .superRefine(periodCheck)
+
+export type CareerForm = z.infer<typeof careerSchema>
+export type AchievementForm = z.infer<typeof achievementSchema>
+
+export const emptyCareer = (): CareerForm => ({
+  company: '', role: '', employmentType: '', position: '', periodStart: '', periodEnd: '', description: '', achievements: [],
+})
+export const emptyAchievement = (): AchievementForm => ({
+  title: '', periodStart: '', periodEnd: '', job: '', position: '', bodyMarkdown: '', projectId: '',
+})
 
 export const profileSchema = z.object({
   headline: required(200, '한 줄 소개'),
@@ -233,8 +259,13 @@ export function profileToForm(p: AdminProfile): ProfileForm {
     headline: p.headline, shortBio: p.shortBio,
     imageUrl: orEmpty(p.imageUrl), githubUrl: orEmpty(p.githubUrl), email: orEmpty(p.email),
     careers: p.careers.map((c) => ({
-      company: c.company, role: orEmpty(c.role), periodStart: c.periodStart,
-      periodEnd: orEmpty(c.periodEnd), description: orEmpty(c.description),
+      company: c.company, role: orEmpty(c.role), employmentType: orEmpty(c.employmentType), position: orEmpty(c.position),
+      periodStart: c.periodStart, periodEnd: orEmpty(c.periodEnd), description: orEmpty(c.description),
+      achievements: (c.achievements ?? []).map((a) => ({
+        title: a.title, periodStart: a.periodStart, periodEnd: orEmpty(a.periodEnd), job: orEmpty(a.job),
+        position: orEmpty(a.position), bodyMarkdown: orEmpty(a.bodyMarkdown),
+        projectId: a.projectId === null ? '' : String(a.projectId),
+      })),
     })),
     skillGroups: groups,
     sections: p.sections,
@@ -246,8 +277,13 @@ export function profileToRequest(f: ProfileForm): ProfileRequest {
     headline: f.headline.trim(), shortBio: f.shortBio.trim(),
     imageUrl: orNull(f.imageUrl), githubUrl: orNull(f.githubUrl), email: orNull(f.email),
     careers: f.careers.map((c) => ({
-      company: c.company.trim(), role: orNull(c.role), periodStart: c.periodStart,
-      periodEnd: orNull(c.periodEnd), description: orNull(c.description),
+      company: c.company.trim(), role: orNull(c.role), employmentType: orNull(c.employmentType), position: orNull(c.position),
+      periodStart: c.periodStart, periodEnd: orNull(c.periodEnd), description: orNull(c.description),
+      achievements: c.achievements.map((a) => ({
+        title: a.title.trim(), periodStart: a.periodStart, periodEnd: orNull(a.periodEnd), job: orNull(a.job),
+        position: orNull(a.position), bodyMarkdown: orNull(a.bodyMarkdown),
+        projectId: a.projectId === '' ? null : Number(a.projectId),
+      })),
     })),
     skills: SKILL_GROUPS.flatMap(({ value }) => f.skillGroups[value].map((skillId) => ({ skillId, group: value }))),
     sections: f.sections.map((s) => ({ title: s.title.trim(), bodyMarkdown: s.bodyMarkdown })),

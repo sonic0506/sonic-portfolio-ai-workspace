@@ -14,7 +14,8 @@ public class IdChecks {
     public enum RefTable {
         SKILL("skill"),
         CATEGORY("category"),
-        TAG("tag");
+        TAG("tag"),
+        PROJECT("project");
 
         private final String table;
 

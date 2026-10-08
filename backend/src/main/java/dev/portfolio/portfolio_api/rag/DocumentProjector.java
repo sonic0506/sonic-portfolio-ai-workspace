@@ -3,10 +3,15 @@ package dev.portfolio.portfolio_api.rag;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Date;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -66,7 +71,48 @@ public class DocumentProjector {
         List<String> skills = jdbc.queryForList("""
                 select s.code from profile_skill ps join skill s on s.id = ps.skill_id
                 where ps.profile_id = ? order by ps.display_order, s.code""", String.class, profileId);
-        upsert(Type.PROFILE, profileId, "프로필", content("profile_id", profileId), true, "profile", skills);
+        String content = String.join("\n\n", Stream.of(content("profile_id", profileId),
+                careerContent(profileId)).filter(s -> !s.isBlank()).toList());
+        upsert(Type.PROFILE, profileId, "프로필", content, true, "profile", skills);
+    }
+
+    /**
+     * Careers and their achievements as "## " sections (ADR-0019), so each achievement is its own chunk
+     * with a heading like "슬로그업 · VIORA".
+     */
+    private String careerContent(long profileId) {
+        List<String> parts = new ArrayList<>();
+        jdbc.query("""
+                select id, company, role, period_start, period_end, description, employment_type, position
+                from career where profile_id = ? order by display_order, id""", rs -> {
+            String company = rs.getString("company");
+            parts.add("## 경력 · " + company + "\n\n"
+                    + facts(period(rs.getDate("period_start"), rs.getDate("period_end")),
+                            rs.getString("employment_type"), rs.getString("role"), rs.getString("position"))
+                    + optional(rs.getString("description")));
+            jdbc.query("""
+                    select title, period_start, period_end, job, position, body_markdown
+                    from career_achievement where career_id = ? order by display_order, id""", a -> {
+                parts.add("## " + company + " · " + a.getString("title") + "\n\n"
+                        + facts(period(a.getDate("period_start"), a.getDate("period_end")),
+                                a.getString("job"), a.getString("position"))
+                        + optional(a.getString("body_markdown")));
+            }, rs.getLong("id"));
+        }, profileId);
+        return String.join("\n\n", parts);
+    }
+
+    private static String period(Date start, Date end) {
+        DateTimeFormatter month = DateTimeFormatter.ofPattern("yyyy.MM");
+        return start.toLocalDate().format(month) + " - " + (end == null ? "현재" : end.toLocalDate().format(month));
+    }
+
+    private static String facts(String... values) {
+        return String.join(" · ", Arrays.stream(values).filter(v -> v != null && !v.isBlank()).toList());
+    }
+
+    private static String optional(String body) {
+        return body == null || body.isBlank() ? "" : "\n\n" + body.strip();
     }
 
     /** Title prefix the answer prompt relies on (ADR-0014). */
@@ -76,7 +122,7 @@ public class DocumentProjector {
     public void projectFaq(long faqId) {
         Map<String, Object> row = jdbc.queryForMap(
                 "select question, answer, published from faq where id = ?", faqId);
-        List<String> questions = new java.util.ArrayList<>();
+        List<String> questions = new ArrayList<>();
         questions.add((String) row.get("question"));
         questions.addAll(jdbc.queryForList(
                 "select question from faq_alias where faq_id = ? order by display_order, id", String.class, faqId));

@@ -135,7 +135,8 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 
 `headline, shortBio, imageUrl, githubUrl, email, careers[], skillGroups[], sections[]`. 프로필이 없으면 `404`.
 
-- `careers[{company, role, periodStart, periodEnd, description}]`: `display_order` → `period_start desc`
+- `careers[{company, role, periodStart, periodEnd, description, employmentType, position, achievements[]}]`: `display_order` → `period_start desc`. `role`은 직무, `position`은 직책, `description`은 경력 요약(ADR-0019).
+- `achievements[{title, periodStart, periodEnd, job, position, bodyMarkdown, project}]`: 등록 순서. `project{slug,title,url}`은 연결된 프로젝트가 공개일 때만, 아니면 `null`.
 - `skillGroups[{group, skills[]}]`: `PRIMARY` → `PROJECT_EXPERIENCE` → `LEARNING` → `COLLABORATION` 고정 순서, 빈 그룹 생략. 표시명은 프론트에서 정한다.
 
 검증: `ProjectApiTest`, `BlogApiTest`, `ProfileApiTest`, `SwaggerAccessTest` (2026-09-16)
@@ -248,7 +249,10 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 
 ```json
 {"headline":"...","shortBio":"...","imageUrl":null,"githubUrl":"https://github.com/sonic0506","email":null,
- "careers":[{"company":"...","role":"...","periodStart":"2021-02-01","periodEnd":null,"description":null}],
+ "careers":[{"company":"...","role":"...","periodStart":"2021-02-01","periodEnd":null,"description":null,
+   "employmentType":"정규직","position":null,
+   "achievements":[{"title":"VIORA","periodStart":"2026-07-01","periodEnd":"2026-09-01","job":null,"position":null,
+     "bodyMarkdown":"...","projectId":12}]}],
  "skills":[{"skillId":1,"group":"PRIMARY"}],
  "sections":[{"title":"소개","bodyMarkdown":"..."}]}
 ```

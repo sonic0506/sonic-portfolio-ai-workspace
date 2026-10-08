@@ -33,6 +33,12 @@ public class Career {
 
     private String description;
 
+    @Column(name = "employment_type")
+    private String employmentType;
+
+    /** 직책. role is the job (직무). */
+    private String position;
+
     @Column(name = "display_order", nullable = false)
     private int displayOrder;
 
@@ -46,5 +52,7 @@ public class Career {
     public LocalDate getPeriodStart() { return periodStart; }
     public LocalDate getPeriodEnd() { return periodEnd; }
     public String getDescription() { return description; }
+    public String getEmploymentType() { return employmentType; }
+    public String getPosition() { return position; }
     public int getDisplayOrder() { return displayOrder; }
 }

@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Controller, FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form'
+import { AchievementsEditor } from '@/components/achievements-editor'
 import { Field, FormSection } from '@/components/form'
 import { IdPicker } from '@/components/id-picker'
 import { ErrorText, PageTitle } from '@/components/layout'
@@ -15,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { keys, useSkills } from '@/features/content-queries'
 import {
   duplicateSkillIds,
+  emptyCareer,
   emptyProfile,
   profileSchema,
   profileToForm,
@@ -113,7 +115,7 @@ function ProfileEditor({ profile }: { profile: AdminProfile | null }) {
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => careers.append({ company: '', role: '', periodStart: '', periodEnd: '', description: '' })}
+              onClick={() => careers.append(emptyCareer())}
             >
               <Plus />
               경력 추가
@@ -132,6 +134,12 @@ function ProfileEditor({ profile }: { profile: AdminProfile | null }) {
                     </Field>
                     <Field label="직무" htmlFor={`careers.${i}.role`} error={ce?.role}>
                       <Input id={`careers.${i}.role`} {...register(`careers.${i}.role`)} />
+                    </Field>
+                    <Field label="고용형태" htmlFor={`careers.${i}.employmentType`} error={ce?.employmentType}>
+                      <Input id={`careers.${i}.employmentType`} placeholder="정규직" {...register(`careers.${i}.employmentType`)} />
+                    </Field>
+                    <Field label="직책" htmlFor={`careers.${i}.position`} error={ce?.position}>
+                      <Input id={`careers.${i}.position`} {...register(`careers.${i}.position`)} />
                     </Field>
                   </div>
                   <Button type="button" size="icon" variant="ghost" disabled={i === 0} onClick={() => careers.move(i, i - 1)} aria-label="위로">
@@ -166,9 +174,10 @@ function ProfileEditor({ profile }: { profile: AdminProfile | null }) {
                     <Input id={`careers.${i}.periodEnd`} type="date" {...register(`careers.${i}.periodEnd`)} />
                   </Field>
                 </div>
-                <Field label="설명" htmlFor={`careers.${i}.description`} error={ce?.description}>
-                  <Textarea id={`careers.${i}.description`} rows={2} {...register(`careers.${i}.description`)} />
+                <Field label="경력 요약" htmlFor={`careers.${i}.description`} error={ce?.description}>
+                  <Textarea id={`careers.${i}.description`} rows={3} {...register(`careers.${i}.description`)} />
                 </Field>
+                <AchievementsEditor careerIndex={i} />
               </div>
             )
           })}

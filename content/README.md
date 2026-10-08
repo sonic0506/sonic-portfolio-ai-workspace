@@ -6,7 +6,7 @@
 ./gradlew bootRun --args='--spring.profiles.active=local --app.seed.samples-dir=../content'
 ```
 
-형식은 `samples/`와 같다(front matter + `## ` 섹션, `skills.md`, `taxonomy.md`). `profile.md`가 없으므로 프로필은 건드리지 않는다. 운영 DB에 넣는 방법은 `deploy/README.md` 3절.
+형식은 `samples/`와 같다(front matter + `## ` 섹션, `skills.md`, `taxonomy.md`). 운영 DB에 넣는 방법은 `deploy/README.md` 3절.
 
 ## 다시 만들기 (2026-10-04)
 
@@ -54,6 +54,16 @@ python3 content/convert_wiki.py "/Users/hyeongkyupark/Downloads/원티드 프로
 - 작성일은 원본 저장소 `studies/<owner>__<도구>.md`의 `studiedAt`, 없으면 `data/registry.json`의 저장소 이름 + README가 git에 추가된 날. GitHub 주소도 여기서 가져온다.
 - 바뀌는 것은 제목 단계·지운 길 안내·링크 주소뿐이고, 그 셋을 걷어 내면 원문과 글자까지 같음을 확인했다.
 - 코드 블록은 ```` 처럼 더 긴 펜스로 ``` 를 감싸기도 해서, 변환기는 같은 문자·같거나 긴 펜스로만 블록을 닫는다. 시드(`SampleMarkdown`)도 코드 블록 안의 `## ` 줄로는 섹션을 나누지 않게 고쳤다(`rag-chunking` 예시 코드가 섹션으로 쪼개지던 문제).
+
+## 프로필 (`profile.md`, 2026-10-08)
+
+변환기가 만들지 않는 손으로 관리하는 파일이다(ADR-0019). 시드하면 프로필 전체를 교체하므로, 어드민에서 직접 고친 값은 먼저 이 파일로 옮긴다.
+
+- 기본값(한 줄 소개·소개글·GitHub·이메일·주력 기술)과 슬로그업 경력 줄·요약은 2026-10-08 운영 프로필 값이다.
+- 경력 아래 `achievements`(주요 성과)는 이력서 PDF의 경력란에서 추출했다: 슬로그업 9개, 프리랜서 2개. PDF가 글자 조각·글자 단위 줄바꿈으로 되어 있어 좌표로 줄을 합치고 줄바꿈 51+22곳을 문맥으로 검토했다(고친 띄어쓰기 9곳, 빠진 글자 1곳 "옵션", 합자 `ﬀ`→`ff` 3곳). 문장은 그대로다.
+- 성과 `body`는 원문의 `[주요 성과]`·`[사용 기술]` 표기를 그대로 둔 마크다운이다. 직무·직책은 원문에 없어 비웠다. VIORA의 `[사용 기술]`은 원문에 두 벌 있어 그대로 옮겼다.
+- `project`는 포트폴리오 프로젝트 slug(11개 모두 연결).
+- 본문 섹션은 없다(운영과 같음). 개발 DB의 옛 섹션(소개·프로젝트 이력 등, `samples/profile.md`)은 옮기지 않았다.
 
 ## 이전 변환 (2026-09-28)
 

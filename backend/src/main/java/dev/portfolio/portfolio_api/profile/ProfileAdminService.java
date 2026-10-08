@@ -4,6 +4,7 @@ import dev.portfolio.portfolio_api.content.IdChecks;
 import dev.portfolio.portfolio_api.content.IdChecks.RefTable;
 import dev.portfolio.portfolio_api.content.SectionQuery;
 import dev.portfolio.portfolio_api.content.SectionWriter;
+import dev.portfolio.portfolio_api.profile.ProfileAdminRequest.AchievementRequest;
 import dev.portfolio.portfolio_api.profile.ProfileAdminRequest.CareerRequest;
 import dev.portfolio.portfolio_api.profile.ProfileAdminRequest.SkillEntry;
 import dev.portfolio.portfolio_api.profile.ProfileAdminResponses.AdminProfileDetail;
@@ -11,6 +12,8 @@ import dev.portfolio.portfolio_api.rag.DocumentProjector;
 import java.sql.Date;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -64,25 +67,50 @@ public class ProfileAdminService {
     }
 
     private void validate(ProfileAdminRequest request) {
+        List<Long> projectIds = new ArrayList<>();
         for (CareerRequest c : request.careers()) {
             if (c.periodEnd() != null && c.periodEnd().isBefore(c.periodStart())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "career periodEnd must not be before periodStart");
             }
+            for (AchievementRequest a : c.achievementsOrEmpty()) {
+                if (a.periodEnd() != null && a.periodEnd().isBefore(a.periodStart())) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "achievement periodEnd must not be before periodStart");
+                }
+                if (a.projectId() != null && !projectIds.contains(a.projectId())) {
+                    projectIds.add(a.projectId());
+                }
+            }
         }
+        idChecks.requireExisting(RefTable.PROJECT, "careers.achievements.projectId", projectIds);
         idChecks.requireExisting(RefTable.SKILL, "skills.skillId",
                 request.skills().stream().map(SkillEntry::skillId).toList());
     }
 
     private void replaceChildren(long profileId, ProfileAdminRequest request) {
+        // Achievements go with their career (on delete cascade).
         jdbc.update("delete from career where profile_id = ?", profileId);
         for (int i = 0; i < request.careers().size(); i++) {
             CareerRequest c = request.careers().get(i);
-            jdbc.update("""
-                    insert into career (profile_id, company, role, period_start, period_end, description, display_order)
-                    values (?, ?, ?, ?, ?, ?, ?)""",
+            Long careerId = jdbc.queryForObject("""
+                    insert into career (profile_id, company, role, period_start, period_end, description,
+                                        employment_type, position, display_order)
+                    values (?, ?, ?, ?, ?, ?, ?, ?, ?) returning id""", Long.class,
                     profileId, c.company().trim(), blankToNull(c.role()), Date.valueOf(c.periodStart()),
-                    c.periodEnd() == null ? null : Date.valueOf(c.periodEnd()), blankToNull(c.description()), i);
+                    date(c.periodEnd()), blankToNull(c.description()), blankToNull(c.employmentType()),
+                    blankToNull(c.position()), i);
+            List<AchievementRequest> achievements = c.achievementsOrEmpty();
+            for (int j = 0; j < achievements.size(); j++) {
+                AchievementRequest a = achievements.get(j);
+                jdbc.update("""
+                        insert into career_achievement (career_id, title, period_start, period_end, job, position,
+                                                        body_markdown, project_id, display_order)
+                        values (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                        careerId, a.title().trim(), Date.valueOf(a.periodStart()), date(a.periodEnd()),
+                        blankToNull(a.job()), blankToNull(a.position()), blankToNull(a.bodyMarkdown()),
+                        a.projectId(), j);
+            }
         }
         jdbc.update("delete from profile_skill where profile_id = ?", profileId);
         for (int i = 0; i < request.skills().size(); i++) {
@@ -95,12 +123,12 @@ public class ProfileAdminService {
 
     private AdminProfileDetail toDetail(Profile p) {
         List<CareerRequest> careers = jdbc.query("""
-                        select company, role, period_start, period_end, description from career
-                        where profile_id = ? order by display_order, id""",
+                        select id, company, role, period_start, period_end, description, employment_type, position
+                        from career where profile_id = ? order by display_order, id""",
                 (rs, n) -> new CareerRequest(rs.getString("company"), rs.getString("role"),
-                        rs.getDate("period_start").toLocalDate(),
-                        rs.getDate("period_end") == null ? null : rs.getDate("period_end").toLocalDate(),
-                        rs.getString("description")),
+                        rs.getDate("period_start").toLocalDate(), localDate(rs.getDate("period_end")),
+                        rs.getString("description"), rs.getString("employment_type"), rs.getString("position"),
+                        achievements(rs.getLong("id"))),
                 p.getId());
         List<SkillEntry> skills = jdbc.query("""
                         select skill_id, skill_group from profile_skill
@@ -109,6 +137,24 @@ public class ProfileAdminService {
                 p.getId());
         return new AdminProfileDetail(p.getId(), p.getHeadline(), p.getShortBio(), p.getImageUrl(),
                 p.getGithubUrl(), p.getEmail(), p.getUpdatedAt(), careers, skills, sectionQuery.forProfile(p.getId()));
+    }
+
+    private List<AchievementRequest> achievements(long careerId) {
+        return jdbc.query("""
+                        select title, period_start, period_end, job, position, body_markdown, project_id
+                        from career_achievement where career_id = ? order by display_order, id""",
+                (rs, n) -> new AchievementRequest(rs.getString("title"), rs.getDate("period_start").toLocalDate(),
+                        localDate(rs.getDate("period_end")), rs.getString("job"), rs.getString("position"),
+                        rs.getString("body_markdown"), rs.getObject("project_id", Long.class)),
+                careerId);
+    }
+
+    private static Date date(LocalDate value) {
+        return value == null ? null : Date.valueOf(value);
+    }
+
+    private static LocalDate localDate(Date value) {
+        return value == null ? null : value.toLocalDate();
     }
 
     private static String blankToNull(String value) {

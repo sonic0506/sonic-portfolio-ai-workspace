@@ -70,7 +70,7 @@ export default async function ProfilePage() {
       {hasCareers && (
         <section id="career" className="mt-14 scroll-mt-6">
           <h2 className="font-display text-lg font-medium tracking-[-0.02em]">경력</h2>
-          <ol className="mt-6 flex flex-col gap-9 border-l border-border">
+          <ol className="mt-6 flex flex-col gap-14">
             {profile.careers.map((career) => (
               <CareerEntry key={`${career.company}-${career.periodStart}`} career={career} />
             ))}

@@ -3,6 +3,8 @@ import {
   blogPostSchema,
   duplicateSkillIds,
   emptyBlogPost,
+  emptyAchievement,
+  emptyCareer,
   emptyProfile,
   emptyProject,
   profileSchema,
@@ -92,9 +94,25 @@ describe('profileSchema', () => {
       headline: 'h',
       shortBio: 'b',
       email: 'not-an-email',
-      careers: [{ company: 'c', role: '', periodStart: '2024-02-01', periodEnd: '2023-01-01', description: '' }],
+      careers: [{ ...emptyCareer(), company: 'c', periodStart: '2024-02-01', periodEnd: '2023-01-01' }],
     })
     expect(paths(r)).toEqual(['email', 'careers.0.periodEnd'])
+  })
+
+  it('경력 아래 주요 성과를 검사하고 요청 모양으로 바꾼다 (ADR-0019)', () => {
+    const achievement = { ...emptyAchievement(), title: 'VIORA', periodStart: '2026-07-01', projectId: '7', job: ' 앱 개발 ' }
+    const career = { ...emptyCareer(), company: '슬로그업', periodStart: '2021-08-01', employmentType: '정규직', achievements: [achievement] }
+    const bad = profileSchema.safeParse({
+      ...emptyProfile(), headline: 'h', shortBio: 'b',
+      careers: [{ ...career, achievements: [{ ...achievement, title: '', periodEnd: '2026-01-01' }] }],
+    })
+    expect(paths(bad)).toEqual(['careers.0.achievements.0.title', 'careers.0.achievements.0.periodEnd'])
+
+    const request = profileToRequest({ ...emptyProfile(), headline: 'h', shortBio: 'b', careers: [career] })
+    expect(request.careers[0]).toMatchObject({ employmentType: '정규직', position: null })
+    expect(request.careers[0].achievements).toEqual([
+      { title: 'VIORA', periodStart: '2026-07-01', periodEnd: null, job: '앱 개발', position: null, bodyMarkdown: null, projectId: 7 },
+    ])
   })
 
   it('스킬 그룹을 고정 순서로 펼치고 중복을 찾는다', () => {

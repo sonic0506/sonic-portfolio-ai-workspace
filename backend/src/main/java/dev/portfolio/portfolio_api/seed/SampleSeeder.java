@@ -6,6 +6,7 @@ import dev.portfolio.portfolio_api.blog.TaxonomyAdmin.CategoryRequest;
 import dev.portfolio.portfolio_api.blog.TaxonomyAdmin.TagRequest;
 import dev.portfolio.portfolio_api.blog.TaxonomyAdminService;
 import dev.portfolio.portfolio_api.profile.ProfileAdminRequest;
+import dev.portfolio.portfolio_api.profile.ProfileAdminRequest.AchievementRequest;
 import dev.portfolio.portfolio_api.profile.ProfileAdminRequest.CareerRequest;
 import dev.portfolio.portfolio_api.profile.ProfileAdminRequest.SkillEntry;
 import dev.portfolio.portfolio_api.profile.ProfileAdminService;
@@ -177,12 +178,36 @@ public class SampleSeeder {
         }
     }
 
+    /** ADR-0019: achievements under a career; "project" is a project slug seeded earlier in this run. */
+    private List<AchievementRequest> achievements(SampleMarkdown md, Object raw) {
+        if (raw == null) {
+            return List.of();
+        }
+        List<AchievementRequest> result = new ArrayList<>();
+        for (Object item : (List<?>) raw) {
+            Map<?, ?> a = (Map<?, ?>) item;
+            Long projectId = null;
+            if (a.get("project") != null) {
+                projectId = idBySlug("project", String.valueOf(a.get("project")));
+                if (projectId == null) {
+                    throw new IllegalStateException(md.path() + ": achievement project '" + a.get("project") + "' not found");
+                }
+            }
+            result.add(new AchievementRequest(String.valueOf(a.get("title")),
+                    SampleMarkdown.date(a.get("period_start")), SampleMarkdown.date(a.get("period_end")),
+                    nullableText(a.get("job")), nullableText(a.get("position")), nullableText(a.get("body")),
+                    projectId));
+        }
+        return result;
+    }
+
     private void seedProfile(SampleMarkdown md, Map<String, Long> skillIdsByCode) {
         List<CareerRequest> careers = md.maps("careers").stream()
                 .map(c -> new CareerRequest(
                         String.valueOf(c.get("company")), nullableText(c.get("role")),
                         SampleMarkdown.date(c.get("period_start")), SampleMarkdown.date(c.get("period_end")),
-                        nullableText(c.get("description"))))
+                        nullableText(c.get("description")), nullableText(c.get("employment_type")),
+                        nullableText(c.get("position")), achievements(md, c.get("achievements"))))
                 .toList();
         List<SkillEntry> skillEntries = new ArrayList<>();
         md.map("skills").forEach((group, codes) -> {
