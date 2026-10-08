@@ -8,6 +8,8 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 
 ## Confirmed
 
+- 2026-10-08 이미지 업로드 백엔드(ADR-0020 예정): presigned PUT 업로드 허가서 `POST /api/admin/media/uploads`, 목록 `GET /api/admin/media`, V8(`media`·`career.logo_url`·`skill.icon_url`), 키 없으면 업로드만 503. 백엔드 136건. 사용자 AWS 준비(`deploy/S3_SETUP.md`)와 어드민·포트폴리오·에디터는 남음.
+
 - 2026-10-08 원티드식 경력(사용자 결정, ADR-0019): V7 `career.employment_type`·`position`, 새 `career_achievement`(성과명·기간·직무·직책·마크다운 상세·프로젝트 연결). 관리·공개 API `careers[].achievements[]`(연결은 공개 프로젝트만), 프로필 채팅 문서에 경력·성과 섹션, 시드 지원, 어드민 성과 편집기, 포트폴리오 원티드식 경력 화면(로고 자리·메타 줄·재직 기간). `content/profile.md` 신규: 운영 프로필 값 + 이력서 PDF의 슬로그업 9·프리랜서 2 성과(11개 모두 프로젝트 연결). 백엔드 129·어드민 16·포트폴리오 28건, lint·build, 임시 DB 시드와 화면 확인. 운영 미반영(재배포 + 프로필 시드 필요, 운영 프로필 덮어씀).
 
 - 2026-10-08 운영 배포 진행(사용자 실행): Lightsail 서버·고정 IP·방화벽·Route 53 `api` 레코드·Docker 스택 기동, 새 이미지 재배포(V6), 운영 DB 시드 완료. 공개 API 확인: health UP, 프로젝트 13(featured ai-portfolio·viora·bring-and-t), 블로그 98·카테고리 9개 글 수 일치, `rag-chunking` 섹션·참고 관계 정상. 남은 것: Vercel 2개 프로젝트, `www`·`admin` DNS, 운영 채팅·관리자 로그인 확인.

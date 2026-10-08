@@ -6,9 +6,13 @@ Last Updated: 2026-10-08
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
+## Priority 0-B — 이미지 업로드(S3)와 마크다운 에디터 (2026-10-08 승인)
+
+계획과 결정: `docs/04-plans/IMAGES_AND_EDITOR_IMPLEMENTATION.md`. 사용자 콘솔 작업: `deploy/S3_SETUP.md`(버킷·CORS·IAM 업로드 키·ACM·CloudFront·Route 53). 백엔드는 2026-10-08 완료(136건). 남은 코드: 어드민 이미지 칸 → 포트폴리오 로고 → 공유 렌더러 → 에디터 순.
+
 ## Priority 0-A — Vercel 배포와 운영 확인 (2026-10-08 운영 시드 완료)
 
-0-1. ADR-0019 운영 반영: 이미지 재배포(V7) 후 `content/profile.md` 시드. 운영 프로필을 덮어쓰므로 시드 전 스냅샷, 어드민에서 고친 값이 있으면 먼저 파일로 옮긴다. 시드 후 프로필 화면·"슬로그업에서 한 일" 채팅 확인. 성과의 직무·직책은 어드민에서 채운다.
+0-1. (완료 2026-10-08) ADR-0019 운영 반영: 재배포(V7) → pg_dump 백업 → 프로필 시드, 색인 READY 112, 운영 채팅이 경력 질문에 프로필을 근거로 답함. 남은 것: 성과의 직무·직책 입력, 쓰지 않는 SSH 허용 IP 정리.
 0. (완료 2026-10-08) HNSW 반복 스캔 수정 재배포 후 운영 채팅 출처 확인: `/projects/ai-portfolio`와 경험 글 3개만, 학습 노트 없음.
 1. Vercel portfolio·admin 프로젝트 생성(deploy/README.md "Vercel 설정"), 도메인 연결 후 Route 53에 `www`·`admin`·apex 레코드.
 2. 운영 확인: 채팅이 경험 글만 출처로 쓰는지(ADR-0018), 관리자 로그인(Vercel rewrite 쿠키 전달), 어드민 "채팅 반영" 체크박스, 질문 제한 IP.

@@ -663,3 +663,11 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 검증: 백엔드 129·어드민 16·포트폴리오 28건, lint·build. 임시 DB 시드(profile=true), 프로필 화면에서 메타 줄·성과 9개·프로젝트 링크·콘솔 오류 없음 확인.
 - 문서: ADR-0019, DATA_MODEL, API_DESIGN, content/README.
 - 남은 것: 운영 반영(재배포 + 프로필 시드), 성과 직무·직책 입력, 로고 이미지(이미지 업로드 기능 후).
+- 같은 날 운영 반영(사용자 요청으로 터미널에서 직접 실행): SSH 허용 IP 추가와 스냅샷은 사용자가 콘솔에서(AWS CLI 없음). 운영 이미지 `prev` 태그 → amd64 빌드·전송 → API 교체, V7 적용·health UP. 시드 전 `pg_dump` 백업(15MB, scratchpad, 저장소 밖). SSH 터널로 시드: `profile=true`, 색인 READY 112, 경력 2·성과 11·연결 11. 공개 API로 확인, "슬로그업에서 어떤 프로젝트를 했나요?" 채팅이 `/profile`을 출처로 답함(unanswered=false). 시드 프로세스·터널 정리.
+
+## 2026-10-08 — 이미지 업로드(S3)·마크다운 에디터 계획과 백엔드
+
+- 사용자 요청: S3 이미지 업로드(프로필·기술 로고 등)와 어드민 마크다운 에디터(툴바+미리보기, velog 형태). `/ecc:plan` 후 "추천대로"(I1 CloudFront+비공개 버킷, I2 media 테이블, I3 jpg·png·webp·gif 10MB·svg는 기술 로고만, I4 업로드+주소 입력, E1 입력창+툴바, E2 H3·H4, E3 공유 렌더러 패키지, E4 질문 블록·문서 링크). 계획 `docs/04-plans/IMAGES_AND_EDITOR_IMPLEMENTATION.md`, 사용자 콘솔 작업 `deploy/S3_SETUP.md`.
+- 설계 변경: Java SDK v2에 presigned POST가 없어 presigned PUT(Content-Type·Content-Length 서명)으로. S3 CORS는 PUT.
+- 백엔드: AWS SDK BOM 2.55.12 `s3`, `media` 패키지(`MediaAdminController`·`MediaAdminService`·`UploadSigner`·`S3UploadSigner`·`MediaPurpose`), V8(`media`, `career.logo_url`, `skill.icon_url`), 설정 `app.media.*`, 기술 `iconUrl`·경력 `logoUrl` API, 시드가 기술 아이콘을 null로 덮어쓰던 문제 수정. 테스트 7건 추가(서명 헤더, 업로드 허가서·형식·크기·목록·권한, 미설정 503, 기술·경력 로고, 재시드 유지, 스키마 24테이블·V8). 백엔드 136건 통과.
+- 남은 것: 사용자 AWS 준비, 어드민 이미지 칸, 포트폴리오 로고 표시, 공유 렌더러, 에디터, ADR-0020, 운영 반영.
