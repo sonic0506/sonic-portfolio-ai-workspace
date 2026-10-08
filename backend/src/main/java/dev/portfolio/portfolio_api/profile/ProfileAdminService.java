@@ -95,11 +95,11 @@ public class ProfileAdminService {
             CareerRequest c = request.careers().get(i);
             Long careerId = jdbc.queryForObject("""
                     insert into career (profile_id, company, role, period_start, period_end, description,
-                                        employment_type, position, display_order)
-                    values (?, ?, ?, ?, ?, ?, ?, ?, ?) returning id""", Long.class,
+                                        employment_type, position, logo_url, display_order)
+                    values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id""", Long.class,
                     profileId, c.company().trim(), blankToNull(c.role()), Date.valueOf(c.periodStart()),
                     date(c.periodEnd()), blankToNull(c.description()), blankToNull(c.employmentType()),
-                    blankToNull(c.position()), i);
+                    blankToNull(c.position()), blankToNull(c.logoUrl()), i);
             List<AchievementRequest> achievements = c.achievementsOrEmpty();
             for (int j = 0; j < achievements.size(); j++) {
                 AchievementRequest a = achievements.get(j);
@@ -123,12 +123,13 @@ public class ProfileAdminService {
 
     private AdminProfileDetail toDetail(Profile p) {
         List<CareerRequest> careers = jdbc.query("""
-                        select id, company, role, period_start, period_end, description, employment_type, position
+                        select id, company, role, period_start, period_end, description, employment_type, position,
+                               logo_url
                         from career where profile_id = ? order by display_order, id""",
                 (rs, n) -> new CareerRequest(rs.getString("company"), rs.getString("role"),
                         rs.getDate("period_start").toLocalDate(), localDate(rs.getDate("period_end")),
                         rs.getString("description"), rs.getString("employment_type"), rs.getString("position"),
-                        achievements(rs.getLong("id"))),
+                        achievements(rs.getLong("id")), rs.getString("logo_url")),
                 p.getId());
         List<SkillEntry> skills = jdbc.query("""
                         select skill_id, skill_group from profile_skill

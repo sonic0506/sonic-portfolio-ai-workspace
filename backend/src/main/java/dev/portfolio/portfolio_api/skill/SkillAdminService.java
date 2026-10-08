@@ -22,7 +22,8 @@ public class SkillAdminService {
         if (skills.existsByCode(request.code())) {
             throw conflict("skill code already exists");
         }
-        Skill skill = skills.saveAndFlush(new Skill(request.code(), request.name().trim(), request.normalizedIconKey()));
+        Skill skill = skills.saveAndFlush(new Skill(request.code(), request.name().trim(), request.normalizedIconKey(),
+                request.normalizedIconUrl()));
         return SkillResponse.from(skill);
     }
 
@@ -31,7 +32,7 @@ public class SkillAdminService {
         if (skills.existsByCodeAndIdNot(request.code(), id)) {
             throw conflict("skill code already exists");
         }
-        skill.update(request.code(), request.name().trim(), request.normalizedIconKey());
+        skill.update(request.code(), request.name().trim(), request.normalizedIconKey(), request.normalizedIconUrl());
         return SkillResponse.from(skills.saveAndFlush(skill));
     }
 

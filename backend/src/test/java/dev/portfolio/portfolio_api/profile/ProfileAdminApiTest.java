@@ -86,7 +86,8 @@ class ProfileAdminApiTest extends ApiTestSupport {
         long draft = insertReturningId("insert into project (slug, title, summary, period_start, published)"
                 + " values ('pf-draft', '비공개', 's', '2026-01-01', false)");
         String careers = ("[{\"company\":\"슬로그업\",\"role\":\"FE 개발자\",\"periodStart\":\"2021-08-01\",\"periodEnd\":null,"
-                + "\"description\":\"요약\",\"employmentType\":\"정규직\",\"position\":\"챕터 리드\",\"achievements\":["
+                + "\"description\":\"요약\",\"employmentType\":\"정규직\",\"position\":\"챕터 리드\","
+                + "\"logoUrl\":\"https://images.example.com/images/slogup.png\",\"achievements\":["
                 + "{\"title\":\"VIORA\",\"periodStart\":\"2026-07-01\",\"periodEnd\":\"2026-09-01\",\"job\":\"앱 개발\","
                 + "\"position\":null,\"bodyMarkdown\":\"[주요 성과]\\n- 처리 위치 제안\",\"projectId\":%d},"
                 + "{\"title\":\"비공개 작업\",\"periodStart\":\"2026-01-01\",\"projectId\":%d}]}]").formatted(viora, draft);
@@ -97,6 +98,7 @@ class ProfileAdminApiTest extends ApiTestSupport {
 
         mockMvc.perform(get("/api/profile"))
                 .andExpect(jsonPath("$.careers[0].position").value("챕터 리드"))
+                .andExpect(jsonPath("$.careers[0].logoUrl").value("https://images.example.com/images/slogup.png"))
                 .andExpect(jsonPath("$.careers[0].achievements[0].job").value("앱 개발"))
                 .andExpect(jsonPath("$.careers[0].achievements[0].bodyMarkdown").value("[주요 성과]\n- 처리 위치 제안"))
                 .andExpect(jsonPath("$.careers[0].achievements[0].project.url").value("/projects/pf-viora"))

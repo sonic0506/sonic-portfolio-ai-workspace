@@ -35,6 +35,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	implementation 'org.flywaydb:flyway-database-postgresql'
 	implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+	// Image uploads (ADR-0020): presigned S3 PUT only, the SDK never uploads bytes itself
+	implementation platform('software.amazon.awssdk:bom:2.55.12')
+	implementation 'software.amazon.awssdk:s3'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.1'
 	implementation 'org.yaml:snakeyaml'
 	implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'

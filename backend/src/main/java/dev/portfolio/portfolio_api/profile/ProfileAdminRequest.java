@@ -33,7 +33,9 @@ public record ProfileAdminRequest(
             @Size(max = 5000) String description,
             @Size(max = 100) String employmentType,
             @Size(max = 100) String position,
-            @Valid List<AchievementRequest> achievements) {
+            @Valid List<AchievementRequest> achievements,
+            /** Company logo (ADR-0020); null keeps the first-letter placeholder. */
+            @Size(max = 500) @Pattern(regexp = "https?://\\S+") String logoUrl) {
 
         public List<AchievementRequest> achievementsOrEmpty() {
             return achievements == null ? List.of() : achievements;

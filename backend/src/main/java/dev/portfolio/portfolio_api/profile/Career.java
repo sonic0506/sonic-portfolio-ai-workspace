@@ -39,6 +39,9 @@ public class Career {
     /** 직책. role is the job (직무). */
     private String position;
 
+    @Column(name = "logo_url")
+    private String logoUrl;
+
     @Column(name = "display_order", nullable = false)
     private int displayOrder;
 
@@ -54,5 +57,6 @@ public class Career {
     public String getDescription() { return description; }
     public String getEmploymentType() { return employmentType; }
     public String getPosition() { return position; }
+    public String getLogoUrl() { return logoUrl; }
     public int getDisplayOrder() { return displayOrder; }
 }

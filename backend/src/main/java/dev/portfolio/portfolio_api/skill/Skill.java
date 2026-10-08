@@ -25,6 +25,10 @@ public class Skill {
     @Column(name = "icon_key")
     private String iconKey;
 
+    /** Uploaded logo (ADR-0020); when set it wins over the simple-icons iconKey. */
+    @Column(name = "icon_url")
+    private String iconUrl;
+
     // DB default now(); the application never writes it.
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     private Instant createdAt;
@@ -32,16 +36,15 @@ public class Skill {
     protected Skill() {
     }
 
-    public Skill(String code, String name, String iconKey) {
-        this.code = code;
-        this.name = name;
-        this.iconKey = iconKey;
+    public Skill(String code, String name, String iconKey, String iconUrl) {
+        update(code, name, iconKey, iconUrl);
     }
 
-    public void update(String code, String name, String iconKey) {
+    public void update(String code, String name, String iconKey, String iconUrl) {
         this.code = code;
         this.name = name;
         this.iconKey = iconKey;
+        this.iconUrl = iconUrl;
     }
 
     public Long getId() {
@@ -58,6 +61,10 @@ public class Skill {
 
     public String getIconKey() {
         return iconKey;
+    }
+
+    public String getIconUrl() {
+        return iconUrl;
     }
 
     public Instant getCreatedAt() {

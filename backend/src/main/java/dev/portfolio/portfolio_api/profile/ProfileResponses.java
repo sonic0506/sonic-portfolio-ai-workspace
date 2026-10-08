@@ -18,7 +18,7 @@ public final class ProfileResponses {
 
     public record CareerResponse(
             String company, String role, LocalDate periodStart, LocalDate periodEnd, String description,
-            String employmentType, String position, List<AchievementResponse> achievements) {
+            String employmentType, String position, List<AchievementResponse> achievements, String logoUrl) {
     }
 
     /** project is set only when the linked project is published. */

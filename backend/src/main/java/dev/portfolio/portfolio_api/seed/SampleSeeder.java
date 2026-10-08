@@ -207,7 +207,8 @@ public class SampleSeeder {
                         String.valueOf(c.get("company")), nullableText(c.get("role")),
                         SampleMarkdown.date(c.get("period_start")), SampleMarkdown.date(c.get("period_end")),
                         nullableText(c.get("description")), nullableText(c.get("employment_type")),
-                        nullableText(c.get("position")), achievements(md, c.get("achievements"))))
+                        nullableText(c.get("position")), achievements(md, c.get("achievements")),
+                        nullableText(c.get("logo_url"))))
                 .toList();
         List<SkillEntry> skillEntries = new ArrayList<>();
         md.map("skills").forEach((group, codes) -> {
@@ -252,10 +253,15 @@ public class SampleSeeder {
         return documentId;
     }
 
+    /** skills.md has no icons, so a reseed keeps the icon key and uploaded logo set in the admin. */
     private long upsertSkill(String code, String name) {
         Long id = idByCode("skill", code);
-        var request = new SkillRequest(code, name, null);
-        return id == null ? skills.create(request).id() : skills.update(id, request).id();
+        if (id == null) {
+            return skills.create(new SkillRequest(code, name, null, null)).id();
+        }
+        Map<String, Object> icons = jdbc.queryForMap("select icon_key, icon_url from skill where id = ?", id);
+        return skills.update(id, new SkillRequest(code, name, (String) icons.get("icon_key"),
+                (String) icons.get("icon_url"))).id();
     }
 
     private long upsertCategory(String code, String name, int order, String color, boolean ragEnabled) {

@@ -8,9 +8,14 @@ import jakarta.validation.constraints.Size;
 public record SkillRequest(
         @NotBlank @Size(max = 60) @Pattern(regexp = "[a-z0-9]+(-[a-z0-9]+)*") String code,
         @NotBlank @Size(max = 100) String name,
-        @Size(max = 100) String iconKey) {
+        @Size(max = 100) String iconKey,
+        @Size(max = 500) @Pattern(regexp = "https?://\\S+") String iconUrl) {
 
     String normalizedIconKey() {
         return iconKey == null || iconKey.isBlank() ? null : iconKey.trim();
+    }
+
+    String normalizedIconUrl() {
+        return iconUrl == null || iconUrl.isBlank() ? null : iconUrl.trim();
     }
 }

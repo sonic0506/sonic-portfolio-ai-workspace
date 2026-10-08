@@ -68,10 +68,13 @@ class SkillAdminApiTest extends ApiTestSupport {
         skill("adm-vue", "Vue");
         mockMvc.perform(put("/api/admin/skills/{id}", id).with(admin()).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"code\":\"adm-react\",\"name\":\"React 19\",\"iconKey\":\"react\"}"))
+                        .content("{\"code\":\"adm-react\",\"name\":\"React 19\",\"iconKey\":\"react\","
+                                + "\"iconUrl\":\"https://images.example.com/images/react.svg\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("React 19"))
-                .andExpect(jsonPath("$.iconKey").value("react"));
+                .andExpect(jsonPath("$.iconKey").value("react"))
+                // ADR-0020: an uploaded logo travels with the skill
+                .andExpect(jsonPath("$.iconUrl").value("https://images.example.com/images/react.svg"));
         mockMvc.perform(put("/api/admin/skills/{id}", id).with(admin()).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"code\":\"adm-vue\",\"name\":\"React\"}"))

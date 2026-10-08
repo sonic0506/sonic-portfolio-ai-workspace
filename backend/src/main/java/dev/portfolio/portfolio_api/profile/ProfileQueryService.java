@@ -57,7 +57,7 @@ public class ProfileQueryService {
                 .stream()
                 .map(c -> new CareerResponse(
                         c.getCompany(), c.getRole(), c.getPeriodStart(), c.getPeriodEnd(), c.getDescription(),
-                        c.getEmploymentType(), c.getPosition(), achievements(c.getId())))
+                        c.getEmploymentType(), c.getPosition(), achievements(c.getId()), c.getLogoUrl()))
                 .toList();
 
         Map<SkillGroup, List<SkillResponse>> byGroup = queryFactory.select(profileSkill.skillGroup, skill)

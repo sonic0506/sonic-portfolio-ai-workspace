@@ -98,6 +98,11 @@ class SampleSeederTest extends ApiTestSupport {
         assertEquals("2/11/11", jdbc.queryForObject("select (select count(*) from career) || '/'"
                 + " || (select count(*) from career_achievement) || '/'"
                 + " || (select count(*) from career_achievement where project_id is not null)", String.class));
+        // ADR-0020: a reseed keeps the logo uploaded in the admin (skills.md has no icons)
+        jdbc.update("update skill set icon_url = 'https://images.example.com/react.svg' where code = 'react'");
+        seeder.seed(SAMPLES.resolveSibling("content"));
+        assertEquals("https://images.example.com/react.svg",
+                jdbc.queryForObject("select icon_url from skill where code = 'react'", String.class));
         // ADR-0018: only the experience categories are chat evidence
         assertEquals(List.of("collaboration", "tech-choice", "troubleshooting"), jdbc.queryForList(
                 "select code from category where rag_enabled order by code", String.class));
