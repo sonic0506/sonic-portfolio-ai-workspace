@@ -4,7 +4,7 @@ import remarkDirective from "remark-directive";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
-import { remarkQuestions } from "./remark-questions";
+import { remarkQuestions } from "@portfolio/markdown";
 
 const render = (md: string) =>
   String(

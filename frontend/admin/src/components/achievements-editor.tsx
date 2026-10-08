@@ -1,9 +1,9 @@
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
-import { useFieldArray, useFormContext } from 'react-hook-form'
+import { Controller, useFieldArray, useFormContext } from 'react-hook-form'
 import { Field } from '@/components/form'
+import { MarkdownEditor } from '@/components/markdown-editor'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { useProjects } from '@/features/content-queries'
 import { emptyAchievement, type ProfileForm } from '@/features/content-schemas'
 
@@ -80,7 +80,13 @@ export function AchievementsEditor({ careerIndex }: { careerIndex: number }) {
                 </select>
               </Field>
               <Field label="상세 내용 (마크다운)" htmlFor={id('bodyMarkdown')} error={ae?.bodyMarkdown}>
-                <Textarea id={id('bodyMarkdown')} rows={10} {...register(`careers.${careerIndex}.achievements.${j}.bodyMarkdown`)} />
+                <Controller
+                  control={control}
+                  name={`careers.${careerIndex}.achievements.${j}.bodyMarkdown`}
+                  render={({ field }) => (
+                    <MarkdownEditor id={id('bodyMarkdown')} value={field.value} onChange={field.onChange} invalid={!!ae?.bodyMarkdown} />
+                  )}
+                />
               </Field>
             </div>
           </details>

@@ -5,6 +5,8 @@ import type { NextConfig } from "next";
 const apiBaseUrl = process.env.API_BASE_URL ?? "http://127.0.0.1:8080";
 
 const nextConfig: NextConfig = {
+  // 워크스페이스 패키지는 TS 원본 그대로 가져온다.
+  transpilePackages: ["@portfolio/markdown"],
   async rewrites() {
     return [{ source: "/api/:path*", destination: `${apiBaseUrl}/api/:path*` }];
   },

@@ -3,8 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check, Copy } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
-
 /** 복사했다는 표시를 유지하는 시간. */
 const COPIED_MS = 1500;
 
@@ -182,10 +180,7 @@ export function CodeBlock({ code, lang }: CodeBlockProps) {
           type="button"
           onClick={handleCopy}
           aria-label={copied ? '복사됨' : '코드 복사'}
-          className={cn(
-            'flex size-6 cursor-pointer items-center justify-center rounded-xs text-text-2 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-surface-hi hover:text-text-1 focus-visible:opacity-100',
-            copied && 'opacity-100',
-          )}
+          className={`flex size-6 cursor-pointer items-center justify-center rounded-xs text-text-2 transition-opacity group-hover:opacity-100 hover:bg-surface-hi hover:text-text-1 focus-visible:opacity-100 ${copied ? 'opacity-100' : 'opacity-0'}`}
         >
           {copied ? (
             <Check className="size-[13px]" strokeWidth={1.5} />

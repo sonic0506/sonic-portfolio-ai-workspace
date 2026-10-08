@@ -1,13 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { ErrorText, PageTitle } from '@/components/layout'
 import { Loading, Spinner } from '@/components/loading'
+import { MarkdownEditor } from '@/components/markdown-editor'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { faqSchema, type FaqFormValues } from '@/features/faq-schema'
 import { api } from '@/lib/api'
 import type { Faq, FaqRequest } from '@/lib/types'
@@ -64,12 +64,18 @@ function FaqForm({ faq }: { faq?: Faq }) {
           저장하면 답하지 못한 질문 #{fromId}이(가) 해결로 바뀝니다.
         </p>
       )}
-      <form className="max-w-2xl space-y-5" onSubmit={form.handleSubmit((values) => save.mutate(values))} noValidate>
+      <form className="max-w-5xl space-y-5" onSubmit={form.handleSubmit((values) => save.mutate(values))} noValidate>
         <Field label="질문" htmlFor="question" error={errors.question?.message}>
           <Input id="question" aria-invalid={!!errors.question} {...form.register('question')} />
         </Field>
         <Field label="답변" htmlFor="answer" error={errors.answer?.message}>
-          <Textarea id="answer" rows={6} aria-invalid={!!errors.answer} {...form.register('answer')} />
+          <Controller
+            control={form.control}
+            name="answer"
+            render={({ field }) => (
+              <MarkdownEditor id="answer" value={field.value} onChange={field.onChange} invalid={!!errors.answer} />
+            )}
+          />
         </Field>
         <div className="flex flex-wrap items-end gap-6">
           <Field label="표시 순서" htmlFor="displayOrder" error={errors.displayOrder?.message}>

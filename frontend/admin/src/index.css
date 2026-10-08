@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* 마크다운 미리보기: 포트폴리오와 같은 렌더러·토큰(frontend/markdown) */
+@import "@portfolio/markdown/theme.css";
 
 /* shadcn/ui 테마 토큰 (neutral). components.json과 맞춘다. */
 :root {

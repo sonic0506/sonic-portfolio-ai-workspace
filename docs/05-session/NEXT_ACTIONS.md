@@ -8,7 +8,7 @@ Last Updated: 2026-10-08
 
 ## Priority 0-B — 이미지 업로드(S3)와 마크다운 에디터 (2026-10-08 승인)
 
-계획과 결정: `docs/04-plans/IMAGES_AND_EDITOR_IMPLEMENTATION.md`. 사용자 콘솔 작업: `deploy/S3_SETUP.md`(버킷·CORS·IAM 업로드 키·ACM·CloudFront·Route 53). 백엔드는 2026-10-08 완료(136건). 남은 코드: 어드민 이미지 칸 → 포트폴리오 로고 → 공유 렌더러 → 에디터 순.
+계획과 결정: `docs/04-plans/IMAGES_AND_EDITOR_IMPLEMENTATION.md`. 사용자 콘솔 작업: `deploy/S3_SETUP.md`(버킷·CORS·IAM 업로드 키·ACM·CloudFront·Route 53). 백엔드는 2026-10-08 완료(136건). 어드민 이미지 칸·포트폴리오 로고·공유 렌더러(`frontend/markdown`)·에디터까지 완료(2026-10-08). 남은 것: 7단계(ADR-0020, ADR-0001 S3 항목, ARCHITECTURE Pending, PR), 로그인한 어드민에서 에디터 이미지 붙여넣기·끌어놓기 업로드 확인. Vercel은 Root Directory 밖의 `frontend/markdown`을 읽어야 하므로 "Include files outside the root directory"(기본 켜짐)를 끄지 않는다.
 
 ## Priority 0-A — Vercel 배포와 운영 확인 (2026-10-08 운영 시드 완료)
 

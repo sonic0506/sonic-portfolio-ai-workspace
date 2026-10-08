@@ -1,0 +1,46 @@
+/*
+ * 렌더러가 쓰는 sonic 토큰(portfolio/src/app/globals.css의 일부). 포트폴리오는 자기 globals.css를 쓰고,
+ * 어드민은 이 파일로 미리보기를 포트폴리오와 같은 색·크기로 그린다. 값을 바꾸면 globals.css도 함께 바꾼다.
+ */
+:root {
+  --s-surface: #f7f7f8;
+  --s-surface-hi: #efeff1;
+  --s-text-1: #18181b;
+  --s-text-2: #52525b;
+  --s-text-3: #8b8b94;
+  --s-accent-text: #2f5bc4;
+  --s-accent-line: rgb(63 111 217 / 0.35);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --s-surface: #131316;
+    --s-surface-hi: #1b1b1f;
+    --s-text-1: #f4f4f5;
+    --s-text-2: #a1a1aa;
+    --s-text-3: #5f5f68;
+    --s-accent-text: #7c9ce8;
+  }
+}
+
+@theme inline {
+  --color-surface: var(--s-surface);
+  --color-surface-hi: var(--s-surface-hi);
+  --color-text-1: var(--s-text-1);
+  --color-text-2: var(--s-text-2);
+  --color-text-3: var(--s-text-3);
+  --color-accent-text: var(--s-accent-text);
+  --color-accent-line: var(--s-accent-line);
+}
+
+@theme {
+  --font-display: 'Wanted Sans Variable', 'Wanted Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-body: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --text-2xs: 11px;
+  --text-2xs--line-height: 16px;
+  --text-md: 14px;
+  --text-md--line-height: 22px;
+  --radius-xs: 4px;
+}
+
+@source './src';

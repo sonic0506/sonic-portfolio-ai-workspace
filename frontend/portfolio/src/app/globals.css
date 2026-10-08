@@ -6,6 +6,9 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
+/* 공유 마크다운 렌더러(frontend/markdown)의 클래스도 생성한다. */
+@source '../../../markdown/src';
+
 /*
  * sonic-portfolio 디자인 시스템(FRONTEND_IMPLEMENTATION 3단계).
  * 원본은 다크 단일 모드다. 라이트는 같은 역할의 토큰을 새로 정의했다.

@@ -1,9 +1,9 @@
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
-import { useFieldArray, useFormContext, type FieldErrors } from 'react-hook-form'
+import { Controller, useFieldArray, useFormContext, type FieldErrors } from 'react-hook-form'
 import { Field, FormSection } from '@/components/form'
+import { MarkdownEditor } from '@/components/markdown-editor'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import type { Section } from '@/lib/types'
 
 type WithSections = { sections: Section[] }
@@ -28,8 +28,8 @@ export function SectionsEditor() {
       }
     >
       <p className="text-xs text-muted-foreground">
-        Markdown으로 작성합니다. 추천 질문은 <code>:::questions</code> 다음 줄부터 <code>- 질문</code> 목록을 쓰고{' '}
-        <code>:::</code>로 닫습니다.
+        Markdown으로 작성합니다. 섹션 제목이 <code>##</code>이므로 본문 제목은 <code>###</code>부터 씁니다. 추천 질문 블록(
+        <code>:::questions</code>)은 방문자 화면에서 질문 버튼이 됩니다.
       </p>
       {fields.length === 0 && <p className="text-sm text-muted-foreground">섹션이 없습니다.</p>}
       {fields.map((field, i) => (
@@ -63,11 +63,17 @@ export function SectionsEditor() {
             </Button>
           </div>
           <Field label="본문 (Markdown)" htmlFor={`sections.${i}.bodyMarkdown`} error={errors?.[i]?.bodyMarkdown}>
-            <Textarea
-              id={`sections.${i}.bodyMarkdown`}
-              rows={10}
-              className="font-mono text-xs"
-              {...register(`sections.${i}.bodyMarkdown`)}
+            <Controller
+              control={control}
+              name={`sections.${i}.bodyMarkdown`}
+              render={({ field }) => (
+                <MarkdownEditor
+                  id={`sections.${i}.bodyMarkdown`}
+                  value={field.value}
+                  onChange={field.onChange}
+                  invalid={!!errors?.[i]?.bodyMarkdown}
+                />
+              )}
             />
           </Field>
         </div>

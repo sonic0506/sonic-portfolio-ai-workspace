@@ -1,11 +1,10 @@
+import { headingId } from "@portfolio/markdown";
 import type { Section } from "./types";
 
-export type DocHeading = { id: string; level: 2 | 3; text: string };
+// 본문 렌더러와 같은 함수를 써야 목차 링크가 맞는다.
+export { headingId };
 
-/** 목차와 본문 제목이 같은 id를 쓰도록 텍스트에서 만든다. 한글은 그대로 둔다. */
-export function headingId(text: string): string {
-  return `h-${text.trim().toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, "")}`;
-}
+export type DocHeading = { id: string; level: 2 | 3; text: string };
 
 /** 섹션 제목(h2)과 본문 안의 ### (h3)로 목차를 만든다. 코드 블록 안의 #은 건너뛴다. */
 export function extractHeadings(sections: Section[]): DocHeading[] {
