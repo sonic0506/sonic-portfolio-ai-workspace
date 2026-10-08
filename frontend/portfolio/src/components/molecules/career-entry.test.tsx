@@ -12,6 +12,7 @@ const career: Career = {
   description: '회사 소개',
   employmentType: '정규직',
   position: null,
+  logoUrl: null,
   achievements: [
     {
       title: 'VIORA',
@@ -42,6 +43,13 @@ describe('CareerEntry (ADR-0019)', () => {
     const { container } = render(<CareerEntry career={career} />);
     const meta = container.querySelector('h3 + p')?.textContent;
     expect(meta).toBe('2021.08 - 2026.09 (5년 2개월)|정규직|FE 개발자');
+  });
+
+  it('로고를 올렸으면 이미지, 없으면 회사명 첫 글자 (ADR-0020)', () => {
+    const { container, rerender } = render(<CareerEntry career={career} />);
+    expect(container.querySelector('li > div')?.textContent).toBe('슬');
+    rerender(<CareerEntry career={{ ...career, logoUrl: 'https://images.example.com/slogup.png' }} />);
+    expect(container.querySelector('li > div img')?.getAttribute('src')).toBe('https://images.example.com/slogup.png');
   });
 
   it('성과는 제목·기간·상세를 보이고, 공개 프로젝트면 링크한다', () => {

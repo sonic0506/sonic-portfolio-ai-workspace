@@ -39,16 +39,21 @@ function AchievementItem({ item }: { item: Achievement }) {
 
 /**
  * 원티드식 경력 한 항목(ADR-0019): 로고 · 회사 · 재직 기간 | 고용형태 | 직무 | 직책, 그 아래 주요 성과.
- * 로고는 이미지 업로드 기능 전까지 회사명 첫 글자 자리 표시다.
+ * 로고는 어드민에서 올린 이미지(ADR-0020), 없으면 회사명 첫 글자다.
  */
 export function CareerEntry({ career }: { career: Career }) {
   return (
     <li className="flex gap-4">
       <div
         aria-hidden="true"
-        className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-border bg-surface font-display text-lg text-text-3"
+        className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-surface font-display text-lg text-text-3"
       >
-        {career.company.trim().charAt(0)}
+        {career.logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={career.logoUrl} alt="" className="size-full object-cover" />
+        ) : (
+          career.company.trim().charAt(0)
+        )}
       </div>
       <div className="min-w-0 flex-1">
         <h3 className="text-lg leading-[1.4] font-medium tracking-[-0.02em]">{career.company}</h3>

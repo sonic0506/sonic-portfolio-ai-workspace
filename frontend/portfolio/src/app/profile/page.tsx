@@ -95,6 +95,11 @@ export default async function ProfilePage() {
                         group.group === "PRIMARY" ? "border-border-hi" : "border-border",
                       )}
                     >
+                      {/* 올린 로고가 있을 때만(ADR-0020). 스택 태그는 아이콘 없이 둔다(stack-tag.tsx). */}
+                      {skill.iconUrl && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={skill.iconUrl} alt="" className="mr-1.5 size-3.5 shrink-0 object-contain" />
+                      )}
                       {skill.name}
                     </li>
                   ))}

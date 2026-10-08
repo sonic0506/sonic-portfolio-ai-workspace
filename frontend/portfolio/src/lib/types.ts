@@ -3,7 +3,8 @@
 export type Section = { title: string; bodyMarkdown: string };
 
 /** 공통 기술 (SkillResponse) */
-export type Skill = { id: number; code: string; name: string; iconKey: string | null };
+/** iconUrl은 어드민에서 올린 로고(ADR-0020). */
+export type Skill = { id: number; code: string; name: string; iconKey: string | null; iconUrl: string | null };
 
 export type ProjectSummary = {
   slug: string;
@@ -85,6 +86,7 @@ export type Career = {
   employmentType: string | null;
   position: string | null;
   achievements: Achievement[];
+  logoUrl: string | null;
 };
 
 export type SkillGroupCode = "PRIMARY" | "PROJECT_EXPERIENCE" | "LEARNING" | "COLLABORATION";

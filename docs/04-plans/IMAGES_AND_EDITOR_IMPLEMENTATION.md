@@ -34,7 +34,7 @@ Status: In progress (2026-10-08, 사용자 승인: "추천대로 진행")
 1. [ ] 사용자: AWS 준비 — `deploy/S3_SETUP.md` (버킷, CORS, IAM 업로드 키, ACM, CloudFront+OAC, Route 53, 확인)
 2. [x] 백엔드(2026-10-08, 136건 통과): AWS SDK v2 `S3Presigner`(presigned PUT — SDK v2에는 presigned POST가 없다), `MediaAdminController`(업로드 허가서·목록), V8, `career.logo_url`·`skill.icon_url` API, 테스트(서명기는 가짜로)
 3. [x] 어드민 이미지 입력(2026-10-08, `components/image-field.tsx`·`lib/upload.ts`, 어드민 19건): `ImageField`(업로드·미리보기·목록에서 고르기·주소 입력) → 프로필 사진, 프로젝트·블로그 썸네일, 경력 로고, 기술 로고
-4. [ ] 포트폴리오: 경력 로고, 기술 로고 표시
+4. [x] 포트폴리오(2026-10-08): 경력 카드 로고 자리에 이미지, 프로필 기술 칩에 로고. 스택 태그(프로젝트 카드·블로그)는 sonic UI 규칙(아이콘 없이 보더만, `stack-tag.tsx`)대로 그대로 둔다
 5. [ ] 공유 렌더러 패키지 `frontend/packages/markdown`(포트폴리오 `Markdown`, `remark-questions`, 코드 블록·링크 스타일) — 포트폴리오 기존 테스트로 동일성 확인
 6. [ ] 에디터 `MarkdownEditor`: 툴바(H3 H4 | B I S | 인용 링크 이미지 코드 | 표 목록 | 질문블록 문서링크), 단축키(⌘B ⌘I ⌘K), 이미지 붙여넣기·끌어놓기 업로드, 우측 미리보기(스크롤 따라감), 좁은 화면은 탭. 적용: 섹션 본문, 경력 성과 상세, FAQ 답변
 7. [ ] 문서·검증: ADR-0020, ADR-0001 S3 항목 해소, ARCHITECTURE Pending 갱신, 화면 확인, 운영 반영(S3 키 `.env` + 재배포)
