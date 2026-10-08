@@ -19,7 +19,7 @@ const URL = /^https?:\/\/\S+$/
 const required = (max: number, label: string) =>
   z.string().trim().min(1, `${label}을(를) 입력하세요.`).max(max, `${max}자 이하로 입력하세요.`)
 const optional = (max: number) => z.string().trim().max(max, `${max}자 이하로 입력하세요.`)
-const optionalUrl = z
+export const optionalUrl = z
   .string()
   .trim()
   .max(500, '500자 이하로 입력하세요.')
@@ -129,6 +129,7 @@ export const careerSchema = z
     periodStart: requiredDate,
     periodEnd: optionalDate,
     description: optional(5000),
+    logoUrl: optionalUrl,
     achievements: z.array(achievementSchema),
   })
   .superRefine(periodCheck)
@@ -137,7 +138,8 @@ export type CareerForm = z.infer<typeof careerSchema>
 export type AchievementForm = z.infer<typeof achievementSchema>
 
 export const emptyCareer = (): CareerForm => ({
-  company: '', role: '', employmentType: '', position: '', periodStart: '', periodEnd: '', description: '', achievements: [],
+  company: '', role: '', employmentType: '', position: '', periodStart: '', periodEnd: '', description: '', logoUrl: '',
+  achievements: [],
 })
 export const emptyAchievement = (): AchievementForm => ({
   title: '', periodStart: '', periodEnd: '', job: '', position: '', bodyMarkdown: '', projectId: '',
@@ -261,6 +263,7 @@ export function profileToForm(p: AdminProfile): ProfileForm {
     careers: p.careers.map((c) => ({
       company: c.company, role: orEmpty(c.role), employmentType: orEmpty(c.employmentType), position: orEmpty(c.position),
       periodStart: c.periodStart, periodEnd: orEmpty(c.periodEnd), description: orEmpty(c.description),
+      logoUrl: orEmpty(c.logoUrl),
       achievements: (c.achievements ?? []).map((a) => ({
         title: a.title, periodStart: a.periodStart, periodEnd: orEmpty(a.periodEnd), job: orEmpty(a.job),
         position: orEmpty(a.position), bodyMarkdown: orEmpty(a.bodyMarkdown),
@@ -279,6 +282,7 @@ export function profileToRequest(f: ProfileForm): ProfileRequest {
     careers: f.careers.map((c) => ({
       company: c.company.trim(), role: orNull(c.role), employmentType: orNull(c.employmentType), position: orNull(c.position),
       periodStart: c.periodStart, periodEnd: orNull(c.periodEnd), description: orNull(c.description),
+      logoUrl: orNull(c.logoUrl),
       achievements: c.achievements.map((a) => ({
         title: a.title.trim(), periodStart: a.periodStart, periodEnd: orNull(a.periodEnd), job: orNull(a.job),
         position: orNull(a.position), bodyMarkdown: orNull(a.bodyMarkdown),

@@ -62,7 +62,8 @@ export type FaqRequest = {
 
 // 콘텐츠 관리 (API_DESIGN "콘텐츠 관리")
 
-export type Skill = { id: number; code: string; name: string; iconKey: string | null }
+/** iconUrl은 업로드한 로고(ADR-0020). 있으면 simple-icons(iconKey) 대신 쓴다. */
+export type Skill = { id: number; code: string; name: string; iconKey: string | null; iconUrl: string | null }
 export type Category = { id: number; code: string; name: string; displayOrder: number; color: string; ragEnabled: boolean }
 export type Tag = { id: number; code: string; name: string }
 export type Section = { title: string; bodyMarkdown: string }
@@ -172,6 +173,7 @@ export type Career = {
   employmentType: string | null
   position: string | null
   achievements: Achievement[]
+  logoUrl: string | null
 }
 
 export type ProfileRequest = {

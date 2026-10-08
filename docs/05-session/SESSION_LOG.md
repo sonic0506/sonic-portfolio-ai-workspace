@@ -671,3 +671,4 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 설계 변경: Java SDK v2에 presigned POST가 없어 presigned PUT(Content-Type·Content-Length 서명)으로. S3 CORS는 PUT.
 - 백엔드: AWS SDK BOM 2.55.12 `s3`, `media` 패키지(`MediaAdminController`·`MediaAdminService`·`UploadSigner`·`S3UploadSigner`·`MediaPurpose`), V8(`media`, `career.logo_url`, `skill.icon_url`), 설정 `app.media.*`, 기술 `iconUrl`·경력 `logoUrl` API, 시드가 기술 아이콘을 null로 덮어쓰던 문제 수정. 테스트 7건 추가(서명 헤더, 업로드 허가서·형식·크기·목록·권한, 미설정 503, 기술·경력 로고, 재시드 유지, 스키마 24테이블·V8). 백엔드 136건 통과.
 - 남은 것: 사용자 AWS 준비, 어드민 이미지 칸, 포트폴리오 로고 표시, 공유 렌더러, 에디터, ADR-0020, 운영 반영.
+- 같은 날 어드민 이미지 칸: `lib/upload.ts`(형식·크기 사전 검사, 허가서 → S3 PUT → 공개 주소), `components/image-field.tsx`(미리보기·주소 입력·업로드·올린 이미지에서 고르기). 적용: 프로필 사진, 경력 로고(`careers[].logoUrl`), 프로젝트·블로그 썸네일, 기술 로고(분류 화면, svg 허용). 어드민 19건(새 3건), lint·build 통과. 실제 업로드와 화면은 AWS 준비와 로그인 후 확인 필요(미검증).

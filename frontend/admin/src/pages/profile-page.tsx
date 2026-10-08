@@ -6,6 +6,7 @@ import { Controller, FormProvider, useFieldArray, useForm, useWatch } from 'reac
 import { AchievementsEditor } from '@/components/achievements-editor'
 import { Field, FormSection } from '@/components/form'
 import { IdPicker } from '@/components/id-picker'
+import { ImageField } from '@/components/image-field'
 import { ErrorText, PageTitle } from '@/components/layout'
 import { Loading } from '@/components/loading'
 import { SaveBar } from '@/components/save-bar'
@@ -102,8 +103,14 @@ function ProfileEditor({ profile }: { profile: AdminProfile | null }) {
             <Field label="GitHub" htmlFor="githubUrl" error={e.githubUrl}>
               <Input id="githubUrl" placeholder="https://" {...register('githubUrl')} />
             </Field>
-            <Field label="프로필 이미지 주소" htmlFor="imageUrl" error={e.imageUrl}>
-              <Input id="imageUrl" placeholder="https://" {...register('imageUrl')} />
+            <Field label="프로필 이미지" htmlFor="imageUrl" error={e.imageUrl}>
+              <Controller
+                control={control}
+                name="imageUrl"
+                render={({ field }) => (
+                  <ImageField id="imageUrl" purpose="PROFILE" value={field.value} onChange={field.onChange} invalid={!!e.imageUrl} />
+                )}
+              />
             </Field>
           </div>
         </FormSection>
@@ -174,6 +181,15 @@ function ProfileEditor({ profile }: { profile: AdminProfile | null }) {
                     <Input id={`careers.${i}.periodEnd`} type="date" {...register(`careers.${i}.periodEnd`)} />
                   </Field>
                 </div>
+                <Field label="회사 로고" htmlFor={`careers.${i}.logoUrl`} error={ce?.logoUrl}>
+                  <Controller
+                    control={control}
+                    name={`careers.${i}.logoUrl`}
+                    render={({ field }) => (
+                      <ImageField id={`careers.${i}.logoUrl`} purpose="CAREER_LOGO" value={field.value} onChange={field.onChange} invalid={!!ce?.logoUrl} />
+                    )}
+                  />
+                </Field>
                 <Field label="경력 요약" htmlFor={`careers.${i}.description`} error={ce?.description}>
                   <Textarea id={`careers.${i}.description`} rows={3} {...register(`careers.${i}.description`)} />
                 </Field>

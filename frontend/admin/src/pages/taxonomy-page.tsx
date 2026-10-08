@@ -2,7 +2,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
 import { Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
+import { ImageField } from '@/components/image-field'
 import { ErrorText, PageTitle } from '@/components/layout'
 import { Loading, Spinner } from '@/components/loading'
 import { Button } from '@/components/ui/button'
@@ -26,6 +27,7 @@ type Row = {
   displayOrder?: number
   color?: string
   ragEnabled?: boolean
+  iconUrl?: string | null
 }
 
 const CONFIG: Record<
@@ -102,6 +104,7 @@ function TaxonomyTable({ kind, query }: { kind: TaxonomyKind; query: UseQueryRes
             </li>
           ) : (
             <li key={row.id} className="flex items-center gap-2 px-3 py-2 text-sm">
+              {row.iconUrl && <img src={row.iconUrl} alt="" className="size-5 shrink-0 object-contain" />}
               {row.color && (
                 <span aria-hidden="true" className="size-3 shrink-0 rounded-full border" style={{ backgroundColor: row.color }} />
               )}
@@ -140,7 +143,7 @@ function TaxonomyTable({ kind, query }: { kind: TaxonomyKind; query: UseQueryRes
 function RowForm({ kind, row, onDone }: { kind: TaxonomyKind; row?: Row; onDone?: () => void }) {
   const config = CONFIG[kind]
   const queryClient = useQueryClient()
-  const empty = { code: '', name: '', extra: kind === 'category' ? '0' : '', color: DEFAULT_CATEGORY_COLOR, ragEnabled: true }
+  const empty = { code: '', name: '', extra: kind === 'category' ? '0' : '', color: DEFAULT_CATEGORY_COLOR, ragEnabled: true, iconUrl: '' }
   const form = useForm<TaxonomyForm>({
     resolver: zodResolver(
       kind === 'category' ? taxonomySchema.extend({ extra: categoryOrderSchema }) : taxonomySchema,
@@ -152,6 +155,7 @@ function RowForm({ kind, row, onDone }: { kind: TaxonomyKind; row?: Row; onDone?
           extra: extraOf(kind, row),
           color: row.color ?? DEFAULT_CATEGORY_COLOR,
           ragEnabled: row.ragEnabled ?? true,
+          iconUrl: row.iconUrl ?? '',
         }
       : empty,
   })
@@ -167,7 +171,7 @@ function RowForm({ kind, row, onDone }: { kind: TaxonomyKind; row?: Row; onDone?
       else form.reset(empty)
     },
   })
-  const message = e.code?.message ?? e.name?.message ?? e.extra?.message ?? e.color?.message
+  const message = e.code?.message ?? e.name?.message ?? e.extra?.message ?? e.color?.message ?? e.iconUrl?.message
 
   return (
     <form noValidate className="space-y-1" onSubmit={form.handleSubmit((v) => save.mutate(v))}>
@@ -194,6 +198,16 @@ function RowForm({ kind, row, onDone }: { kind: TaxonomyKind; row?: Row; onDone?
           />
         )}
       </div>
+      {kind === 'skill' && (
+        // 기술 로고(ADR-0020): 올리면 simple-icons(아이콘 키) 대신 쓴다. svg도 된다.
+        <Controller
+          control={form.control}
+          name="iconUrl"
+          render={({ field }) => (
+            <ImageField compact purpose="SKILL_ICON" value={field.value} onChange={field.onChange} invalid={!!e.iconUrl} />
+          )}
+        />
+      )}
       {kind === 'category' && (
         <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <input type="checkbox" className="size-3.5" {...form.register('ragEnabled')} />

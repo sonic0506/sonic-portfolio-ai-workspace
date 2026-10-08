@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { codeField } from './content-schemas'
+import { codeField, optionalUrl } from './content-schemas'
 
 // Skill: {code, name, iconKey}, Category: {code, name, displayOrder, color, ragEnabled}, Tag: {code, name}
 export const taxonomySchema = z.object({
@@ -10,6 +10,8 @@ export const taxonomySchema = z.object({
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/, '#RRGGBB 형식으로 입력하세요.'),
   // 카테고리 글을 채팅 근거로 쓸지(ADR-0018). 다른 종류는 쓰지 않는다.
   ragEnabled: z.boolean(),
+  // 기술 로고(ADR-0020). 다른 종류는 쓰지 않는다.
+  iconUrl: optionalUrl,
 })
 
 /** 서버 기본값(V5)과 같은 회색. */
@@ -26,7 +28,8 @@ export const categoryOrderSchema = z
 
 export function toTaxonomyRequest(kind: TaxonomyKind, f: TaxonomyForm) {
   const base = { code: f.code.trim(), name: f.name.trim() }
-  if (kind === 'skill') return { ...base, iconKey: f.extra.trim() === '' ? null : f.extra.trim() }
+  if (kind === 'skill')
+    return { ...base, iconKey: f.extra.trim() === '' ? null : f.extra.trim(), iconUrl: f.iconUrl.trim() === '' ? null : f.iconUrl.trim() }
   if (kind === 'category')
     return {
       ...base,

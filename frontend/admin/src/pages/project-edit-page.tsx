@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { useParams } from 'react-router'
 import { Checkbox, Field, FormSection } from '@/components/form'
+import { ImageField } from '@/components/image-field'
 import { IdPicker } from '@/components/id-picker'
 import { ReferencedByList, ReferencePicker } from '@/components/reference-picker'
 import { ErrorText, PageTitle } from '@/components/layout'
@@ -138,8 +139,14 @@ function ProjectEditor({ project }: { project?: AdminProjectDetail }) {
             <Field label="서비스 주소" htmlFor="serviceUrl" error={e.serviceUrl}>
               <Input id="serviceUrl" placeholder="https://" {...register('serviceUrl')} />
             </Field>
-            <Field label="썸네일 이미지 주소" htmlFor="thumbnailUrl" error={e.thumbnailUrl}>
-              <Input id="thumbnailUrl" placeholder="https://" {...register('thumbnailUrl')} />
+            <Field label="썸네일 이미지" htmlFor="thumbnailUrl" error={e.thumbnailUrl}>
+              <Controller
+                control={form.control}
+                name="thumbnailUrl"
+                render={({ field }) => (
+                  <ImageField id="thumbnailUrl" purpose="THUMBNAIL" value={field.value} onChange={field.onChange} invalid={!!e.thumbnailUrl} />
+                )}
+              />
             </Field>
           </div>
         </FormSection>

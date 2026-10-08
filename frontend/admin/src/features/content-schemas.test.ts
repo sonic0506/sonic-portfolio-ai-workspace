@@ -109,7 +109,7 @@ describe('profileSchema', () => {
     expect(paths(bad)).toEqual(['careers.0.achievements.0.title', 'careers.0.achievements.0.periodEnd'])
 
     const request = profileToRequest({ ...emptyProfile(), headline: 'h', shortBio: 'b', careers: [career] })
-    expect(request.careers[0]).toMatchObject({ employmentType: '정규직', position: null })
+    expect(request.careers[0]).toMatchObject({ employmentType: '정규직', position: null, logoUrl: null })
     expect(request.careers[0].achievements).toEqual([
       { title: 'VIORA', periodStart: '2026-07-01', periodEnd: null, job: '앱 개발', position: null, bodyMarkdown: null, projectId: 7 },
     ])

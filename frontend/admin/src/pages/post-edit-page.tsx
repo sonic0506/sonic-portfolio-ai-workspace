@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { Link, useParams } from 'react-router'
 import { Checkbox, Field, FormSection } from '@/components/form'
+import { ImageField } from '@/components/image-field'
 import { IdPicker } from '@/components/id-picker'
 import { ReferencedByList, ReferencePicker } from '@/components/reference-picker'
 import { ErrorText, PageTitle } from '@/components/layout'
@@ -100,8 +101,14 @@ function PostEditor({ post }: { post?: AdminBlogPostDetail }) {
           </Field>
           <div className="flex flex-wrap items-end gap-6">
             <Checkbox label="공개" {...register('published')} />
-            <Field label="썸네일 이미지 주소" htmlFor="thumbnailUrl" error={e.thumbnailUrl} className="min-w-72 flex-1">
-              <Input id="thumbnailUrl" placeholder="https://" {...register('thumbnailUrl')} />
+            <Field label="썸네일 이미지" htmlFor="thumbnailUrl" error={e.thumbnailUrl} className="min-w-72 flex-1">
+              <Controller
+                control={form.control}
+                name="thumbnailUrl"
+                render={({ field }) => (
+                  <ImageField id="thumbnailUrl" purpose="THUMBNAIL" value={field.value} onChange={field.onChange} invalid={!!e.thumbnailUrl} />
+                )}
+              />
             </Field>
           </div>
         </FormSection>
