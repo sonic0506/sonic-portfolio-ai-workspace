@@ -1,9 +1,10 @@
 'use client';
 
 import { Suspense, type ComponentProps } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Archive, FileText, MessageSquarePlus, PanelLeftOpen, Sparkle, User, Waypoints } from 'lucide-react';
+import { Archive, FileText, MessageSquarePlus, PanelLeftOpen, User, Waypoints } from 'lucide-react';
 
 import { CategoryDot } from '@/components/atoms/category-dot';
 import { ConversationItem } from '@/components/molecules/conversation-item';
@@ -79,7 +80,7 @@ export function AppSidebar({ categories, className, ...props }: SidebarProps) {
               aria-label="홈"
               className="flex size-8 shrink-0 items-center justify-center rounded-md border border-border bg-surface text-text-1"
             >
-              <Sparkle className="size-4 fill-current" strokeWidth={1.5} />
+              <Image src="/icon-192.png" alt="" width={20} height={20} className="size-5" />
             </Link>
           )}
           <span className="min-w-0 truncate font-display text-md font-semibold tracking-[-0.02em] group-data-[collapsible=icon]:hidden">
