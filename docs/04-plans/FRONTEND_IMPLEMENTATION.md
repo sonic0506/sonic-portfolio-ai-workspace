@@ -44,7 +44,7 @@ pnpm dev:admin               # http://localhost:5173
 ```
 
 - 백엔드는 `http://127.0.0.1:8080`(local 프로필은 127.0.0.1에만 바인딩). 바꾸려면 `API_BASE_URL` 환경 변수. `localhost`로 두면 Node가 `::1`(IPv6)로 먼저 연결해 실패할 수 있다(2026-09-17 사용자 Mac에서 포트폴리오 오류 화면 발생).
-- Portfolio: 서버 컴포넌트 조회는 `API_BASE_URL`로 직접, 브라우저의 채팅 `/api/*`는 `next.config.ts` rewrites로 전달. 운영에서는 채팅도 `NEXT_PUBLIC_API_BASE_URL`로 api 도메인을 직접 부른다(ADR-0017, 2026-10-04). 모든 페이지는 `force-dynamic`(빌드 시 백엔드 불필요, 캐시 정책은 배포 때 정한다). 본문 마크다운은 `remark-gfm`·`remark-cjk-friendly`(한글 조사 앞 굵게 표시, 2026-10-05)·`remark-directive`를 쓴다.
+- Portfolio: 서버 컴포넌트 조회는 `API_BASE_URL`로 직접, 브라우저의 채팅 `/api/*`는 `next.config.ts` rewrites로 전달. 운영에서는 채팅도 `NEXT_PUBLIC_API_BASE_URL`로 api 도메인을 직접 부른다(ADR-0017, 2026-10-04). 2026-10-08부터 모든 경로가 ISR 5분이고 목록은 브라우저에서 React Query로 받는다(ADR-0021). 빌드 때 백엔드가 필요하다. 본문 마크다운은 `remark-gfm`·`remark-cjk-friendly`(한글 조사 앞 굵게 표시, 2026-10-05)·`remark-directive`를 쓴다.
 - Admin: `vite.config.ts` 프록시가 `/api`를 8080으로 전달. 로그인은 `http://localhost:8080/oauth2/authorization/github`로 이동(`VITE_LOGIN_URL`로 변경). 백엔드 `.env`에 `ADMIN_LOGIN_SUCCESS_URL=http://localhost:5173/`을 두면 로그인 후 어드민으로 돌아온다. 쿠키는 포트를 구분하지 않고 localhost끼리는 same-site라 세션(`SameSite=Lax`)과 `XSRF-TOKEN`이 공유된다.
 
 ## 1단계 범위 (이번 작업)
@@ -100,7 +100,7 @@ pnpm dev:admin               # http://localhost:5173
 - [x] 소개(`/profile`): 헤드라인·소개, 경력 타임라인, 스킬 그룹, 본문 섹션, 연락처, 목차.
 - [x] 홈·채팅: 떠 있는 채팅 패널을 없애고 홈(히어로 + 추천 질문 + 컴포저 + 바로가기)과 대화 화면(`/chat`, `/chat/[id]`)으로 교체. 대화 여러 개·만료 숨김은 ADR-0011 후속.
 - [x] 카테고리 색(2026-09-29 추가 요청): 서버 `category.color`(HEX, V5)를 사이드바·목록·상세의 점에 쓴다. 참고 문서의 블로그 항목에 카테고리 칩(점 + 이름)을 붙였다. 어드민 기술·분류 화면에서 카테고리마다 색을 고른다(`<input type="color">`). 프론트의 code별 색 매핑은 없앴다.
-- 레이아웃이 `force-dynamic`이라 모든 경로가 요청마다 렌더된다(사이드바 글 수). 캐시 정책은 배포 때 정한다.
+- (2026-10-08 해소) 레이아웃 `force-dynamic` → ISR 5분(ADR-0021).
 - 검증(작업 Mac, 2026-09-29): 백엔드 118건, 포트폴리오 테스트 18건(헤딩·프로젝트·블로그·대화 저장소 추가), 어드민 15건, lint, `next build` 통과. 실제 백엔드로 브라우저 확인: 라이트·다크, 모바일 375px 가로 스크롤 없음, 질문 → 세션 발급·주소 `/chat/{id}`·스트리밍·출처, 새로고침 복원, 로컬 만료·서버 404 시 목록·본문 제거.
 - 알려진 제약: 개발 모드(StrictMode)에서 홈 Lottie가 그려지지 않는다(프로덕션 빌드는 정상). 질문 칩·홈에서 넘기는 첫 질문은 메모리로 전달해 새로고침하면 사라진다.
 - 미검증(사용자 확인 대기): 전체 화면 톤, 어드민 글 편집(카테고리 select) 저장, 태블릿 레일, 긴 대화·질문 30개 초과(409) 표시.
@@ -120,4 +120,4 @@ pnpm dev:admin               # http://localhost:5173
 
 1. ~~공개 상세의 관련 문서 표시~~ — 2026-09-17 참고 문서로 구현(REFERENCE_DOCUMENTS_IMPLEMENTATION, 사용자 확인 완료). Graph View, RAG Playground.
 3. ~~디자인 다듬기~~ — 3단계(sonic 적용)로 진행. 남은 것: SEO 메타데이터, 이미지·썸네일, `next/font`.
-4. 배포: Vercel(Portfolio), 어드민 정적 배포 위치와 도메인(ADR-0010 4절), 캐시/재검증 정책.
+4. 배포: Vercel(Portfolio), 어드민 정적 배포 위치와 도메인(ADR-0010 4절), 캐시/재검증 정책(2026-10-08 ADR-0021, 즉시 재검증은 제외).

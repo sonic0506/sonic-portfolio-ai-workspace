@@ -40,7 +40,7 @@ api.sonic-portfolio.com   → Lightsail 4GB: caddy → api(Spring) → db(pgvect
 - [x] `backend/Dockerfile`(로컬 빌드 jar 실행, amd64), `deploy/compose.prod.yaml`(메모리 상한 db 1g·api 1.5g·caddy 256m, 로그 10MB×3, db 포트는 서버 127.0.0.1에만), `deploy/Caddyfile`(SSE는 Caddy 기본 동작으로 즉시 전달). 절차는 `deploy/README.md`.
 - [x] 포트폴리오: 채팅 호출에 `NEXT_PUBLIC_API_BASE_URL` 적용(`lib/chat-api.ts`, 비어 있으면 개발용 상대 경로). CORS는 `/api/chat/**`에만, 자격 증명 없이.
 - [x] admin: `vercel.json`(rewrite + SPA fallback), `.env.production`(`VITE_LOGIN_URL` 상대 경로).
-- [ ] (선택) `force-dynamic` → `revalidate` (FRONTEND_IMPLEMENTATION 3단계).
+- [x] `force-dynamic` → ISR 5분 + 목록 React Query 캐시 (2026-10-08, ADR-0021). Vercel 빌드가 `API_BASE_URL`로 백엔드를 부른다.
 - [x] **로컬 메모리 측정** (2026-10-04, 아래 "메모리 실측" 참고).
 - 검증: `./gradlew test`, `pnpm test && pnpm lint && pnpm build`.
 

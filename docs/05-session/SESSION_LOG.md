@@ -678,3 +678,12 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 같은 날 에디터(6단계): `components/markdown-editor.tsx` + `lib/markdown-edit.ts`(감싸기·줄 접두어·블록 넣기·링크). 툴바 H3 H4 | B I S | 인용 링크 이미지 코드 | 표 목록 | 질문 블록 문서 링크, ⌘B ⌘I ⌘K, 이미지 버튼·붙여넣기·끌어놓기 업로드(`CONTENT`), 우측 미리보기(스크롤 비율 따라감), lg 미만은 작성/미리보기 탭. 적용: 섹션 본문, 경력 성과 상세, FAQ 답변(FAQ 폼 폭 확장). 어드민 26건(새 7건), lint·build 통과. 가짜 API로 띄운 어드민에서 표·질문 블록·문서 링크 목록·미리보기 렌더(제목·링크·인용·목록·코드·질문 칩) 확인. 실제 이미지 붙여넣기 업로드는 로그인 필요로 미확인. 실행 취소(⌘Z)는 툴바 동작에서 끊긴다(입력창 값을 직접 바꾸므로) — 불편하면 CodeMirror 교체(E1).
 - 같은 날 문서(7단계): ADR-0020(이미지 업로드·에디터, Accepted), ADR-0001 후속 메모(S3 정책 해소), ARCHITECTURE Pending의 S3 항목 완료, DATA_MODEL(`media`·`logo_url`·`icon_url`)·API_DESIGN(업로드 API, `iconUrl`·`logoUrl`) 반영. `feat/images` → `main` PR.
 - 같은 날 운영 재배포(A안, `feat/images` 브랜치에서): `prev` 태그 → amd64 빌드 → API 교체, V8 적용·health UP, 공개 API에 `logoUrl`·`iconUrl` 필드, 컨테이너에 S3 키 변수 존재. 로그인 없는 업로드 요청은 CSRF에서 403(정상). 운영 어드민(Vercel)이 아직 없어 운영 업로드 화면 확인은 남음.
+
+## 2026-10-08 — 포트폴리오 ISR과 목록 클라이언트 캐시(ADR-0021)
+
+- 사용자 질문: 대부분 SSR인가 → 모든 경로가 `force-dynamic`(레이아웃 포함)이었다. 전부 ISR로 바꿀 때의 문제(즉시 재검증 없음, 빈 값 캐시, `/blog` searchParams, useSearchParams Suspense)를 설명했다.
+- 사용자 결정: 즉시 재검증은 제외, 목록은 목록 영역만 스켈레톤으로 로딩, 재방문은 React Query 캐시를 쓴다.
+- 구현: 레이아웃 `revalidate = 300`, `force-dynamic` 제거, 상세 `generateStaticParams` 빈 배열, 그래프 Suspense. `lib/queries.ts`(QueryClient 정책, `useProjects`·`usePosts`), `QueryProvider`, `ProjectsView`·`BlogView`(+스켈레톤), `lib/blog.ts`의 `postsPath`·`postsParamsFrom`·`blogListPath`(서버·브라우저 공용, 테스트 2건). 블로그 검색 창은 직접 fetch하던 것을 같은 캐시로 바꿨다. `@tanstack/react-query` 5.102.8 추가.
+- 검증: 포트폴리오 31건, lint·tsc·build(로컬 백엔드 기동). `next start`에서 확인: 목록 HTML에 제목·스켈레톤·질문 칸, `x-nextjs-cache: HIT`·`s-maxage=300`, 상세 MISS→HIT, 프로젝트·블로그 재방문 시 API 재요청 없음, 카테고리는 처음만 요청, 스켈레톤 화면, 콘솔 오류 없음.
+- 발견(기존 문제): 없는 slug가 200 + noindex로 응답한다. 루트 `loading.tsx`가 스트리밍을 일으키기 때문이며, 이번 변경 범위에서는 고치지 않았다.
+- 문서: ADR-0021 신규, ADR-0012 후속 메모, FRONTEND_IMPLEMENTATION·DEPLOYMENT_PLAN·deploy/README 갱신.

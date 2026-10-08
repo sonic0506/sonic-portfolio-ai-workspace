@@ -6,6 +6,13 @@ Last Updated: 2026-10-08
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
+## Priority 0-ISR — 포트폴리오 ISR·목록 캐시 (2026-10-08, 브랜치 `feat/isr-cache`)
+
+1. 사용자 화면 확인 후 `main` 병합. Vercel 빌드는 `API_BASE_URL`로 백엔드를 부르므로 백엔드가 떠 있어야 한다.
+2. (선택) 진짜 404 상태 코드가 필요하면 루트 `loading.tsx` 제거를 검토한다(ADR-0021 Consequences).
+3. (선택) 목록 HTML에 항목이 없으므로 SEO 작업 때 sitemap을 추가한다.
+4. (선택) 어드민 수정을 바로 반영해야 하면 비밀 키로 보호한 재검증 라우트를 추가한다(`/api/*` 밖 경로).
+
 ## Priority 0-B — 이미지 업로드(S3)와 마크다운 에디터 (2026-10-08 승인)
 
 계획과 결정: `docs/04-plans/IMAGES_AND_EDITOR_IMPLEMENTATION.md`. 사용자 콘솔 작업: `deploy/S3_SETUP.md`(버킷·CORS·IAM 업로드 키·ACM·CloudFront·Route 53). 백엔드는 2026-10-08 완료(136건). 어드민 이미지 칸·포트폴리오 로고·공유 렌더러(`frontend/markdown`)·에디터까지 완료(2026-10-08). 7단계 문서(ADR-0020)와 PR까지 완료. 남은 것: PR 병합 후 Vercel 배포, 로그인한 어드민에서 에디터 이미지 붙여넣기·끌어놓기 업로드 확인. Vercel은 Root Directory 밖의 `frontend/markdown`을 읽어야 하므로 "Include files outside the root directory"(기본 켜짐)를 끄지 않는다.

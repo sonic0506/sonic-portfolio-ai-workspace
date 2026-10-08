@@ -8,6 +8,8 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 
 ## Confirmed
 
+- 2026-10-08 포트폴리오 ISR·목록 캐시(사용자 요청, ADR-0021, 브랜치 `feat/isr-cache`): `force-dynamic` 제거, 레이아웃 `revalidate = 300`, 상세는 `generateStaticParams` 빈 배열(첫 방문 때 생성). 즉시 재검증은 제외했다(어드민 수정은 최대 5분 뒤 반영). `/projects`·`/blog`는 정적 셸 + React Query 목록(스켈레톤, staleTime 5분·gcTime 30분), 블로그 검색 창도 같은 캐시를 쓴다. 실패를 빈 값으로 캐시하지 않게 `getCategories`(예외), `getProfileOrNull`(404만 null)로 바꿨다. 포트폴리오 31건, lint·tsc·build 통과(`/chat/[id]` 외 전 경로 5분 ISR). 로컬 프로덕션 서버에서 확인한 것: 셸·스켈레톤 HTML, ISR HIT, 상세 MISS→HIT, 목록 재방문 시 API 재요청 없음, 카테고리 이동, 콘솔 오류 없음. 빌드 때 백엔드가 필요하다. 기존 soft 404(루트 `loading.tsx` 때문에 200 + noindex)는 그대로다.
+
 - 2026-10-08 공유 마크다운 렌더러·어드민 에디터(이미지 계획 5·6단계): `frontend/markdown` 패키지를 포트폴리오 본문과 어드민 미리보기가 함께 쓴다. 어드민 `MarkdownEditor`(툴바·단축키·이미지 업로드·문서 링크·질문 블록·미리보기)를 섹션 본문·경력 성과·FAQ 답변에 적용. 포트폴리오 29·어드민 26건, lint·build 통과. 로그인 상태 실제 업로드는 미확인. 결정 기록은 ADR-0020(Accepted), `feat/images` → `main` PR 생성.
 
 - 2026-10-08 이미지 업로드 백엔드(ADR-0020 예정): presigned PUT 업로드 허가서 `POST /api/admin/media/uploads`, 목록 `GET /api/admin/media`, V8(`media`·`career.logo_url`·`skill.icon_url`), 키 없으면 업로드만 503. 백엔드 136건. 사용자 AWS 준비(`deploy/S3_SETUP.md`)와 어드민·포트폴리오·에디터는 남음.
