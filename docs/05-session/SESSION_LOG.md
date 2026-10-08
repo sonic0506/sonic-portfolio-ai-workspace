@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-10-09 — Favicon for Portfolio and Admin
+
+- 사용자 요청: 어드민·포트폴리오 파비콘(데스크톱·모바일 브라우저). 처음 받은 이미지는 SEGA 소닉 캐릭터 팬아트라 저작권·상표 위험을 설명했고, 사용자가 오리지널 추상 아이콘(파랑 2·빨강 1 블레이드)을 직접 만들어 전달했다.
+- 브랜치 `feat/favicon`. 포트폴리오: `src/app/favicon.ico`(16·32·48) 교체, `src/app/apple-icon.png`(180, 흰 배경), `src/app/manifest.ts`, 새 `public/icon-192.png`·`icon-512.png`. 어드민: Vite 기본 `favicon.svg` 삭제, `public/`에 같은 세트와 `manifest.webmanifest`, `index.html` 링크 3개. 같은 날 사이드바 상단 브랜드 마크(`app-sidebar.tsx`, 기존 Sparkle)도 `/icon-192.png`로 바꿨다.
+- 생성은 Pillow로 원본 투명 PNG를 잘라 여백만 둔 것(스크립트는 저장소에 두지 않음). 원본 바꾸면 같은 크기 세트를 다시 만든다.
+- 검증: 어드민 build, 포트폴리오 tsc·lint, 두 개발 서버에서 아이콘·manifest 200과 Next head 링크(icon·apple-touch-icon·manifest), 16px 밝은·어두운 배경 가독성 확인. 실기기(iOS·Android) 홈 화면 추가는 미확인.
+
 ## 2026-09-10 — Plan Status Corrected
 
 - 사용자가 CURRENT_PLAN의 미체크 항목 두 개를 지적해 실제 상태를 대조했다.

@@ -1,10 +1,14 @@
 # Next Actions
 
-Last Updated: 2026-10-08
+Last Updated: 2026-10-09
 
 ## 현재 기준
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
+
+## Priority 0-Favicon — 파비콘 (2026-10-09, 브랜치 `feat/favicon`)
+
+1. 사용자 확인 후 커밋·`main` 병합, Vercel 배포 뒤 iOS Safari·Android Chrome 홈 화면 추가로 아이콘 확인.
 
 ## Priority 0-ISR — 포트폴리오 ISR·목록 캐시 (2026-10-08, 브랜치 `feat/isr-cache`)
 
