@@ -673,3 +673,5 @@ Codex와 Claude Code가 동일한 프로젝트 규칙과 상태를 공유하며 
 - 남은 것: 사용자 AWS 준비, 어드민 이미지 칸, 포트폴리오 로고 표시, 공유 렌더러, 에디터, ADR-0020, 운영 반영.
 - 같은 날 어드민 이미지 칸: `lib/upload.ts`(형식·크기 사전 검사, 허가서 → S3 PUT → 공개 주소), `components/image-field.tsx`(미리보기·주소 입력·업로드·올린 이미지에서 고르기). 적용: 프로필 사진, 경력 로고(`careers[].logoUrl`), 프로젝트·블로그 썸네일, 기술 로고(분류 화면, svg 허용). 어드민 19건(새 3건), lint·build 통과. 실제 업로드와 화면은 AWS 준비와 로그인 후 확인 필요(미검증).
 - 같은 날 포트폴리오 로고: 경력 카드 로고(없으면 첫 글자), 프로필 기술 칩 로고. 포트폴리오는 원래 `iconKey`를 그리지 않았고, 스택 태그는 "아이콘 없이 보더만" 규칙이 있어 바꾸지 않았다(필요하면 사용자 결정). 포트폴리오 29건, lint·build 통과.
+- 같은 날 AWS 준비 확인(사용자 완료): `images.sonic-portfolio.com` DNS·ACM 인증서(2027-04-23까지)·CloudFront 200, S3 직접 접근 403. 이 Mac은 레코드 생성 전 조회의 DNS 캐시로 curl이 잠시 실패(--resolve로 우회). 임시 실연 테스트(커밋 안 함, 삭제): 실제 키로 presigned PUT 200, 서명과 다른 크기 403, CloudFront GET 200, S3 CORS는 admin·localhost:5173 허용·다른 출처 403. 확인용 1×1 PNG가 `dev/images/livecheck/`에 남음(업로드 키에 삭제 권한 없음).
+- 같은 날 운영 재배포(A안, `feat/images` 브랜치에서): `prev` 태그 → amd64 빌드 → API 교체, V8 적용·health UP, 공개 API에 `logoUrl`·`iconUrl` 필드, 컨테이너에 S3 키 변수 존재. 로그인 없는 업로드 요청은 CSRF에서 403(정상). 운영 어드민(Vercel)이 아직 없어 운영 업로드 화면 확인은 남음.
