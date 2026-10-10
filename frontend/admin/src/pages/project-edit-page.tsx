@@ -161,7 +161,7 @@ function ProjectEditor({ project }: { project?: AdminProjectDetail }) {
             control={form.control}
             name="skillIds"
             render={({ field }) => (
-              <IdPicker options={skills.data ?? []} value={field.value} onChange={field.onChange} placeholder="기술 검색" />
+              <IdPicker options={skills.data ?? []} value={field.value} onChange={field.onChange} placeholder="기술 검색" sortable />
             )}
           />
         </FormSection>

@@ -216,6 +216,7 @@ function ProfileEditor({ profile }: { profile: AdminProfile | null }) {
                       value={field.value}
                       onChange={field.onChange}
                       disabledIds={SKILL_GROUPS.filter((g) => g.value !== value).flatMap((g) => groups[g.value])}
+                      sortable
                     />
                   )}
                 />
