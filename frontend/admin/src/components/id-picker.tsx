@@ -9,7 +9,7 @@ type Option = { id: number; code: string; name: string }
 /**
  * 여러 항목 선택. 선택한 순서가 표시 순서이며 칩의 ✕로 뺀다.
  * disabledIds: 다른 곳에서 이미 쓰여 고를 수 없는 항목(프로필 스킬 그룹).
- * sortable: 칩의 ◀ ▶로 순서를 바꾼다. 순서를 저장하는 곳(프로필·프로젝트 스킬)에서만 켠다.
+ * sortable: 칩을 끌어 놓거나 ◀ ▶(키보드·터치용)로 순서를 바꾼다. 순서를 저장하는 곳(프로필·프로젝트 스킬)에서만 켠다.
  */
 export function IdPicker({
   options,
@@ -27,14 +27,15 @@ export function IdPicker({
   sortable?: boolean
 }) {
   const [query, setQuery] = useState('')
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
   const byId = new Map(options.map((o) => [o.id, o]))
   const q = query.trim().toLowerCase()
   const available = options.filter(
     (o) => !value.includes(o.id) && (!q || o.name.toLowerCase().includes(q) || o.code.includes(q)),
   )
-  const move = (i: number, j: number) => {
+  const move = (from: number, to: number) => {
     const next = [...value]
-    ;[next[i], next[j]] = [next[j], next[i]]
+    next.splice(to, 0, ...next.splice(from, 1))
     onChange(next)
   }
   const chipButton = 'rounded-sm p-0.5 hover:bg-background disabled:opacity-30 disabled:hover:bg-transparent'
@@ -44,7 +45,25 @@ export function IdPicker({
       <div className="flex min-h-9 flex-wrap gap-1.5">
         {value.length === 0 && <span className="text-sm text-muted-foreground">선택 없음</span>}
         {value.map((id, i) => (
-          <Badge key={id} variant="secondary" className={cn('gap-1 pr-1', sortable && 'pl-1')}>
+          <Badge
+            key={id}
+            variant="secondary"
+            className={cn('gap-1 pr-1', sortable && 'cursor-grab pl-1', dragIndex === i && 'opacity-40')}
+            draggable={sortable}
+            onDragStart={(e) => {
+              e.dataTransfer.effectAllowed = 'move'
+              e.dataTransfer.setData('text/plain', String(id)) // Firefox는 데이터가 없으면 드래그를 시작하지 않는다
+              setDragIndex(i)
+            }}
+            onDragEnd={() => setDragIndex(null)}
+            onDragOver={(e) => {
+              if (dragIndex !== null) e.preventDefault()
+            }}
+            onDrop={() => {
+              if (dragIndex !== null && dragIndex !== i) move(dragIndex, i)
+              setDragIndex(null)
+            }}
+          >
             {sortable && (
               <button
                 type="button"
