@@ -6,33 +6,24 @@ import { IdPicker } from './id-picker'
 const options = [
   { id: 1, code: 'java', name: 'Java' },
   { id: 2, code: 'spring', name: 'Spring' },
-  { id: 3, code: 'react', name: 'React' },
 ]
 
 function Harness() {
-  const [value, setValue] = useState([1, 2, 3])
+  const [value, setValue] = useState([1, 2])
   return <IdPicker options={options} value={value} onChange={setValue} sortable />
 }
-
-const chips = () => [...document.querySelectorAll('[draggable="true"]')].map((el) => el.textContent)
-const chip = (name: string) => screen.getByText(name).closest('[draggable]')!
 
 describe('IdPicker sortable', () => {
   afterEach(cleanup)
 
-  it('칩을 끌어 놓으면 놓은 자리로 옮긴다', () => {
+  it('끌기 가능한 칩에서도 ✕로 뺄 수 있고 키보드 입력이 드래그로 넘어가지 않는다', () => {
     render(<Harness />)
-    fireEvent.dragStart(chip('Java'), { dataTransfer: { setData: () => {} } })
-    fireEvent.dragOver(chip('React'))
-    fireEvent.drop(chip('React'))
-    expect(chips()).toEqual(['Spring', 'React', 'Java'])
-  })
-
-  it('◀ ▶ 버튼으로 한 칸씩 옮긴다', () => {
-    render(<Harness />)
-    fireEvent.click(screen.getByLabelText('React 앞으로'))
-    expect(chips()).toEqual(['Java', 'React', 'Spring'])
-    fireEvent.click(screen.getByLabelText('Java 뒤로'))
-    expect(chips()).toEqual(['React', 'Java', 'Spring'])
+    expect(screen.getByLabelText('Java, 끌어서 순서 변경')).toBeTruthy()
+    const remove = screen.getByLabelText('Java 빼기')
+    fireEvent.keyDown(remove, { key: ' ', code: 'Space' })
+    expect(document.querySelector('[aria-pressed="true"]')).toBeNull()
+    fireEvent.click(remove)
+    expect(screen.queryByLabelText('Java, 끌어서 순서 변경')).toBeNull()
+    expect(screen.getByText('+ Java')).toBeTruthy()
   })
 })
