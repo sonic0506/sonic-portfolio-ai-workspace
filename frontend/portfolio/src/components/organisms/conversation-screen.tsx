@@ -123,10 +123,9 @@ export function ConversationScreen({ conversationId }: { conversationId: string 
   if (phase === 'missing' || phase === 'expired' || gone) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
-        <span className="font-mono text-2xs text-text-3">{phase === 'missing' ? '404' : '만료됨'}</span>
         <p className="text-md break-keep text-text-2">
           {phase === 'missing'
-            ? '이 브라우저에 없는 대화입니다.'
+            ? '대화는 처음 시작한 브라우저에만 저장되어 여기서는 볼 수 없습니다.'
             : '마지막 질문 후 24시간이 지나 삭제된 대화입니다.'}
         </p>
         <Button variant="outline" size="sm" asChild>
@@ -187,8 +186,10 @@ export function ConversationScreen({ conversationId }: { conversationId: string 
             autoFocus
           />
           <p className="mt-2 text-center font-mono text-2xs text-text-3">
-            공개된 글을 근거로 답합니다 · 대화는 마지막 질문 후 24시간 뒤 삭제됩니다 · 질문 내용은 답변 품질 개선을
-            위해 7일간 보관됩니다
+            {/* 좁은 화면에서 한 글자만 다음 줄로 넘어가지 않도록 항목 단위로만 줄바꿈한다. */}
+            <span className="whitespace-nowrap">공개된 글을 근거로 답합니다</span> ·{' '}
+            <span className="whitespace-nowrap">대화는 마지막 질문 후 24시간 뒤 삭제됩니다</span> ·{' '}
+            <span className="whitespace-nowrap">질문 내용은 답변 품질 개선을 위해 7일간 보관됩니다</span>
           </p>
         </div>
       </div>

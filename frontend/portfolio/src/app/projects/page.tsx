@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/site";
 import { MiniChatPrompt } from "@/components/molecules/mini-chat-prompt";
 import { ProjectsView } from "@/components/organisms/projects-view";
 
-export const metadata: Metadata = { title: "프로젝트" };
+export const metadata: Metadata = pageMetadata({ title: "프로젝트", description: "역할·기간·기술로 정리한 프로젝트 작업 기록입니다.", path: "/projects" });
 
 /** 셸은 정적이고 목록은 브라우저에서 받는다(ADR-0021). */
 export default function ProjectsPage() {

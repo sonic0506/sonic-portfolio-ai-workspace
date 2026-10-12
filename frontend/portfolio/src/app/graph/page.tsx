@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/site";
 import { Suspense } from "react";
 import { GraphScreen } from "@/components/organisms/graph-screen";
 import { getGraph } from "@/lib/api";
 
-export const metadata: Metadata = { title: "그래프" };
+export const metadata: Metadata = pageMetadata({ title: "그래프", description: "프로젝트·블로그 글·카테고리·스킬이 서로 어떻게 이어지는지 보여 주는 문서 관계 그래프입니다.", path: "/graph" });
 
 /**
  * 선택·필터·검색은 화면이 URL 쿼리(node, hide, q)에서 직접 읽고 쓴다.

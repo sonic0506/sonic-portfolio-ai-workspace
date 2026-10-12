@@ -144,7 +144,7 @@ export function GraphScreen({ data }: { data: GraphApiResponse }) {
 
       {/* 통계·범례·힌트는 데이터라 mono. 클릭을 가로채지 않는다. */}
       <p className="pointer-events-none absolute top-5 right-5 font-mono text-2xs text-text-3">
-        {counts.nodes} nodes · {counts.edges} edges
+        노드 {counts.nodes} · 연결 {counts.edges}
       </p>
 
       <div className="pointer-events-none absolute bottom-5 left-5 flex flex-col gap-1 font-mono text-2xs text-text-3">

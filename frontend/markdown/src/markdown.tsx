@@ -104,7 +104,8 @@ function components({ Link = InlineLink, Questions = QuestionsPreview }: Markdow
         {children}
       </th>
     ),
-    td: ({ children }) => <td className="border-b border-border px-3 py-2.5 align-top text-md">{children}</td>,
+    // 좁은 화면에서 첫 열 항목명("기록 범위")이 글자 단위로 꺾이지 않게 최소 폭만 준다. 긴 첫 열은 그대로 줄바꿈한다.
+    td: ({ children }) => <td className="border-b border-border px-3 py-2.5 align-top text-md first:min-w-24">{children}</td>,
     img: ({ src, alt }) =>
       // 본문 이미지는 외부 주소라 next/image 최적화 대상이 아니다.
       typeof src === "string" ? <img src={src} alt={alt ?? ""} className="my-6 rounded-md border border-border" /> : null,

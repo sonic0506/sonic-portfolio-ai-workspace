@@ -20,7 +20,7 @@ export function ProjectsView() {
   return (
     <>
       <header className="flex items-baseline justify-between gap-4">
-        <h1 className="text-xl">Projects</h1>
+        <h1 className="text-xl">프로젝트</h1>
         {/* 총 개수는 데이터라 mono. */}
         {total === null ? (
           !isError && <Skeleton className="h-3 w-5" />

@@ -12,8 +12,10 @@ describe("blog", () => {
     expect(readMinutes([{ title: "", bodyMarkdown: "가".repeat(1500) }])).toBe(3);
   });
 
-  it("목록 주소 쿼리를 조건으로 읽고, 잘못된 page는 0이다", () => {
-    expect(postsParamsFrom(new URLSearchParams("category=ai&tag=rag&page=2"))).toEqual({ page: 2, category: "ai", tag: "rag" });
+  it("목록 주소 쿼리를 조건으로 읽는다. 주소의 page는 1부터, 조건의 page는 0부터이고 잘못된 page는 첫 페이지다", () => {
+    expect(postsParamsFrom(new URLSearchParams("category=ai&tag=rag&page=2"))).toEqual({ page: 1, category: "ai", tag: "rag" });
+    expect(postsParamsFrom(new URLSearchParams("page=1")).page).toBe(0);
+    expect(postsParamsFrom(new URLSearchParams("page=0")).page).toBe(0);
     expect(postsParamsFrom(new URLSearchParams("page=-3"))).toEqual({ page: 0, category: undefined, tag: undefined });
     expect(postsParamsFrom(new URLSearchParams("page=abc")).page).toBe(0);
   });
@@ -22,6 +24,7 @@ describe("blog", () => {
     expect(postsPath({ page: 1, category: "ai", tag: "a b" })).toBe("/api/blog/posts?page=1&category=ai&tag=a+b");
     expect(postsPath({})).toBe("/api/blog/posts");
     expect(blogListPath({ category: "ai", page: 0 })).toBe("/blog?category=ai");
+    expect(blogListPath({ page: 1 })).toBe("/blog?page=2");
     expect(blogListPath({})).toBe("/blog");
   });
 });

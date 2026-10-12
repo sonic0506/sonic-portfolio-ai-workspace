@@ -39,8 +39,11 @@ const FIT_MARGIN_Y = 140;
 
 /** 이 배율부터는 라벨을 전부 편다. */
 const LABEL_ZOOM = 1.8;
-/** 연결이 이만큼 있는 노드는 라벨을 항상 단다. 카테고리는 늘 단다. */
-const LABEL_DEGREE = 3;
+/**
+ * 기본 배율에서 라벨을 늘 다는 종류. 연결 수 기준(3 이상)은 노드 188개 중 107개에 라벨이 붙어
+ * 글자가 겹쳤다(2026-10-12 운영 QA). 글·스킬 라벨은 확대·hover·선택 때 보인다.
+ */
+const ALWAYS_LABELED = new Set<GraphNodeType>(['CATEGORY', 'PROJECT']);
 const LABEL_SIZE = 10;
 const LABEL_OFFSET = 7;
 
@@ -369,8 +372,7 @@ export function GraphCanvas({ graph, query, hidden, selectedId, onSelect, focus,
         const alpha = fadeOf(node, NODE_START_ALPHA);
         if (alpha <= 0.005) continue;
         const show =
-          node.type === 'CATEGORY' ||
-          node.degree >= LABEL_DEGREE ||
+          ALWAYS_LABELED.has(node.type) ||
           node.id === hoverRef.current ||
           node.id === propsRef.current.selectedId ||
           globalScale >= LABEL_ZOOM;
@@ -466,6 +468,8 @@ export function GraphCanvas({ graph, query, hidden, selectedId, onSelect, focus,
     const pending = pendingFocusRef.current;
     if (pending) {
       pendingFocusRef.current = null;
+      // 전체 맞춤 배율로는 노드가 점처럼 작아 어디인지 보이지 않는다. 주변 라벨이 펴지는 배율까지 당긴다.
+      graphRef.current.zoom(Math.max(graphRef.current.zoom(), LABEL_ZOOM), 0);
       focusNode(pending, true);
     }
   }, [fitView, focusNode]);

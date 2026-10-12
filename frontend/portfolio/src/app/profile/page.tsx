@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_NAME, pageMetadata } from "@/lib/site";
 import Link from "next/link";
 import { ArrowRight, Mail } from "lucide-react";
 import { siGithub } from "simple-icons";
@@ -12,7 +13,7 @@ import { extractHeadings, type DocHeading } from "@/lib/headings";
 import type { SkillGroupCode } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "소개" };
+export const metadata: Metadata = pageMetadata({ title: "소개", description: "경력과 주요 성과, 사용하는 기술 스택을 정리한 소개 페이지입니다.", path: "/profile" });
 
 // 그룹 표시명은 프론트에서 정한다(API_DESIGN).
 const GROUP_LABEL: Record<SkillGroupCode, string> = {
@@ -40,13 +41,13 @@ export default async function ProfilePage() {
 
   const header = (
     <header>
-      <h1 className="text-xl">Profile</h1>
+      <h1 className="text-xl">소개</h1>
       <div className="mt-4 flex gap-6 max-sm:flex-col">
         {profile.imageUrl && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={profile.imageUrl}
-            alt=""
+            alt={`${SITE_NAME} 프로필 사진`}
             className="h-56 w-45 shrink-0 rounded-lg border border-border bg-surface object-cover"
           />
         )}

@@ -34,7 +34,7 @@ export function BlogView({ categories }: { categories: CategoryCount[] }) {
         <div className="flex items-baseline gap-2.5">
           {/* 카테고리 색은 이 점에서만 쓴다. */}
           {category && <CategoryDot color={current?.color} className="translate-y-px" />}
-          <h1 className="min-w-0 flex-1 truncate text-xl">{current?.name ?? (category ? category : 'Blog')}</h1>
+          <h1 className="min-w-0 flex-1 truncate text-xl">{current?.name ?? (category ? category : '블로그')}</h1>
           {/* 글 수는 데이터라 mono. */}
           {data ? (
             <span className="shrink-0 font-mono text-2xs text-text-3">{data.totalElements}</span>
@@ -102,7 +102,7 @@ export function BlogSkeleton() {
   return (
     <>
       <header>
-        <h1 className="text-xl">Blog</h1>
+        <h1 className="text-xl">블로그</h1>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <BlogSearchButton />
         </div>

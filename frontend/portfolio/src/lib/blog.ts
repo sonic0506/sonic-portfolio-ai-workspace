@@ -15,10 +15,11 @@ export function postsPath(params: PostsParams): string {
   return `/api/blog/posts${qs ? `?${qs}` : ""}`;
 }
 
-/** /blog 주소의 쿼리 → 목록 조건. 잘못된 page는 0이다. */
+/** /blog 주소의 쿼리 → 목록 조건. 잘못된 page는 첫 페이지(0)다. */
 export function postsParamsFrom(search: URLSearchParams): PostsParams & { page: number } {
   return {
-    page: Math.max(0, Math.floor(Number(search.get("page"))) || 0),
+    // 주소는 사람이 읽는 1부터, API 조건은 0부터.
+    page: Math.max(1, Math.floor(Number(search.get("page"))) || 1) - 1,
     category: search.get("category") || undefined,
     tag: search.get("tag") || undefined,
   };
@@ -29,7 +30,7 @@ export function blogListPath({ page, category, tag }: PostsParams): string {
   const q = new URLSearchParams();
   if (category) q.set("category", category);
   if (tag) q.set("tag", tag);
-  if (page) q.set("page", String(page));
+  if (page) q.set("page", String(page + 1));
   const qs = q.toString();
   return `/blog${qs ? `?${qs}` : ""}`;
 }

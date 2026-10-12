@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/site";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { siGithub } from "simple-icons";
@@ -21,7 +22,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<"/projects/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const project = await getProject(slug);
-  return { title: project.title, description: project.summary };
+  return pageMetadata({ title: project.title, description: project.summary, path: `/projects/${slug}` });
 }
 
 const linkStyle =
@@ -41,7 +42,7 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[slug
         className="-ml-2.5 inline-flex w-fit items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-text-2 transition-colors hover:bg-surface-hi hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         <ArrowLeft className="size-3.5" strokeWidth={1.5} />
-        Projects
+        프로젝트
       </Link>
 
       <h1 className="mt-2 text-xl leading-[1.4] font-medium break-keep">{project.title}</h1>

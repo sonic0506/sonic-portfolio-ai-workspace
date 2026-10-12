@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/site";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { CategoryDot } from "@/components/atoms/category-dot";
@@ -20,7 +21,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<"/blog/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPost(slug);
-  return { title: post.title, description: post.summary };
+  return pageMetadata({ title: post.title, description: post.summary, path: `/blog/${slug}` });
 }
 
 export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
@@ -53,7 +54,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
             {post.category.name}
           </>
         ) : (
-          "Blog"
+          "블로그"
         )}
       </Link>
 

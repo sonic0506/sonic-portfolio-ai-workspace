@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { HomeScreen } from "@/components/organisms/home-screen";
 import { getCategories, getProfileOrNull, getProjects } from "@/lib/api";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 /** 짧은 소개를 문장 단위로 나눠 히어로 슬라이드로 쓴다. */
 function sentences(text: string | null | undefined): string[] {
