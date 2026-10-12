@@ -39,10 +39,10 @@ export function PostInfoCard({
 
       <button
         type="button"
-        onClick={() => askChat(`"${title}" 글을 요약해줘`)}
+        onClick={() => askChat(`"${title}" 글을 요약해 주세요`)}
         className="-mx-2 flex w-[calc(100%+16px)] cursor-pointer items-center gap-2 rounded-md px-2 py-[7px] text-left text-sm text-text-2 transition-colors hover:bg-surface-hi hover:text-text-1"
       >
-        <CornerDownRight className="size-3.5 shrink-0 text-text-3" strokeWidth={1.5} />이 글 요약해줘
+        <CornerDownRight className="size-3.5 shrink-0 text-text-3" strokeWidth={1.5} />이 글 요약해 주세요
       </button>
     </section>
   );

@@ -35,7 +35,7 @@ function toContent(graph: Graph, node: GraphNode): PanelContent {
         chips: neighborsOfType(graph, node.id, 'SKILL').map((s) => s.title),
         href: node.url,
         cta: '프로젝트 열기',
-        chatPrompt: `"${node.title}" 프로젝트에 대해 알려줘`,
+        chatPrompt: `"${node.title}" 프로젝트에 대해 알려 주세요`,
       };
     case 'BLOG':
       return {
@@ -45,7 +45,7 @@ function toContent(graph: Graph, node: GraphNode): PanelContent {
         chips: (node.tags ?? []).map((t) => `#${t}`),
         href: node.url,
         cta: '글 열기',
-        chatPrompt: `"${node.title}" 글을 요약해줘`,
+        chatPrompt: `"${node.title}" 글을 요약해 주세요`,
       };
     case 'CATEGORY':
       return {
@@ -55,7 +55,7 @@ function toContent(graph: Graph, node: GraphNode): PanelContent {
         chips: [],
         href: node.url,
         cta: '글 목록 보기',
-        chatPrompt: `${node.title} 관련 경험을 알려줘`,
+        chatPrompt: `${node.title} 관련 경험을 알려 주세요`,
       };
     case 'SKILL':
       return {

@@ -23,7 +23,7 @@ export function ProfileCard({ headline, meta }: { headline: string; meta: string
       )}
       <div className="h-px bg-border" />
       <SuggestionChips
-        suggestions={['어떤 개발자인지 짧게 소개해줘']}
+        suggestions={['어떤 개발자인지 짧게 소개해 주세요']}
         onSelect={askChat}
         className="[&>button]:w-full"
       />
