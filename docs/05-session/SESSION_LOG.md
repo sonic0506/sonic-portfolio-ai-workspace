@@ -10,7 +10,8 @@
 - 백엔드: V9(`reason` null 허용, 상태 `ANSWERED` 추가). `UnansweredQuestionService.record`가 모든 답변을 저장(정상 답변은 `ANSWERED`), 정리 작업이 `ANSWERED`를 7일 뒤 삭제(`CHAT_ANSWERED_RETENTION_DAYS`). 테스트: 인용 답변이 `ANSWERED`로 저장·조회, 7일/90일 보관 분리, FAQ 테스트의 "기록 없음" 단언은 `ANSWERED` 제외로 조정.
 - 어드민: 상태 탭에 "답변완료", 해당 카드는 사유 배지·메모·상태 버튼을 숨기고 FAQ 등록·삭제만. 포트폴리오: 채팅 입력창 아래 "질문 내용은 답변 품질 개선을 위해 7일간 보관됩니다" 추가.
 - 문서: ADR-0022 신규, ADR-0013 후속 링크, API_DESIGN·DATA_MODEL.
-- 검증: 백엔드 136건, 어드민 lint·build·test 27, 포트폴리오 eslint·tsc·test 32 통과. 어드민 화면은 GitHub 로그인이 필요해 브라우저로 보지 못함(미검증). 운영 미반영(재배포 시 V9 적용).
+- 검증: 백엔드 136건, 어드민 lint·build·test 27, 포트폴리오 eslint·tsc·test 32 통과. 어드민 화면은 GitHub 로그인이 필요해 브라우저로 보지 못함(미검증).
+- 같은 날 운영 반영(사용자 요청): Lightsail 스냅샷(사용자), SSH 허용 IP `211.38.171.3` 추가(사용자). 운영 이미지 `prev` 태그 → amd64 이미지 전송 → API 교체, Flyway v8→v9 적용, health UP, 운영 DB 상태 check에 `ANSWERED` 포함 확인. `main` 푸시(`7ec918a`)로 Vercel 배포 트리거. 운영 채팅 후 답변완료 탭 표시는 미확인.
 
 ## 2026-10-12 — Polite Form in Suggested Chat Prompts
 
