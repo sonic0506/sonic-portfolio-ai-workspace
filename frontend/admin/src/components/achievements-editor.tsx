@@ -1,7 +1,8 @@
-import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form'
 import { Field } from '@/components/form'
 import { MarkdownEditor } from '@/components/markdown-editor'
+import { SortableList, SortableRow } from '@/components/sortable-list'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useProjects } from '@/features/content-queries'
@@ -23,30 +24,19 @@ export function AchievementsEditor({ careerIndex }: { careerIndex: number }) {
           주요 성과 추가
         </Button>
       </div>
+      <SortableList ids={items.fields.map((f) => f.id)} onMove={items.move}>
       {items.fields.map((field, j) => {
         const ae = errors?.[j]
         const id = (name: string) => `careers.${careerIndex}.achievements.${j}.${name}`
         return (
-          <details key={field.id} open={!field.title} className="rounded-md border bg-background p-3">
+          <SortableRow key={field.id} id={field.id} label={field.title || `성과 ${j + 1}`}>
+          <details open={!field.title} className="rounded-md border bg-background p-3">
             <summary className="cursor-pointer text-sm font-medium">{field.title || '새 성과'}</summary>
             <div className="mt-3 space-y-3">
               <div className="flex items-end gap-2">
                 <Field label="성과명 (프로젝트)" htmlFor={id('title')} error={ae?.title} className="flex-1">
                   <Input id={id('title')} {...register(`careers.${careerIndex}.achievements.${j}.title`)} />
                 </Field>
-                <Button type="button" size="icon" variant="ghost" disabled={j === 0} onClick={() => items.move(j, j - 1)} aria-label="성과 위로">
-                  <ArrowUp />
-                </Button>
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  disabled={j === items.fields.length - 1}
-                  onClick={() => items.move(j, j + 1)}
-                  aria-label="성과 아래로"
-                >
-                  <ArrowDown />
-                </Button>
                 <Button type="button" size="icon" variant="ghost" className="text-destructive" onClick={() => items.remove(j)} aria-label="성과 삭제">
                   <Trash2 />
                 </Button>
@@ -90,8 +80,13 @@ export function AchievementsEditor({ careerIndex }: { careerIndex: number }) {
               </Field>
             </div>
           </details>
+          </SortableRow>
         )
       })}
+      </SortableList>
+      {items.fields.length > 1 && (
+        <p className="text-xs text-muted-foreground">⠿를 끌어서 순서를 바꿀 수 있습니다. 위에 있을수록 먼저 보입니다.</p>
+      )}
     </div>
   )
 }
