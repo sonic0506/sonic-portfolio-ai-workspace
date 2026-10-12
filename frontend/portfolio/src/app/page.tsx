@@ -1,5 +1,3 @@
-import { Fragment } from "react";
-import { Mono } from "@/components/atoms/mono";
 import { HomeScreen } from "@/components/organisms/home-screen";
 import { getCategories, getProfileOrNull, getProjects } from "@/lib/api";
 
@@ -19,13 +17,6 @@ export default async function HomePage() {
 
   const slides = [
     ...sentences(profile?.shortBio).map((s) => [s]),
-    [
-      // 클라이언트 컴포넌트로 넘기는 요소 배열이라 key가 필요하다.
-      <Fragment key="count">
-        <Mono className="text-sm">{projectCount}</Mono>개의 프로젝트와 <Mono className="text-sm">{postCount}</Mono>건의 글로
-        저를 소개합니다
-      </Fragment>,
-    ],
   ];
 
   return (
