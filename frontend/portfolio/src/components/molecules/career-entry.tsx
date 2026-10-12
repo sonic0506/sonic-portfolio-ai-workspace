@@ -1,4 +1,4 @@
-import { ChevronDown } from 'lucide-react';
+import { ArrowRight, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { Markdown } from '@/components/markdown/markdown';
 import type { Achievement, Career } from '@/lib/types';
@@ -23,15 +23,19 @@ function AchievementItem({ item }: { item: Achievement }) {
   const period = `${formatMonth(item.periodStart)} - ${item.periodEnd ? formatMonth(item.periodEnd) : '진행 중'}`;
   return (
     <li>
-      <h4 className="text-base leading-[1.4] font-medium tracking-[-0.02em]">
-        {item.project ? (
-          <Link href={item.project.url} className="hover:text-accent">
-            {item.title} <span aria-hidden="true" className="text-text-3">→</span>
+      <div className="flex items-start justify-between gap-3">
+        <h4 className="text-base leading-[1.4] font-medium tracking-[-0.02em]">{item.title}</h4>
+        {item.project && (
+          <Link
+            href={item.project.url}
+            aria-label={`${item.title} 프로젝트 상세 보기`}
+            className="inline-flex shrink-0 items-center gap-1 rounded-md border border-border px-2.5 py-1 text-sm text-text-2 hover:border-accent hover:text-accent focus-visible:outline-2 focus-visible:outline-accent"
+          >
+            상세 보기
+            <ArrowRight aria-hidden="true" className="size-3.5" />
           </Link>
-        ) : (
-          item.title
         )}
-      </h4>
+      </div>
       <MetaLine items={[period, item.job, item.position]} />
       {item.bodyMarkdown && <Markdown className="mt-2 text-md text-text-2">{item.bodyMarkdown}</Markdown>}
     </li>
@@ -83,7 +87,7 @@ export function CareerEntry({ career }: { career: Career }) {
         {rest.length > 0 && (
           // 서버 컴포넌트라 JS 없이 <details>로 접는다. 접힌 성과도 HTML에 남아 검색·찾기에 걸린다.
           <details className="group mt-10">
-            <summary className="inline-flex cursor-pointer list-none items-center gap-1 rounded-md text-sm text-text-2 hover:text-accent focus-visible:outline-2 focus-visible:outline-accent [&::-webkit-details-marker]:hidden">
+            <summary className="inline-flex cursor-pointer list-none items-center gap-1 rounded-md border border-border px-3 py-1.5 text-sm text-text-2 hover:border-accent hover:text-accent focus-visible:outline-2 focus-visible:outline-accent [&::-webkit-details-marker]:hidden">
               <span className="group-open:hidden">주요 성과 {rest.length}개 더보기</span>
               <span className="hidden group-open:inline">접기</span>
               <ChevronDown aria-hidden="true" className="size-4 transition-transform group-open:rotate-180" />
