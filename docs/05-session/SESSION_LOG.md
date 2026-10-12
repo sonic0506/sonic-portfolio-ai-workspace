@@ -10,7 +10,7 @@
 - 원인 1: 캐시 MISS 때 Vercel 함수가 `iad1`(미국 동부)에서 실행되어 서울 API 왕복이 쌓임(MISS 0.8~2.2초, API 자체 0.1초, `x-vercel-id: icn1::iad1`). 배포 직후·첫 방문 글마다 MISS. 상세 화면 로딩은 루트 스피너뿐이었다.
 - 수정: `frontend/portfolio/vercel.json` `regions: ["icn1"]`. `DocSkeleton`(DocLayout과 같은 폭·여백) + `blog/[slug]`·`projects/[slug]`·`profile`의 `loading.tsx`. 홈·그래프·채팅은 루트 스피너 유지(목록 2개는 이미 스켈레톤).
 - 원인 2: aside가 `sticky top-0`에 높이 제한이 없었다. 수정: `top-10` + `max-h-[calc(100dvh-7.5rem)]`(위아래 여백 제외), 목차만 안에서 스크롤, 카드는 고정 표시, 활성 항목이 목차 밖으로 나가면 목차 상자만 따라 스크롤.
-- 검증: tsc·eslint·vitest 32·build, 로컬 프로덕션(운영 API)에서 `ddd-aggregate` 중간·맨 끝 스크롤 시 aside top 40px·카드 하단 720/800, 프로젝트·소개 이동 시 스켈레톤 표시 확인. 커밋 `42bb7ab`·`9f2a559` 푸시 후 운영 측정: `x-vercel-id: icn1::icn1`, 캐시 MISS 상세 TTFB 0.25~0.40초(이전 0.8~2.2초).
+- 검증: tsc·eslint·vitest 32·build, 로컬 프로덕션(운영 API)에서 `ddd-aggregate` 중간·맨 끝 스크롤 시 aside top 40px·카드 하단 720/800, 프로젝트·소개 이동 시 스켈레톤 표시 확인. 커밋 `42bb7ab`·`9f2a559` 푸시 후 운영 측정: `x-vercel-id: icn1::icn1`, 캐시 MISS 상세 TTFB 0.25~0.40초(이전 0.8~2.2초). 운영 `ddd-aggregate` 목차는 사용자가 확인함.
 
 ## 2026-10-12 — Production QA Fixes
 
