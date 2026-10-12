@@ -5,7 +5,7 @@ import { ArrowRight, Mail } from "lucide-react";
 import { siGithub } from "simple-icons";
 import { TechIcon } from "@/components/atoms/tech-icon";
 import { CareerEntry } from "@/components/molecules/career-entry";
-import { ProfileCard } from "@/components/molecules/profile-card";
+import { ProfileCard, type ProfileMeta } from "@/components/molecules/profile-card";
 import { DocLayout } from "@/components/organisms/doc-layout";
 import { Sections } from "@/components/site/sections";
 import { getProfile } from "@/lib/api";
@@ -63,7 +63,11 @@ export default async function ProfilePage() {
     </header>
   );
 
-  const meta = [profile.careers[0]?.role, profile.githubUrl, profile.email].filter(Boolean) as string[];
+  const meta = [
+    profile.careers[0]?.role && { text: profile.careers[0].role },
+    profile.githubUrl && { text: profile.githubUrl, href: profile.githubUrl },
+    profile.email && { text: profile.email, href: `mailto:${profile.email}` },
+  ].filter(Boolean) as ProfileMeta[];
 
   return (
     <DocLayout headings={headings} header={header} aside={<ProfileCard headline={profile.headline} meta={meta} />}>
