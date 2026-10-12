@@ -1,6 +1,6 @@
 # 포트폴리오 RAG 챗봇 아키텍처
 
-> 2026-09-28 코드 기준 스냅샷. 이 문서 하나로 전체 구조를 이해할 수 있도록 결정 이유와 측정 수치를 함께 담았다.
+> 2026-10-12 코드 기준 스냅샷(처음 작성 2026-09-28). 이 문서 하나로 전체 구조를 이해할 수 있도록 결정 이유와 측정 수치를 함께 담았다.
 > 저장소 안의 기준 문서(설계·결정 기록·측정 기록)가 바뀌면 이 문서도 갱신해야 한다.
 
 ---
@@ -78,7 +78,7 @@ flowchart TD
 
     USER["방문자 질문<br/>Portfolio (Next.js)"] --> API["채팅 API<br/>SSE 스트리밍"]
 
-    API --> SEARCH["1. 벡터 검색<br/>상위 5 청크"]
+    API --> SEARCH["1. 벡터 검색<br/>상위 5 청크<br/>공개 + 채팅 반영 카테고리"]
     SEARCH --> CH
     SEARCH --> EXPAND["2. 참고 관계 확장<br/>1-hop, 최대 2 문서"]
     EXPAND --> REL
@@ -90,7 +90,8 @@ flowchart TD
     GEN --> CHECK{"5. 근거 확인<br/>NO_ANSWER 표시 / 인용 여부"}
     CHECK -->|"근거 있음"| ANSWER["답변 + 출처"]
     CHECK -->|"근거 부족"| GUIDE["안내 문구"]
-    GUIDE --> UNQ
+    GUIDE -->|"미답변 90일"| UNQ
+    ANSWER -.->|"답변완료 7일"| UNQ
     UNQ --> UQ
     UQ -->|"FAQ로 등록"| EDIT
 
@@ -176,7 +177,7 @@ flowchart LR
 | 임베딩 | `text-embedding-3-small` (1536차원) | 한국어 질문 7개에서 기대 출처 7/7 회수. `-large`는 약 6.5배 비용에 저장 공간 2배라 이득이 확인되지 않음 |
 | 생성·판단 | `gpt-4.1-mini`, temperature 0 | 질문 7개 모두 기대대로 답변·거절. 같은 질문에 같은 답이 나오도록 온도 0 |
 
-배포 계획은 Vercel(프론트) + 서울 Lightsail 2GB(Spring Boot) + RDS PostgreSQL micro이며, 월 운영비 상한은 10만 원이다(아직 배포 전).
+운영은 `sonic-portfolio.com`이다. 프론트는 Vercel, 백엔드는 서울 Lightsail 4GB 1대에 Docker Compose로 Spring Boot·PostgreSQL/pgvector·Caddy를 함께 띄운다(ADR-0017, RDS 미사용). 월 운영비 상한은 10만 원이다.
 
 ---
 
@@ -202,7 +203,7 @@ flowchart LR
 - `visible`은 원본의 공개 여부를 따른다. 비공개 문서도 행은 존재하며, **검색하는 시점에** `where visible` 조건으로 걸러진다. 공개를 해제하면 재색인을 기다리지 않고 즉시 검색에서 빠진다.
 - 관리자 메모와 추천 질문 블록은 본문에서 제외한다.
 - metadata에는 `slug`, `skills`, `contentHash`만 쓴다.
-- Document 타입: `PROJECT`, `BLOG`, `PROFILE`, `FAQ`. 경력은 프로필 섹션에 포함된다.
+- Document 타입: `PROJECT`, `BLOG`, `PROFILE`, `FAQ`. 경력과 경력 성과는 프로필 문서 안에 `## 경력 · 회사`, `## 회사 · 성과명` 섹션으로 들어가, 성과 하나가 청크 하나가 되도록 한다(ADR-0019).
 - FAQ는 제목 "자주 묻는 질문: {질문}"으로 투영되어, 일반 콘텐츠와 같은 검색 경로로 찾아진다.
 
 ## 4.2 청킹 → 임베딩
@@ -280,7 +281,7 @@ sequenceDiagram
     S-->>V: status: SEARCHING
     S->>S: 검색어 = 직전 질문 + 현재 질문
     S->>R: 벡터 검색 (상위 5)
-    R->>DB: 공개 청크 코사인 상위 5
+    R->>DB: 공개 청크 코사인 상위 5<br/>(채팅 반영 끈 카테고리의 블로그 제외)
     S-->>V: documents
 
     S->>R: 연관 문서 (최대 2)
@@ -299,7 +300,7 @@ sequenceDiagram
     end
 
     S->>S: 답변의 [n] → 인용 문서 추출
-    C->>DB: 턴 저장, 미답변이면 보관
+    C->>DB: 턴 저장, 질문 기록<br/>(미답변 90일 / 답변완료 7일)
     C-->>V: done (출처, unanswered)
 ```
 
@@ -310,7 +311,7 @@ sequenceDiagram
 | 질문 제한 | 메모리 카운터. 설정으로 끄거나 수치 변경, 제외 IP 지정 가능 | IP당 하루 20, 전체 하루 300 |
 | 세션 | 서버가 발급한 ID + 비밀키(해시로 저장). 마지막 활동 기준 만료 | 24시간, 세션당 30질문 |
 | 후속 질문 처리 | 직전 질문을 검색어 앞에 붙임(별도 재작성 호출 없음) | 최근 3턴을 프롬프트에 전달 |
-| 벡터 검색 | pgvector 코사인 거리, 공개 필터 | 상위 5 |
+| 벡터 검색 | pgvector 코사인 거리, 공개 필터, 카테고리 `rag_enabled` 필터 | 상위 5 |
 | 관계 확장 | 검색된 문서와 연결된 공개 문서, 문서당 최근접 청크 1개 | 최대 2 문서 |
 | FAQ 판정 | 검색 결과에 FAQ가 있을 때만 LLM에게 번호 선택 | 0이면 일반 답변 |
 | 답변 생성 | 근거만 사용, 번호 인용, 스트리밍 | gpt-4.1-mini, T=0 |
@@ -369,6 +370,7 @@ text-embedding-3-small
 document_chunk.embedding <=> query   (코사인 거리)
 ↓
 where document.visible
+  and 블로그면 카테고리.rag_enabled   (ADR-0018)
 ↓
 상위 5 청크
 ```
@@ -540,7 +542,7 @@ FAQ 판정을 답변 생성과 **분리한 이유**: 처음에는 답변 프롬�
 ## 8.6 측정의 한계
 
 - 표본이 작다(공개 문서 5건, 질문 7개). 콘텐츠가 늘면 점수 분포가 달라진다.
-- 측정은 샘플 콘텐츠 기준이다. 2026-09-28 실제 콘텐츠(프로젝트 7건, 블로그 12편)로 바꿨으므로 **재측정이 필요하다.**
+- 측정은 샘플 콘텐츠 기준이다. 지금 운영 콘텐츠는 프로젝트 13건, 블로그 98편(색인 문서 약 111건)이고, 채팅 근거로 쓰는 블로그는 `rag_enabled` 카테고리(초기값: 경험 글 3개 카테고리)로 좁혔다. **이 규모로는 재측정하지 않았다.**
 - 길이는 토큰이 아니라 문자 수로 쟀다.
 - 여러 프로젝트를 비교하는 질문, 근거를 유도하는 질문은 측정하지 않았다.
 
@@ -569,12 +571,13 @@ flowchart LR
 | 항목 | 내용 |
 |---|---|
 | 질문, 답변 | 방문자 질문과 실제로 나간 안내 |
-| 사유 | `NO_EVIDENCE`(모델 표시) / `NO_CITATION`(인용 없음) |
+| 사유 | `NO_EVIDENCE`(모델 표시) / `NO_CITATION`(인용 없음) / 정상 답변은 없음 |
 | 당시 검색 문서 | 유형·slug·제목·거리. 검색이 문제인지 콘텐츠가 없는지 구분하는 데 쓴다 |
-| 상태 | `OPEN` / `RESOLVED` / `IGNORED` + 관리자 메모 |
+| 상태 | `OPEN` / `RESOLVED` / `IGNORED` + 관리자 메모, 정상 답변은 `ANSWERED` |
 
 - 방문자 식별 정보(IP 등)는 저장하지 않는다.
 - 질문에 개인정보가 섞일 수 있어 90일 후 자동 삭제한다.
+- 정상 답변도 같은 테이블에 `ANSWERED`로 7일 보관한다(ADR-0022). 어드민 "답변완료" 탭에서 잘 답한 질문을 보고 FAQ로 고정할 수 있다.
 - 채팅 세션(24시간)이 지워져도 기록은 남고, 세션 연결만 끊긴다.
 
 ---
@@ -640,9 +643,9 @@ erDiagram
     chat_unanswered_question {
         text question
         text answer
-        text reason "NO_EVIDENCE NO_CITATION"
+        text reason "NO_EVIDENCE NO_CITATION, ANSWERED면 null"
         jsonb retrieved
-        text status "OPEN RESOLVED IGNORED"
+        text status "OPEN RESOLVED IGNORED ANSWERED"
     }
     faq {
         text question
@@ -653,6 +656,7 @@ erDiagram
 
 - `document`는 `(document_type, source_id)`로 원본과 1:1이다. 원본을 고치면 다시 투영되고, RAG 데이터를 직접 편집하지 않는다.
 - `document_relation`은 자기 자신 연결을 금지하고, 같은 쌍의 중복을 막는다.
+- `category.rag_enabled`(V6)는 블로그 글을 채팅 근거로 쓸지 정한다. 검색 SQL이 매번 확인하므로 값을 바꿔도 재색인할 필요가 없다.
 
 ---
 
