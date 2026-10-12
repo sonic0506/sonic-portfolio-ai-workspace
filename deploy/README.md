@@ -81,3 +81,5 @@ Lightsail 콘솔에서 인스턴스 자동 스냅샷을 켠다(2026-10-04 결정
 | admin | `frontend/admin` | 없음 (`.env.production`, `vercel.json` 사용) | `admin.sonic-portfolio.com` |
 
 portfolio는 빌드할 때 정적 페이지를 만들며 `API_BASE_URL`로 백엔드를 부른다(ADR-0021). 백엔드가 꺼져 있으면 Vercel 빌드가 실패한다. 어드민 수정은 최대 5분 뒤 반영된다.
+
+portfolio 서버 함수는 `frontend/portfolio/vercel.json`의 `regions: ["icn1"]`로 서울에서 실행한다. 기본값(`iad1`, 미국 동부)에서는 캐시 MISS 때 서울 API를 여러 번 왕복해 상세 화면 첫 응답이 1~2초 걸렸다(2026-10-12 측정).

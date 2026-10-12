@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-10-12 — Detail Page Latency, Skeleton, Long TOC
+
+- 사용자 보고: 블로그 상세 진입이 가끔 오래 걸림(스켈레톤·다른 SSR 화면도 확인 요청), `ddd-aggregate`처럼 목차가 길면 우측 목차가 잘리고 스크롤 끝까지 가야 요약 카드가 보임.
+- 원인 1: 캐시 MISS 때 Vercel 함수가 `iad1`(미국 동부)에서 실행되어 서울 API 왕복이 쌓임(MISS 0.8~2.2초, API 자체 0.1초, `x-vercel-id: icn1::iad1`). 배포 직후·첫 방문 글마다 MISS. 상세 화면 로딩은 루트 스피너뿐이었다.
+- 수정: `frontend/portfolio/vercel.json` `regions: ["icn1"]`. `DocSkeleton`(DocLayout과 같은 폭·여백) + `blog/[slug]`·`projects/[slug]`·`profile`의 `loading.tsx`. 홈·그래프·채팅은 루트 스피너 유지(목록 2개는 이미 스켈레톤).
+- 원인 2: aside가 `sticky top-0`에 높이 제한이 없었다. 수정: `top-10` + `max-h-[calc(100dvh-7.5rem)]`(위아래 여백 제외), 목차만 안에서 스크롤, 카드는 고정 표시, 활성 항목이 목차 밖으로 나가면 목차 상자만 따라 스크롤.
+- 검증: tsc·eslint·vitest 32·build, 로컬 프로덕션(운영 API)에서 `ddd-aggregate` 중간·맨 끝 스크롤 시 aside top 40px·카드 하단 720/800, 프로젝트·소개 이동 시 스켈레톤 표시 확인. 지역 변경 효과는 배포 후 측정 필요.
+
 ## 2026-10-12 — Production QA Fixes
 
 - 사용자 요청: QA 보고서 기반 수정 계획(권장안 승인). 결과 표는 `docs/06-testing/PRODUCTION_QA_2026-10-12.md` "처리 결과".

@@ -6,6 +6,11 @@ Last Updated: 2026-10-12
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
+## Priority 0-Latency — 상세 화면 지연·목차 (2026-10-12)
+
+1. 커밋·푸시 후 Vercel 배포에서 함수 지역이 `icn1`인지 확인(`x-vercel-id`가 `icn1::icn1::…`), 캐시 MISS 상세 화면 TTFB 재측정(이전 0.8~2.2초).
+2. 운영에서 `ddd-aggregate` 목차·카드, 상세 이동 스켈레톤 확인.
+
 ## Priority 0-QA — 운영 QA 후속 (2026-10-12)
 
 `docs/06-testing/PRODUCTION_QA_2026-10-12.md` "처리 결과". 코드 수정·Vercel 배포·백엔드 재배포 완료(2026-10-12). 되돌리기: 서버 `portfolio-api:prev`.
