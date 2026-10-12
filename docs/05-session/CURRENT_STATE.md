@@ -8,7 +8,7 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 
 ## Confirmed
 
-- 2026-10-12 마크다운 mermaid 지원(사용자 요청, ADR-0020 후속, 미커밋): 공유 렌더러 `MermaidBlock`, `mermaid@12.0.0` 동적 import. 개발 서버에서 라이트·다크·모바일·문법 오류 확인, 포트폴리오·어드민 test·lint·build 통과. 운영 배포·어드민 미리보기 직접 확인은 안 함.
+- 2026-10-12 마크다운 mermaid 지원(사용자 요청, ADR-0020 후속, `3682b03`, 푸시·Vercel 배포 완료): 공유 렌더러 `MermaidBlock`, `mermaid@12.0.0` 동적 import. 개발 서버에서 라이트·다크·모바일·문법 오류 확인, 포트폴리오·어드민 test·lint·build 통과. AI 포트폴리오 `## RAG 설계`(mermaid 포함)는 `content/`에 반영(`0241088`)했지만 운영 DB 시드는 안 함(사용자 실행 필요). 어드민 미리보기 직접 확인은 안 함.
 
 - 2026-10-12 RAG 구조 문서 갱신(사용자 요청, 코드 변경 없음): `RAG_ARCHITECTURE_OVERVIEW.md`를 10-12 코드 기준으로 맞춤(ADR-0017·0018·0019·0022 반영). 그림 페이지 Artifact https://claude.ai/artifact/NMRFzwyKf4TFV8aUdhMm61 (비공개). 측정 수치는 여전히 샘플 콘텐츠 기준이며 운영 규모 재측정은 하지 않음.
 

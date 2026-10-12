@@ -8,8 +8,10 @@ Last Updated: 2026-10-12
 
 ## Priority 0-Mermaid — 본문 그림 (2026-10-12, ADR-0020 후속)
 
-1. 커밋·배포 후 어드민 에디터 미리보기에서 mermaid 펜스 확인.
-2. 위키 `AI 개발자 포트폴리오/README.md`의 `## RAG 설계` text 블록을 mermaid로 바꿀지 결정 → `convert_wiki.py` 재변환·운영 시드.
+1. (완료) 커밋·푸시, Vercel 두 프로젝트 배포 성공.
+2. 운영 반영: AI 포트폴리오 프로젝트 본문을 어드민에서 직접 고치거나(권장, `content/projects/01-ai-portfolio.md`의 `## RAG 설계`·`## 배운 점`), 스냅샷 후 전체 시드(`deploy/README.md` 3절, 어드민 수정분 덮어씀).
+3. 반영 후 `/projects/ai-portfolio`에서 mermaid 그림, 어드민 미리보기 확인.
+4. 위키 원본 요약 2건 백틱(`bring-and-t-fsd-boundaries`·`humanizer`)이 남아 있어 재변환하면 QA 수정이 되돌아간다. 위키 원본도 고친다.
 
 ## Priority 0-RAG-Doc — RAG 구조 문서 (2026-10-12)
 
