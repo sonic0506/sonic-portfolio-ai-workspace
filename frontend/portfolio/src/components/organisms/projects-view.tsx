@@ -13,7 +13,8 @@ import { useProjects } from '@/lib/queries';
 export function ProjectsView() {
   const { data, isError } = useProjects();
   const featured = data?.featured ?? [];
-  const timeline = groupProjectsByYear(data?.others ?? []);
+  // 전체 작업은 기간별 이력이라 대표 작업도 포함한다. 연도·시작일 순 정렬은 groupProjectsByYear가 맡는다.
+  const timeline = groupProjectsByYear([...featured, ...(data?.others ?? [])]);
   const total = data ? data.featured.length + data.others.length : null;
 
   return (
