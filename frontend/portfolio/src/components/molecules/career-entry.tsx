@@ -1,3 +1,4 @@
+import { ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { Markdown } from '@/components/markdown/markdown';
 import type { Achievement, Career } from '@/lib/types';
@@ -37,11 +38,15 @@ function AchievementItem({ item }: { item: Achievement }) {
   );
 }
 
+/** 성과가 이 수보다 많으면 앞의 VISIBLE_ACHIEVEMENTS개만 펼쳐 두고 나머지는 더보기로 접는다. */
+const VISIBLE_ACHIEVEMENTS = 3;
+
 /**
  * 원티드식 경력 한 항목(ADR-0019): 로고 · 회사 · 재직 기간 | 고용형태 | 직무 | 직책, 그 아래 주요 성과.
  * 로고는 어드민에서 올린 이미지(ADR-0020), 없으면 회사명 첫 글자다.
  */
 export function CareerEntry({ career }: { career: Career }) {
+  const rest = career.achievements.slice(VISIBLE_ACHIEVEMENTS);
   return (
     <li className="flex gap-4">
       <div
@@ -70,10 +75,25 @@ export function CareerEntry({ career }: { career: Career }) {
         )}
         {career.achievements.length > 0 && (
           <ul className="mt-8 flex flex-col gap-10">
-            {career.achievements.map((a) => (
+            {career.achievements.slice(0, VISIBLE_ACHIEVEMENTS).map((a) => (
               <AchievementItem key={`${a.title}-${a.periodStart}`} item={a} />
             ))}
           </ul>
+        )}
+        {rest.length > 0 && (
+          // 서버 컴포넌트라 JS 없이 <details>로 접는다. 접힌 성과도 HTML에 남아 검색·찾기에 걸린다.
+          <details className="group mt-10">
+            <summary className="inline-flex cursor-pointer list-none items-center gap-1 rounded-md text-sm text-text-2 hover:text-accent focus-visible:outline-2 focus-visible:outline-accent [&::-webkit-details-marker]:hidden">
+              <span className="group-open:hidden">주요 성과 {rest.length}개 더보기</span>
+              <span className="hidden group-open:inline">접기</span>
+              <ChevronDown aria-hidden="true" className="size-4 transition-transform group-open:rotate-180" />
+            </summary>
+            <ul className="mt-10 flex flex-col gap-10">
+              {rest.map((a) => (
+                <AchievementItem key={`${a.title}-${a.periodStart}`} item={a} />
+              ))}
+            </ul>
+          </details>
         )}
       </div>
     </li>

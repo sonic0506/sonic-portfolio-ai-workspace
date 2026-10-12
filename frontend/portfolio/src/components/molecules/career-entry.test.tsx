@@ -60,4 +60,16 @@ describe('CareerEntry (ADR-0019)', () => {
     expect(screen.getByText('2025.01 - 진행 중')).toBeTruthy();
     expect(screen.getByText('PL')).toBeTruthy();
   });
+
+  it('성과가 3개 이하면 모두 펼치고, 4개 이상이면 3개 뒤를 더보기로 접는다', () => {
+    const item = (title: string) => ({ ...career.achievements[1], title });
+    const { container, rerender } = render(<CareerEntry career={{ ...career, achievements: ['A', 'B', 'C'].map(item) }} />);
+    expect(container.querySelector('details')).toBeNull();
+
+    rerender(<CareerEntry career={{ ...career, achievements: ['A', 'B', 'C', 'D', 'E'].map(item) }} />);
+    const details = container.querySelector('details')!;
+    expect(details.open).toBe(false);
+    expect(screen.getByText('주요 성과 2개 더보기')).toBeTruthy();
+    expect([...details.querySelectorAll('h4')].map((h) => h.textContent)).toEqual(['D', 'E']);
+  });
 });

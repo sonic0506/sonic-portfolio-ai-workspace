@@ -4,6 +4,12 @@
 
 ---
 
+## 2026-10-12 — Career Achievements Show More
+
+- 사용자 요청: 포트폴리오 소개 화면의 경력 주요 성과가 4개 이상이면 앞의 3개만 펼치고 나머지는 더보기로 열고 닫기.
+- `career-entry.tsx`에 `VISIBLE_ACHIEVEMENTS = 3`을 두고 나머지를 `<details>`로 접었다. 서버 컴포넌트라 JS 없이 동작하고, 접힌 성과도 HTML에 남아 검색·찾기에 걸린다. 트리거 문구는 "주요 성과 N개 더보기" ↔ "접기", 화살표가 회전한다. `<details>` 특성상 트리거는 펼친 항목 위에 남는다.
+- 검증: 포트폴리오 vitest(career-entry 5)·tsc·eslint 통과. 로컬 DB에 경력 성과 데이터가 없어 4개 이상 화면은 브라우저로 보지 못했고, 성과 없는 프로필 화면이 오류 없이 렌더링되는 것만 확인했다.
+
 ## 2026-10-12 — Project Highlights Drag Reorder
 
 - 사용자 요청: 프로젝트의 주요 성과(하이라이트) 목록도 드래그로 순서 변경. 기존엔 순서를 바꿀 방법이 없었다(`project_highlight.display_order`는 배열 인덱스로 이미 저장).
