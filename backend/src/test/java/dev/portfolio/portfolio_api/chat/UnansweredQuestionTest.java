@@ -102,11 +102,22 @@ class UnansweredQuestionTest extends ApiTestSupport {
     }
 
     @Test
-    void citedAnswerIsNotRecorded() throws Exception {
+    void citedAnswerIsRecordedAsAnswered() throws Exception {
         generator.deltas = List.of("A입니다 [1].");
         String body = chat("A?");
         assertTrue(body.contains("\"unanswered\":false"));
-        assertEquals(0, count());
+
+        Map<String, Object> row = jdbc.queryForMap("select * from chat_unanswered_question");
+        assertEquals("ANSWERED", row.get("status"));
+        assertNull(row.get("reason"));
+        assertEquals("A입니다 [1].", row.get("answer"));
+
+        mockMvc.perform(get("/api/admin/chat/unanswered").param("status", "ANSWERED").with(admin()))
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.items[0].reason").value(org.hamcrest.Matchers.nullValue()))
+                .andExpect(jsonPath("$.items[0].retrieved[0].slug").value("a-project"));
+        mockMvc.perform(get("/api/admin/chat/unanswered").param("status", "OPEN").with(admin()))
+                .andExpect(jsonPath("$.totalElements").value(0));
     }
 
     @Test
@@ -181,8 +192,13 @@ class UnansweredQuestionTest extends ApiTestSupport {
                 insert into chat_unanswered_question (question, answer, reason, created_at) values
                 ('old', 'a', 'NO_CITATION', now() - interval '91 days'),
                 ('recent', 'a', 'NO_CITATION', now() - interval '89 days')""");
-        assertEquals(1, unanswered.deleteOlderThanRetention());
-        assertEquals("recent", jdbc.queryForObject("select question from chat_unanswered_question", String.class));
+        jdbc.update("""
+                insert into chat_unanswered_question (question, answer, status, created_at) values
+                ('answered old', 'a', 'ANSWERED', now() - interval '8 days'),
+                ('answered recent', 'a', 'ANSWERED', now() - interval '6 days')""");
+        assertEquals(2, unanswered.deleteOlderThanRetention());
+        assertEquals(List.of("answered recent", "recent"), jdbc.queryForList(
+                "select question from chat_unanswered_question order by question", String.class));
     }
 
     private int count() {

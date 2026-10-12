@@ -12,7 +12,12 @@ import { formatDateTime } from '@/lib/format'
 import type { Page, Unanswered, UnansweredStatus } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
-const STATUS_LABEL: Record<UnansweredStatus, string> = { OPEN: '미처리', RESOLVED: '해결', IGNORED: '무시' }
+const STATUS_LABEL: Record<UnansweredStatus, string> = {
+  OPEN: '미처리',
+  RESOLVED: '해결',
+  IGNORED: '무시',
+  ANSWERED: '답변완료',
+}
 const REASON_LABEL = { NO_EVIDENCE: '근거 없음', NO_CITATION: '인용 없음' } as const
 const SIZE = 20
 
@@ -41,6 +46,9 @@ export function UnansweredPage() {
       </div>
       <ErrorText error={list.error} />
       {list.isPending && <Loading />}
+      {status === 'ANSWERED' && (
+        <p className="mb-4 text-sm text-muted-foreground">정상적으로 답한 질문입니다. 7일 뒤 자동으로 삭제됩니다.</p>
+      )}
       {list.data?.items.length === 0 && <p className="text-sm text-muted-foreground">해당하는 질문이 없습니다.</p>}
       <div className="space-y-4">
         {list.data?.items.map((item) => (
@@ -86,6 +94,7 @@ function UnansweredCard({ item }: { item: Unanswered }) {
     onSuccess: refresh,
   })
   const busy = update.isPending || remove.isPending
+  const answered = item.status === 'ANSWERED'
 
   return (
     <Card>
@@ -93,7 +102,7 @@ function UnansweredCard({ item }: { item: Unanswered }) {
         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
           <span>#{item.id}</span>
           <span>{formatDateTime(item.createdAt)}</span>
-          <Badge variant="outline">{REASON_LABEL[item.reason]}</Badge>
+          {item.reason && <Badge variant="outline">{REASON_LABEL[item.reason]}</Badge>}
           {item.inActiveSession && <Badge variant="secondary">대화 진행 중</Badge>}
           {item.handledAt && <span>처리 {formatDateTime(item.handledAt)}</span>}
         </div>
@@ -101,7 +110,7 @@ function UnansweredCard({ item }: { item: Unanswered }) {
       </CardHeader>
       <CardContent className="space-y-3 text-sm">
         <details>
-          <summary className="cursor-pointer text-muted-foreground">당시 답변 보기</summary>
+          <summary className="cursor-pointer text-muted-foreground">{answered ? '답변 보기' : '당시 답변 보기'}</summary>
           <p className="mt-2 rounded-md bg-muted p-3 whitespace-pre-wrap">{item.answer}</p>
         </details>
         {item.retrieved.length > 0 && (
@@ -118,7 +127,9 @@ function UnansweredCard({ item }: { item: Unanswered }) {
             </ul>
           </div>
         )}
-        <Textarea value={note} maxLength={2000} rows={2} placeholder="메모" onChange={(e) => setNote(e.target.value)} />
+        {!answered && (
+          <Textarea value={note} maxLength={2000} rows={2} placeholder="메모" onChange={(e) => setNote(e.target.value)} />
+        )}
         <div className="flex flex-wrap gap-2">
           <Link
             to={`/faqs/new?from=${item.id}`}
@@ -127,17 +138,17 @@ function UnansweredCard({ item }: { item: Unanswered }) {
           >
             FAQ로 등록
           </Link>
-          {item.status !== 'RESOLVED' && (
+          {!answered && item.status !== 'RESOLVED' && (
             <Button size="sm" variant="outline" disabled={busy} onClick={() => update.mutate('RESOLVED')}>
               해결로 표시
             </Button>
           )}
-          {item.status !== 'IGNORED' && (
+          {!answered && item.status !== 'IGNORED' && (
             <Button size="sm" variant="outline" disabled={busy} onClick={() => update.mutate('IGNORED')}>
               무시
             </Button>
           )}
-          {item.status !== 'OPEN' && (
+          {!answered && item.status !== 'OPEN' && (
             <Button size="sm" variant="outline" disabled={busy} onClick={() => update.mutate('OPEN')}>
               다시 열기
             </Button>

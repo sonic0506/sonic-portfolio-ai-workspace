@@ -22,4 +22,5 @@
 
 ## Related Documents
 
+- 후속: 정상 답변도 `ANSWERED` 상태로 7일 보관한다([ADR-0022](ADR-0022-answered-question-monitoring.md)).
 - [ADR-0007](ADR-0007-generation-model-and-answer-prompt.md), [ADR-0011](ADR-0011-chat-session-retention.md), [UNANSWERED_QUESTIONS_IMPLEMENTATION](../04-plans/UNANSWERED_QUESTIONS_IMPLEMENTATION.md)

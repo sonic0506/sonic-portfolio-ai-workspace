@@ -294,9 +294,10 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 
 ### 답하지 못한 질문 관리 (ADR-0013)
 
-- `GET /api/admin/chat/unanswered?status=OPEN|RESOLVED|IGNORED&page=0&size=20` → `{items, page, size, totalElements}` 최신순. 항목: `id, question, answer, reason(NO_EVIDENCE|NO_CITATION), retrieved[{type, slug, title, distance}], status, adminNote, inActiveSession, createdAt, handledAt`
+- `GET /api/admin/chat/unanswered?status=OPEN|RESOLVED|IGNORED|ANSWERED&page=0&size=20` → `{items, page, size, totalElements}` 최신순. 항목: `id, question, answer, reason(NO_EVIDENCE|NO_CITATION|null), retrieved[{type, slug, title, distance}], status, adminNote, inActiveSession, createdAt, handledAt`
 - `PUT /api/admin/chat/unanswered/{id}` `{status, adminNote}` → 항목. RESOLVED/IGNORED로 바꾸면 `handledAt` 기록, OPEN이면 비움
 - `DELETE /api/admin/chat/unanswered/{id}` → `204`
+- `ANSWERED`는 정상적으로 답한 질문(ADR-0022, `reason` null)이며 7일 뒤 자동 삭제(`CHAT_ANSWERED_RETENTION_DAYS`).
 - 90일 지난 기록은 자동 삭제(`CHAT_UNANSWERED_RETENTION_DAYS`). `retrieved.distance`는 코사인 거리(작을수록 가까움)로, 자료가 있는데 못 찾았는지 판단하는 데 쓴다.
 
 검증: `UnansweredQuestionTest`, `NoAnswerMarkerTest` (2026-09-17)

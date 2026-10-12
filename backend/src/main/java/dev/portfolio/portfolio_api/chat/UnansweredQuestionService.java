@@ -16,14 +16,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-/** Keeps questions the chat could not answer, for admin review (ADR-0013). */
+/** Keeps chat questions for admin review: unanswered ones (ADR-0013) and, briefly, answered ones (ADR-0022). */
 @Service
 public class UnansweredQuestionService {
 
     public enum Status {
         OPEN,
         RESOLVED,
-        IGNORED
+        IGNORED,
+        /** Answered normally; no reason, deleted after the shorter answered retention. */
+        ANSWERED
     }
 
     public record RetrievedDoc(String type, String slug, String title, double distance) {
@@ -44,31 +46,33 @@ public class UnansweredQuestionService {
 
     private final JdbcTemplate jdbc;
     private final int retentionDays;
+    private final int answeredRetentionDays;
 
     public UnansweredQuestionService(JdbcTemplate jdbc,
-                                     @Value("${app.chat.unanswered.retention-days:90}") int retentionDays) {
+                                     @Value("${app.chat.unanswered.retention-days:90}") int retentionDays,
+                                     @Value("${app.chat.answered.retention-days:7}") int answeredRetentionDays) {
         this.jdbc = jdbc;
         this.retentionDays = retentionDays;
+        this.answeredRetentionDays = answeredRetentionDays;
     }
 
-    /** Stores the question when the answer counts as unanswered. */
+    /** Unanswered questions start OPEN with a reason; answered ones are stored as ANSWERED. */
     @Transactional
-    public void recordIfUnanswered(String question, ChatService.Answer answer, Long sessionId) {
-        if (answer.unanswered() == null) {
-            return;
-        }
+    public void record(String question, ChatService.Answer answer, Long sessionId) {
+        boolean answered = answer.unanswered() == null;
         jdbc.update("""
-                insert into chat_unanswered_question (question, answer, reason, retrieved, session_id)
-                values (?, ?, ?, cast(? as jsonb), ?)""",
-                question, answer.text(), answer.unanswered().name(), retrievedJson(answer.retrieved()), sessionId);
+                insert into chat_unanswered_question (question, answer, reason, retrieved, session_id, status)
+                values (?, ?, ?, cast(? as jsonb), ?, ?)""",
+                question, answer.text(), answered ? null : answer.unanswered().name(),
+                retrievedJson(answer.retrieved()), sessionId, answered ? "ANSWERED" : "OPEN");
     }
 
     /** Recording must never break the answer the visitor already received. */
     public void recordQuietly(String question, ChatService.Answer answer, Long sessionId) {
         try {
-            recordIfUnanswered(question, answer, sessionId);
+            record(question, answer, sessionId);
         } catch (RuntimeException e) {
-            log.warn("Could not record unanswered question", e);
+            log.warn("Could not record chat question", e);
         }
     }
 
@@ -127,10 +131,15 @@ public class UnansweredQuestionService {
         int deleted = jdbc.update(
                 "delete from chat_unanswered_question where created_at < now() - make_interval(days => ?)",
                 retentionDays);
-        if (deleted > 0) {
-            log.info("Deleted {} unanswered questions older than {} days", deleted, retentionDays);
+        int answered = jdbc.update("""
+                delete from chat_unanswered_question
+                where status = 'ANSWERED' and created_at < now() - make_interval(days => ?)""",
+                answeredRetentionDays);
+        if (deleted + answered > 0) {
+            log.info("Deleted {} questions older than {} days and {} answered older than {} days",
+                    deleted, retentionDays, answered, answeredRetentionDays);
         }
-        return deleted;
+        return deleted + answered;
     }
 
     private List<Item> withRetrieved(List<Item> items) {

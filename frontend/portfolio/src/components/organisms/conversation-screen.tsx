@@ -187,7 +187,8 @@ export function ConversationScreen({ conversationId }: { conversationId: string 
             autoFocus
           />
           <p className="mt-2 text-center font-mono text-2xs text-text-3">
-            공개된 글을 근거로 답합니다 · 대화는 마지막 질문 후 24시간 뒤 삭제됩니다
+            공개된 글을 근거로 답합니다 · 대화는 마지막 질문 후 24시간 뒤 삭제됩니다 · 질문 내용은 답변 품질 개선을
+            위해 7일간 보관됩니다
           </p>
         </div>
       </div>

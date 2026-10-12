@@ -133,7 +133,8 @@ class FaqAdminApiTest extends ApiTestSupport {
         assertTrue(body.contains("\"type\":\"FAQ\""), body);
         assertTrue(body.contains("\"url\":null"), body);
         assertTrue(body.contains("\"unanswered\":false"), body);
-        assertEquals(0, jdbc.queryForObject("select count(*) from chat_unanswered_question", Integer.class));
+        assertEquals(0, jdbc.queryForObject(
+                "select count(*) from chat_unanswered_question where status <> 'ANSWERED'", Integer.class));
         assertFalse(body.contains("NO_ANSWER"));
         assertEquals(1, generator.faqJudgePrompts.size(), "judge asked because a FAQ was retrieved");
         assertTrue(generator.faqJudgePrompts.get(0).contains("1. 어디에 사시나요?"), generator.faqJudgePrompts.get(0));
@@ -160,7 +161,8 @@ class FaqAdminApiTest extends ApiTestSupport {
         assertTrue(body.contains("{\"text\":\"저의 고향은 안산입니다.\"}"), body);
         assertTrue(body.contains("\"slug\":\"faq-" + id + "\""), body);
         assertTrue(body.contains("\"unanswered\":false"), body);
-        assertEquals(0, jdbc.queryForObject("select count(*) from chat_unanswered_question", Integer.class));
+        assertEquals(0, jdbc.queryForObject(
+                "select count(*) from chat_unanswered_question where status <> 'ANSWERED'", Integer.class));
     }
 
     private static String faq(String question, String answer, boolean published, Long fromUnansweredId) {

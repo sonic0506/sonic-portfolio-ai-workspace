@@ -385,7 +385,7 @@ create index chat_message_source_document_idx on chat_message_source (document_i
 
 ### chat_unanswered_question (V2, ADR-0013)
 
-근거 부족으로 답하지 못한 질문. 질문·답변·사유·당시 검색 문서(jsonb)·상태·관리자 메모. `session_id`는 `on delete set null`이라 세션(24시간)이 지워져도 기록은 90일 유지된다. 방문자 식별 정보는 저장하지 않는다.
+근거 부족으로 답하지 못한 질문. 질문·답변·사유·당시 검색 문서(jsonb)·상태·관리자 메모. `session_id`는 `on delete set null`이라 세션(24시간)이 지워져도 기록은 90일 유지된다. 방문자 식별 정보는 저장하지 않는다. V9(ADR-0022)부터 정상 답변도 `status = 'ANSWERED'`, `reason = null`로 저장하고 7일 뒤 삭제한다.
 
 ### faq / faq_alias (V3, ADR-0014)
 

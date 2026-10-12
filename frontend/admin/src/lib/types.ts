@@ -24,13 +24,13 @@ export type ReindexResult = {
   documents: RagDocument[]
 }
 
-export type UnansweredStatus = 'OPEN' | 'RESOLVED' | 'IGNORED'
+export type UnansweredStatus = 'OPEN' | 'RESOLVED' | 'IGNORED' | 'ANSWERED'
 
 export type Unanswered = {
   id: number
   question: string
   answer: string
-  reason: 'NO_EVIDENCE' | 'NO_CITATION'
+  reason: 'NO_EVIDENCE' | 'NO_CITATION' | null
   retrieved: { type: string; slug: string; title: string; distance: number }[]
   status: UnansweredStatus
   adminNote: string | null
