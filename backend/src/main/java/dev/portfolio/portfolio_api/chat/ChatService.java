@@ -40,7 +40,7 @@ public class ChatService {
 
     /** ADR-0013 default; kept in code because .properties files are not reliably read as UTF-8. */
     public static final String DEFAULT_GUIDE = AnswerPrompt.GUIDE_PLACEHOLDER
-            + "에 대해서는 지금 정보로는 답변드리기 어려워요. 질문주신 내용은 따로 보관하여 더 보완하도록 하겠습니다. 감사합니다.";
+            + "에 대해서는 지금 정보로는 답변드리기 어려워요. 경력이나 프로젝트에 대해 궁금한 점을 물어봐 주세요.";
 
     /** The system prompt sent to the model (for tests and diagnostics). */
     public String systemPrompt(boolean withHistory) {

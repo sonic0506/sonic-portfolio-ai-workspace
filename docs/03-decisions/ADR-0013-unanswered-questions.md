@@ -23,4 +23,5 @@
 ## Related Documents
 
 - 후속: 정상 답변도 `ANSWERED` 상태로 7일 보관한다([ADR-0022](ADR-0022-answered-question-monitoring.md)).
+- 후속(2026-10-12 운영 QA): 범위 밖 질문("오늘 날씨")에도 "보관하여 더 보완하겠다"고 약속하는 것이 어색하고, 화면의 "답하지 못한 질문으로 기록했습니다" 줄과 같은 말을 반복해 기본 문구 둘째 문장을 "경력이나 프로젝트에 대해 궁금한 점을 물어봐 주세요."로 바꿨다. 기록 안내는 화면 줄이 맡는다.
 - [ADR-0007](ADR-0007-generation-model-and-answer-prompt.md), [ADR-0011](ADR-0011-chat-session-retention.md), [UNANSWERED_QUESTIONS_IMPLEMENTATION](../04-plans/UNANSWERED_QUESTIONS_IMPLEMENTATION.md)
