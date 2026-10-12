@@ -83,14 +83,16 @@ export function DocLayout({
         </article>
 
         {(hasToc || aside) && (
-          <aside className="sticky top-0 hidden w-aside shrink-0 flex-col lg:flex">
+          // 화면 높이를 넘지 않게 묶고, 넘치는 만큼은 목차 안에서만 스크롤한다. 카드는 늘 보인다.
+          // top-10은 위 여백(pt-10)과 같아 붙는 순간 자리가 튀지 않고, 높이에서 아래 여백(pb-20)까지 빼야 맨 끝에서 밀려 올라가지 않는다.
+          <aside className="sticky top-10 hidden max-h-[calc(100dvh-7.5rem)] w-aside shrink-0 flex-col lg:flex">
             {hasToc && (
               <>
                 <DocToc headings={headings} activeId={activeId} onSelect={jumpTo} />
-                {aside && <div className="my-5 h-px bg-border" />}
+                {aside && <div className="my-5 h-px shrink-0 bg-border" />}
               </>
             )}
-            {aside}
+            {aside && <div className="shrink-0">{aside}</div>}
           </aside>
         )}
       </div>
