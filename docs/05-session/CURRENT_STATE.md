@@ -1,12 +1,14 @@
 # Current State
 
-Last Updated: 2026-10-09
+Last Updated: 2026-10-12
 
 ## Current Phase
 
 Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEND_IMPLEMENTATION](../04-plans/FIRST_BACKEND_IMPLEMENTATION.md))과 공개 조회 API([PUBLIC_READ_API_IMPLEMENTATION](../04-plans/PUBLIC_READ_API_IMPLEMENTATION.md))를 로컬에서 검증하고 커밋했다. 관리자 인증(ADR-0010)과 Skill 관리 API도 완료했다. 콘텐츠 관리 CRUD(Project, Blog, Profile, Category/Tag)도 완료했다. 샘플 콘텐츠 시드와 Document 색인(가짜 임베딩으로 검증)도 완료했다. 실제 OpenAI 임베딩으로 개발 DB 샘플 7건 READY를 확인했다(사용자 보고). 검색·답변(채팅) 1차(단일 질문, SSE, 질문 제한)도 구현했다. 실제 OpenAI로 PoC 질문 7개를 재현해 기대 출처 7/7, 근거 부족 거부, 비공개 미노출을 확인했다(RAG_MEASUREMENTS 측정 4). 프로필 slug 결함도 수정했다(77건 통과). 채팅 세션(ADR-0011)도 구현했다(89건 통과). 답하지 못한 질문 보관·안내 문구(ADR-0013)도 구현했다(101건 통과). FAQ(ADR-0014)도 구현하고 실제 모델로 확인했다(측정 6·7, 108건 통과). 백엔드 기능은 여기서 일단락했다. 프론트엔드(ADR-0012) 1단계(pnpm workspace, 포트폴리오 조회·채팅, 어드민 미답변·FAQ·색인)를 완료했다. 같은 날 SSE 버퍼링 방지 헤더, FAQ 판정 단계 분리(ADR-0014 후속 2), 질문 제한 제외 IP를 추가했다(백엔드 111건 통과). 2단계(어드민 콘텐츠 관리)도 사용자 확인을 마쳤다. 같은 날 참고 문서 기능(프로젝트·블로그 연결, 상세의 "참고 문서"/"이 문서를 참고한 문서")을 구현하고 사용자 확인을 마쳤다(백엔드 116건). 다음은 프론트 3단계(디자인·SEO·캐시). 2026-09-28 실제 콘텐츠(Notion 위키)를 `content/`로 변환했다(개발 DB 반영은 미확인). 2026-09-29 프론트 3단계로 sonic-portfolio 디자인을 적용했다(브랜치 `feat/sonic-ui`, 사용자 확인 대기).
 
 ## Confirmed
+
+- 2026-10-12 포트폴리오 소개·프로젝트 화면 다듬기(사용자 요청, `main` 직접 커밋): 경력 성과의 프로젝트 이동을 제목 우측 "상세 보기" 버튼으로 바꾸고 "주요 성과 N개 더보기"를 테두리 버튼으로(`455f9f0`), 성과 4개 이상이면 3개 뒤를 `<details>`로 접기(`e180623`), "전체 작업" 타임라인에 대표 작업 포함(`99c5e9b`). 어드민 하이라이트·경력 성과·스킬 칩 드래그 정렬(dnd-kit). 로컬 데이터에 경력 성과가 없어 성과 화면은 브라우저로 미확인. 채팅 유도 고정 질문(프로필 카드·글 정보 카드·그래프 상세)의 반말을 "~해 주세요"로 통일(`1575157`). 홈 히어로의 프로젝트·글 개수 슬라이드 제거(`ad7caab`).
 
 - 2026-10-09 파비콘(사용자 요청, 브랜치 `feat/favicon`): 사용자 제작 오리지널 추상 아이콘으로 포트폴리오(`favicon.ico`·`apple-icon.png`·`manifest.ts`·`public/icon-192/512.png`)와 어드민(`public/` 같은 세트 + `manifest.webmanifest`, `index.html` 링크) 적용. 사이드바 상단 브랜드 마크도 같은 아이콘으로 교체. 어드민 build, 포트폴리오 tsc·lint, 개발 서버 응답과 head 링크 확인. 실기기 홈 화면 추가는 미확인.
 

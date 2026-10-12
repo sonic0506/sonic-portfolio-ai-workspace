@@ -1,10 +1,14 @@
 # Next Actions
 
-Last Updated: 2026-10-09
+Last Updated: 2026-10-12
 
 ## 현재 기준
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
+
+## Priority 0-Profile — 소개 화면 경력 성과 확인 (2026-10-12)
+
+1. 경력 성과가 있는 데이터(운영 또는 프로필 시드한 로컬)에서 `/profile`의 "상세 보기" 버튼·"주요 성과 N개 더보기" 버튼이 모바일·데스크톱에서 잘 보이는지 확인.
 
 ## Priority 0-Favicon — 파비콘 (2026-10-09, 브랜치 `feat/favicon`)
 
