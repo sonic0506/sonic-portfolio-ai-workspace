@@ -10,7 +10,9 @@
 - 포트폴리오: robots·sitemap, 메타데이터(`lib/site.ts` `SITE_URL`·`pageMetadata`, 사이트 이름 Sonic), 그래프 기본 라벨 프로젝트·카테고리만·딥링크 확대, 화면 제목 한글화, 대화 없음 문구, 입력창 안내 줄바꿈, 프로필 사진 alt, 블로그 쪽 번호 1부터. 공유 마크다운 표 첫 열 최소 폭.
 - 백엔드: 미답변 안내 기본 문구 둘째 문장 교체(ADR-0013 후속). 콘텐츠: 요약 2건 백틱 제거.
 - 검증: 포트폴리오 lint·tsc·vitest 32·build, 백엔드 136, 로컬 프로덕션 서버(운영 API)에서 화면·태그 확인. `.claude/launch.json`에 `portfolio-web-prod-liveapi`(:3300) 추가.
-- 미완: 커밋·푸시·백엔드 재배포, 운영 DB 요약 2건, 콘텐츠 항목(D1·D3~D7)은 사용자 작업.
+- 커밋 `2daaf6d`(포트폴리오)·`2336be3`(채팅 문구)·`4aca2b5`(문서), `main` 푸시로 Vercel 배포. 운영 확인: robots·sitemap 200, sitemap 116, 제목 "Sonic · 개발자 포트폴리오".
+- 백엔드 재배포(사용자 스냅샷 후): 서버 `latest`(6747ddec) → `prev` 태그, 새 amd64 이미지(1f7f814c) 전송, api 재시작, health UP, 기동 로그 오류 없음, 서버 `.env`에 `CHAT_NO_ANSWER_GUIDE` 없음(기본 문구 사용). 운영 채팅 "오늘 서울 날씨 어때요?"(15:40)로 새 안내 문구 확인 — 미답변 1건 추가됨.
+- 남은 것: 운영 DB 요약 2건, 콘텐츠 항목(D1·D3~D7)은 사용자 작업.
 
 ## 2026-10-12 — Production QA (공개 화면)
 
