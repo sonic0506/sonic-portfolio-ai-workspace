@@ -8,8 +8,8 @@ Last Updated: 2026-10-12
 
 ## Priority 0-Latency — 상세 화면 지연·목차 (2026-10-12)
 
-1. 커밋·푸시 후 Vercel 배포에서 함수 지역이 `icn1`인지 확인(`x-vercel-id`가 `icn1::icn1::…`), 캐시 MISS 상세 화면 TTFB 재측정(이전 0.8~2.2초).
-2. 운영에서 `ddd-aggregate` 목차·카드, 상세 이동 스켈레톤 확인.
+1. (완료) 함수 지역 `icn1` 확인, 캐시 MISS 상세 TTFB 0.25~0.40초.
+2. (선택) 운영에서 `ddd-aggregate` 목차·카드, 상세 이동 스켈레톤 확인.
 
 ## Priority 0-QA — 운영 QA 후속 (2026-10-12)
 
