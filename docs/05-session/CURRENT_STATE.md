@@ -8,6 +8,10 @@ Roadmap Phase 5(핵심 기능 개발) 진행 중. 백엔드 기반([FIRST_BACKEN
 
 ## Confirmed
 
+- 2026-10-12 마크다운 mermaid 지원(사용자 요청, ADR-0020 후속, 미커밋): 공유 렌더러 `MermaidBlock`, `mermaid@12.0.0` 동적 import. 개발 서버에서 라이트·다크·모바일·문법 오류 확인, 포트폴리오·어드민 test·lint·build 통과. 운영 배포·어드민 미리보기 직접 확인은 안 함.
+
+- 2026-10-12 RAG 구조 문서 갱신(사용자 요청, 코드 변경 없음): `RAG_ARCHITECTURE_OVERVIEW.md`를 10-12 코드 기준으로 맞춤(ADR-0017·0018·0019·0022 반영). 그림 페이지 Artifact https://claude.ai/artifact/NMRFzwyKf4TFV8aUdhMm61 (비공개). 측정 수치는 여전히 샘플 콘텐츠 기준이며 운영 규모 재측정은 하지 않음.
+
 - 2026-10-12 상세 화면 지연·긴 목차(사용자 보고): Vercel 함수 지역 `icn1`(vercel.json), 상세·소개 스켈레톤(`DocSkeleton`), 우측 aside 높이 제한·목차 내부 스크롤. 배포 완료, 캐시 MISS 상세 TTFB 0.8~2.2초 → 0.25~0.40초. 긴 목차는 운영에서 사용자 확인.
 
 - 2026-10-12 운영 공개 화면 QA(사용자 요청, 코드 변경 없음): 결과 `docs/06-testing/PRODUCTION_QA_2026-10-12.md`(P1 5·P2·P3 다수). 같은 날 권장안대로 코드 수정(SEO·채팅 문구·그래프·한글 제목 등, 처리 결과 표). 커밋·Vercel 배포·백엔드 재배포 완료, 운영 채팅에서 새 안내 문구 확인.

@@ -6,6 +6,16 @@ Last Updated: 2026-10-12
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
 
+## Priority 0-Mermaid — 본문 그림 (2026-10-12, ADR-0020 후속)
+
+1. 커밋·배포 후 어드민 에디터 미리보기에서 mermaid 펜스 확인.
+2. 위키 `AI 개발자 포트폴리오/README.md`의 `## RAG 설계` text 블록을 mermaid로 바꿀지 결정 → `convert_wiki.py` 재변환·운영 시드.
+
+## Priority 0-RAG-Doc — RAG 구조 문서 (2026-10-12)
+
+1. (완료) `RAG_ARCHITECTURE_OVERVIEW.md` 10-12 코드 기준 갱신, 그림 페이지 Artifact 게시(비공개, 공유는 Share 메뉴).
+2. (선택) 운영 콘텐츠 규모로 RAG 재측정하면 문서 8장 수치와 그림 페이지 05의 측정 근거를 함께 바꾼다.
+
 ## Priority 0-Latency — 상세 화면 지연·목차 (2026-10-12)
 
 1. (완료) 함수 지역 `icn1` 확인, 캐시 MISS 상세 TTFB 0.25~0.40초.

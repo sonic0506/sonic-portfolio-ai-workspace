@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-10-12 — Mermaid in Markdown, AI Portfolio Wiki Design Section
+
+- 사용자 요청: 위키 `AI 개발자 포트폴리오/README.md`에 RAG 설계 섹션 추가, `## 배운 점`을 `## 학습 내용` 세 항목(Spring Boot·RAG·채팅) 기준으로 다시 작성. 원래 배운 점의 AI 협업 문단은 학습 내용 항목이 아니라 뺐다(결정 문서 03에 있음). `content/` 재변환·운영 시드는 하지 않음.
+- 이어서 mermaid 지원(ADR-0020 후속): `frontend/markdown/src/mermaid-block.tsx`, `markdown.tsx`의 `code`에서 `mermaid` 분기, `mermaid@12.0.0`. 사이트 토큰 색, 테마 변경 시 다시 그림, 오류 시 원문 표시와 mermaid 임시 요소 제거, 렌더링마다 새 id(StrictMode 이중 실행 대비).
+- 검증: 다른 세션의 개발 서버(:3000)에 임시 페이지(확인 후 삭제)로 정상·오류·일반 코드 블록, 라이트·다크, 375px 폭(가로 스크롤 없음) 확인. 포트폴리오 tsc·lint·vitest 32·build, 어드민 lint·vitest 27·build. 브라우저 패널이 가려져 있으면 렌더링이 늦어져 한때 실패로 오인했다.
+
+## 2026-10-12 — RAG Architecture Diagram Refresh
+
+- 사용자 요청: 프로젝트 RAG를 도식화해서 정리(/ecc:plan, 계획 1+2 승인). 코드 변경 없음.
+- `docs/02-design/RAG_ARCHITECTURE_OVERVIEW.md`를 09-28 스냅샷에서 10-12 코드 기준으로 갱신: 카테고리 `rag_enabled` 검색 필터(ADR-0018), 프로필 경력·성과 섹션 투영(ADR-0019), 정상 답변 `ANSWERED` 7일 보관(ADR-0022, V9), 운영 배포 구성(ADR-0017), 측정 한계에 현재 콘텐츠 규모·미재측정 명시.
+- 같은 내용을 그림 페이지(Artifact, 비공개)로 게시: https://claude.ai/artifact/NMRFzwyKf4TFV8aUdhMm61 — 전체 구조·색인·질의·1-hop 확장·판단·보강 순환·코드 위치.
+- 코드와 대조한 값: TOP_K 5, MAX_RELATED 2, Chunker 1200자, gpt-4.1-mini T=0, text-embedding-3-small, 질문 제한 IP 20·전체 300, 보관 90일/7일.
+
 ## 2026-10-12 — Detail Page Latency, Skeleton, Long TOC
 
 - 사용자 보고: 블로그 상세 진입이 가끔 오래 걸림(스켈레톤·다른 SSR 화면도 확인 요청), `ddd-aggregate`처럼 목차가 길면 우측 목차가 잘리고 스크롤 끝까지 가야 요약 카드가 보임.
