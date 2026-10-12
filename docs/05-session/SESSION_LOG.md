@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-10-12 — Answered Question Monitoring (ADR-0022)
+
+- 사용자 요청: 어드민 "답하지 못한 질문" 화면에 탭으로 정상 답변 질문도 보기. 확인 후 사용자 결정: 보관 7일(주 2~3회 확인), 채팅 안내 문구 추가.
+- 백엔드: V9(`reason` null 허용, 상태 `ANSWERED` 추가). `UnansweredQuestionService.record`가 모든 답변을 저장(정상 답변은 `ANSWERED`), 정리 작업이 `ANSWERED`를 7일 뒤 삭제(`CHAT_ANSWERED_RETENTION_DAYS`). 테스트: 인용 답변이 `ANSWERED`로 저장·조회, 7일/90일 보관 분리, FAQ 테스트의 "기록 없음" 단언은 `ANSWERED` 제외로 조정.
+- 어드민: 상태 탭에 "답변완료", 해당 카드는 사유 배지·메모·상태 버튼을 숨기고 FAQ 등록·삭제만. 포트폴리오: 채팅 입력창 아래 "질문 내용은 답변 품질 개선을 위해 7일간 보관됩니다" 추가.
+- 문서: ADR-0022 신규, ADR-0013 후속 링크, API_DESIGN·DATA_MODEL.
+- 검증: 백엔드 136건, 어드민 lint·build·test 27, 포트폴리오 eslint·tsc·test 32 통과. 어드민 화면은 GitHub 로그인이 필요해 브라우저로 보지 못함(미검증). 운영 미반영(재배포 시 V9 적용).
+
 ## 2026-10-12 — Polite Form in Suggested Chat Prompts
 
 - 사용자 요청: 클라이언트가 고정으로 유도하는 채팅 질문 중 반말("~해줘")을 모두 존댓말로.
