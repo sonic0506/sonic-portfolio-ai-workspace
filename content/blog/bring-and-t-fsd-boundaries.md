@@ -2,7 +2,7 @@
 type: "blog"
 id: "bring-and-t-fsd-boundaries"
 title: "Atomic Design 적용 경험을 바탕으로 한 FSD 도입과 경계 조정"
-summary: "UI 크기만으로 나눌 때 애매했던 도메인·공통 영역을 역할과 도메인 기준으로 나눴습니다. FSD를 적용하는 중에도 `widgets`의 범위를 다시 조정했습니다."
+summary: "UI 크기만으로 나눌 때 애매했던 도메인·공통 영역을 역할과 도메인 기준으로 나눴습니다. FSD를 적용하는 중에도 widgets의 범위를 다시 조정했습니다."
 created_at: "2026-10-04"
 updated_at: "2026-10-04"
 published: true

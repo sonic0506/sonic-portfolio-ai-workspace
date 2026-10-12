@@ -2,7 +2,7 @@
 type: "blog"
 id: "humanizer"
 title: "Humanizer"
-summary: "AI가 쓴 글에 남는 습관(뜸 들이는 도입, \"X가 아니라 Y\" 대비, 한 줄짜리 마무리, 과장된 의미 부여 등)을 찾아서, 내용은 그대로 두고 사람이 쓴 글처럼 다시 쓰게 만드는 에이전트 Skill입니다. 코드 라이브러리가 아니라 `SKILL.md` 한 파일로 된 프롬프트이고, Claude Code·Codex 등 Skill을 지원하는 에이전트에서 동작합니다."
+summary: "AI가 쓴 글에 남는 습관(뜸 들이는 도입, \"X가 아니라 Y\" 대비, 한 줄짜리 마무리, 과장된 의미 부여 등)을 찾아서, 내용은 그대로 두고 사람이 쓴 글처럼 다시 쓰게 만드는 에이전트 Skill입니다. 코드 라이브러리가 아니라 SKILL.md 한 파일로 된 프롬프트이고, Claude Code·Codex 등 Skill을 지원하는 에이전트에서 동작합니다."
 created_at: "2026-10-01"
 updated_at: "2026-10-01"
 published: true
