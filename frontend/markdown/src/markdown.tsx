@@ -4,6 +4,7 @@ import remarkCjkFriendly from "remark-cjk-friendly";
 import remarkDirective from "remark-directive";
 import remarkGfm from "remark-gfm";
 import { CodeBlock } from "./code-block";
+import { MermaidBlock } from "./mermaid-block";
 import { remarkQuestions } from "./remark-questions";
 
 /** 목차와 본문 제목이 같은 id를 쓰도록 텍스트에서 만든다. 한글은 그대로 둔다. */
@@ -89,6 +90,7 @@ function components({ Link = InlineLink, Questions = QuestionsPreview }: Markdow
       const lang = /language-(\S+)/.exec(className ?? "")?.[1] ?? null;
       const value = text(children);
       // 펜스 코드는 언어가 있거나 줄바꿈으로 끝난다. 나머지는 인라인이다.
+      if (lang === "mermaid") return <MermaidBlock code={value.replace(/\n$/, "")} />;
       if (lang || value.endsWith("\n")) return <CodeBlock code={value.replace(/\n$/, "")} lang={lang} />;
       return <code className="rounded-xs bg-surface px-1 py-px font-mono text-sm">{children}</code>;
     },

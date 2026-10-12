@@ -60,6 +60,15 @@
 - Vercel 두 프로젝트는 Root Directory 밖의 `frontend/markdown`을 읽는다("Include files outside the root directory" 유지).
 - 비용: S3·CloudFront는 사용량 과금이다. Budgets 서비스 필터에 두 서비스를 더한다(`deploy/S3_SETUP.md` 8절).
 
+## 후속 결정 — 2026-10-12 Mermaid 그림
+
+- 사용자 요청: 본문에서 ```` ```mermaid ```` 펜스를 그림으로 그린다. 공유 렌더러(`frontend/markdown`)의 `MermaidBlock`이 맡아 포트폴리오 본문과 어드민 미리보기에 함께 적용된다.
+- `mermaid@12.0.0`(정확한 버전 고정)을 `frontend/markdown`에만 추가한다. 동적 import라 그림이 있는 글에서만 불러온다(어드민 첫 번들 789K → 791K, mermaid 본체는 별도 청크).
+- `securityLevel: 'strict'`로 라벨 안 HTML·클릭 스크립트를 막는다. 본문 작성자는 관리자 1명뿐이다.
+- 색은 `theme.css`·`globals.css`의 `--s-*` 토큰을 읽어 `base` 테마에 넘기고, `<html>` class·시스템 설정이 바뀌면 다시 그린다.
+- 불러오는 중이거나 문법 오류면 원문 코드 블록을 보여 준다. 서버 렌더링(SSR) HTML에는 원문 코드가 들어간다.
+- RAG 색인에는 mermaid 원문이 그대로 들어간다. 그림 원문이 검색 품질을 떨어뜨리면 투영 단계에서 펜스를 빼는 것을 검토한다.
+
 ## Related Documents
 
 - [IMAGES_AND_EDITOR_IMPLEMENTATION](../04-plans/IMAGES_AND_EDITOR_IMPLEMENTATION.md)
