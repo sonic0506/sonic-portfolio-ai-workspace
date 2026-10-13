@@ -54,7 +54,7 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 |---|---|---|
 | `status` | `{"stage":"SEARCHING"\|"EXPANDING"\|"ANSWERING"}` | EXPANDING은 공개 연관 문서가 있을 때만 |
 | `documents` | `{"documents":[{type, slug, title, url}]}` | 검색 결과(문서 단위 중복 제거), 확장 시 추가분을 한 번 더 |
-| `answer_delta` | `{"text":"..."}` | 생성 조각 순서대로 |
+| `answer_delta` | `{"text":"..."}` | 생성 조각 순서대로. 첫 인용 또는 200자까지는 모아서 보내고, 미답변 안내 문장은 서버가 붙인다(ADR-0013 후속, 2026-10-14) |
 | `done` | `{"sources":[{type, slug, title, url}], "unanswered": bool}` | 답변에 나온 `[n]` 번호의 문서만. 없으면 `[]`. `unanswered`는 근거 부족으로 질문이 보관됐는지(ADR-0013) |
 | `error` | `{"message":"..."}` | 처리 중 오류. 내부 오류 내용은 넣지 않는다 |
 
