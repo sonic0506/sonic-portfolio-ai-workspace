@@ -44,7 +44,7 @@ public class ChatService {
 
     /** The system prompt sent to the model (for tests and diagnostics). */
     public String systemPrompt(boolean withHistory) {
-        return withHistory ? AnswerPrompt.system(guide) + AnswerPrompt.HISTORY_RULE : AnswerPrompt.system(guide);
+        return withHistory ? AnswerPrompt.system() + AnswerPrompt.HISTORY_RULE : AnswerPrompt.system();
     }
 
     public boolean available() {
@@ -137,9 +137,9 @@ public class ChatService {
 
     private Answer generate(String question, List<AnswerPrompt.Turn> history, List<Retriever.Hit> evidence,
                             Sink sink) {
-        NoAnswerMarker marker = new NoAnswerMarker(
+        NoAnswerMarker marker = new NoAnswerMarker(guide,
                 delta -> sink.send(ChatEvents.ANSWER_DELTA, new AnswerDelta(delta)));
-        generator.stream(AnswerPrompt.system(guide, history), AnswerPrompt.user(question, evidence, history), marker);
+        generator.stream(AnswerPrompt.system(history), AnswerPrompt.user(question, evidence, history), marker);
         marker.finish();
 
         String text = marker.text();

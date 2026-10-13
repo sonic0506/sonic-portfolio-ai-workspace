@@ -62,15 +62,16 @@ class UnansweredQuestionTest extends ApiTestSupport {
     @Test
     void systemPromptCarriesMarkerRuleAndDefaultGuide() {
         String prompt = chatService.systemPrompt(false);
-        assertTrue(prompt.contains("[[NO_ANSWER]]"));
-        assertTrue(prompt.contains(ChatService.DEFAULT_GUIDE));
+        assertTrue(prompt.contains("[[NO_ANSWER:주제]]"));
+        // the guide sentence is added by the server (NoAnswerMarker), not written by the model
+        assertFalse(prompt.contains("답변드리기 어려워요"));
         assertTrue(prompt.contains("짧은 명사구로 쓴다"));
         assertTrue(ChatService.DEFAULT_GUIDE.startsWith("{주제}에 대해서는 지금 정보로는 답변드리기 어려워요."));
     }
 
     @Test
     void markedAnswerIsCleanedAndRecordedWithRetrievedDocuments() throws Exception {
-        generator.deltas = List.of("[[NO_", "ANSWER]] OAuth 인증 관련 트러블슈팅 경험에 대해서는 지금 정보로는 답변드리기 어려워요.");
+        generator.deltas = List.of("[[NO_", "ANSWER:OAuth 인증 관련 트러블슈팅 경험]]", " 근거에 없습니다.");
         String body = chat("OAuth 트러블슈팅 경험은?");
 
         assertFalse(body.contains("NO_ANSWER"), body);
@@ -81,7 +82,7 @@ class UnansweredQuestionTest extends ApiTestSupport {
         assertEquals("OAuth 트러블슈팅 경험은?", row.get("question"));
         assertEquals("NO_EVIDENCE", row.get("reason"));
         assertEquals("OPEN", row.get("status"));
-        assertTrue(((String) row.get("answer")).startsWith("OAuth 인증 관련"));
+        assertEquals(ChatService.DEFAULT_GUIDE.replace("{주제}", "OAuth 인증 관련 트러블슈팅 경험"), row.get("answer"));
         assertNull(row.get("session_id"));
 
         mockMvc.perform(get("/api/admin/chat/unanswered").with(admin()))
@@ -122,7 +123,7 @@ class UnansweredQuestionTest extends ApiTestSupport {
 
     @Test
     void partialAnswerWithMarkerIsRecorded() throws Exception {
-        generator.deltas = List.of("[[NO_ANSWER]]A는 이렇습니다 [1]. B에 대해서는 어려워요.");
+        generator.deltas = List.of("[[NO_ANSWER:B]]A는 이렇습니다 [1].");
         String body = chat("A와 B는?");
         assertTrue(body.contains("a-project"), "cited source still shown");
         assertEquals("NO_EVIDENCE", jdbc.queryForObject("select reason from chat_unanswered_question", String.class));
@@ -139,7 +140,7 @@ class UnansweredQuestionTest extends ApiTestSupport {
                         .contentType(MediaType.APPLICATION_JSON).content("{\"question\":\"모르는 것\"}"))
                 .andExpect(request().asyncStarted()).andReturn();
         result.getAsyncResult(5_000);
-        assertEquals("어려워요.", jdbc.queryForObject(
+        assertEquals(ChatService.DEFAULT_GUIDE.replace("{주제}", "이 질문"), jdbc.queryForObject(
                 "select content from chat_message where role = 'ASSISTANT'", String.class));
         assertEquals(1, jdbc.queryForObject(
                 "select count(*) from chat_unanswered_question where session_id is not null", Integer.class));

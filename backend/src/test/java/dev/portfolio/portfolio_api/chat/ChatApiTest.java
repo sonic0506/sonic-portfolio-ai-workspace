@@ -68,14 +68,15 @@ class ChatApiTest extends ApiTestSupport {
         String body = chat("A 경험이 있나요?");
 
         List<String> events = events(body);
+        // the start is held until the first citation (NoAnswerMarker.HOLD_CHARS), so the two pieces arrive as one
         assertEquals(List.of("status", "documents", "status", "documents", "status",
-                "answer_delta", "answer_delta", "done"), events);
+                "answer_delta", "done"), events);
         assertTrue(body.contains("\"stage\":\"SEARCHING\""));
         assertTrue(body.contains("\"stage\":\"EXPANDING\""));
         assertTrue(body.contains("\"stage\":\"ANSWERING\""));
         assertTrue(body.contains("\"url\":\"/projects/a-project\""));
         assertTrue(body.contains("\"url\":\"/blog/b-post\""), "related public document is added");
-        assertTrue(body.contains("\"text\":\" [1].\""));
+        assertTrue(body.contains("\"text\":\"A는 이렇습니다 [1].\""));
         // only [1] (document A) was cited; B was looked at but not cited
         String done = body.substring(body.indexOf("event:done"));
         assertTrue(done.contains("a-project"));
