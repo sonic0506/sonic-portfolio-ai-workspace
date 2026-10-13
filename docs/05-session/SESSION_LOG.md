@@ -11,6 +11,7 @@
 - 사용자 결정 C안: 요청 선택 필드 `focus: {type, slug}`. 있으면 그 공개 문서 조각(최대 12개, 고르게 추출, `Retriever.documentChunks`/`spread`)만 근거로, 임베딩·검색·확장·FAQ 생략, 카테고리 조건 미적용. 없거나 비공개면 일반 검색. 프론트는 글 정보 카드·그래프 블로그 노드 요약 버튼만 `focus`를 보낸다(`useAskChat`→pending→`ask`→`postQuestion`, 다시 시도도 유지).
 - 검증: 백엔드 139건(새 3건), 포트폴리오 tsc·lint·vitest 32. 로컬 실제 모델: `docker-network`(infra) 같은 질문이 focus 없음 → 안내 문구, focus → 글 출처 요약. 브라우저에서 상세 버튼 → 대화 → 요약·출처 "Docker Network" 확인. 그래프 패널 버튼은 브라우저로 미확인.
 - 문서: ADR-0023 신규, ADR-0018 결과 항목, API_DESIGN·RAG_DESIGN·RAG_ARCHITECTURE_OVERVIEW.
+- 운영 반영(사용자 요청): 커밋 `f0219d9`(코드)·`6392ca2`(문서). 서버 `latest`(1f7f814c) → `prev` 태그, 새 amd64 이미지 전송·api 재시작(스키마 변경 없어 스냅샷 생략), health UP·기동 로그 오류 없음. `main` 푸시로 Vercel 2개 프로젝트 success. 운영 `/blog/docker-network` 요약 버튼 → 글 요약, 근거 문서 "Docker Network" 1건 확인(운영 답변완료 1건 추가됨).
 
 ## 2026-10-12 — Mermaid in Markdown, AI Portfolio Wiki Design Section
 
