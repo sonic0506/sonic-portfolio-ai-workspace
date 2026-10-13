@@ -18,6 +18,8 @@ public class Retriever {
 
     public static final int TOP_K = 5;
     public static final int MAX_RELATED = 2;
+    /** ADR-0023: chunks sent for a document-focused question (Chunker.MAX_CHARS each, about 14k characters). */
+    public static final int MAX_FOCUS_CHUNKS = 12;
 
     /**
      * Public view of a document; no internal id is sent to clients. Profile documents projected before
@@ -60,6 +62,31 @@ public class Retriever {
 
     public List<Hit> search(float[] query, int limit) {
         return jdbc.query(SELECT + " order by distance, c.id limit ?", this::hit, literal(query), limit);
+    }
+
+    /**
+     * ADR-0023: chunks of one visible document, in reading order, for a question the visitor asked about
+     * that document. Not limited by RAG_SCOPE: the visitor picked the post, so it cannot be mistaken for
+     * experience. Long documents are sampled evenly so the evidence spans the whole text.
+     */
+    public List<Hit> documentChunks(String type, String slug) {
+        List<Hit> all = jdbc.query("""
+                select d.id as doc_id, d.document_type, d.metadata->>'slug' as slug, d.title,
+                       c.section_titles, c.content, 0.0 as distance
+                from document_chunk c join document d on d.id = c.document_id
+                where d.visible and d.document_type = ? and d.metadata->>'slug' = ?
+                order by c.chunk_index""", this::hit, type, slug);
+        return spread(all, MAX_FOCUS_CHUNKS);
+    }
+
+    /** At most limit items, evenly spaced and in their original order. */
+    static <T> List<T> spread(List<T> items, int limit) {
+        if (items.size() <= limit) {
+            return items;
+        }
+        return java.util.stream.IntStream.range(0, limit)
+                .mapToObj(i -> items.get((int) ((long) i * items.size() / limit)))
+                .toList();
     }
 
     /** Visible documents linked to any of the given documents, in either direction, excluding them. */

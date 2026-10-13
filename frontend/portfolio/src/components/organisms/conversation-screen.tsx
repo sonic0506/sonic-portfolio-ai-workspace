@@ -63,8 +63,8 @@ export function ConversationScreen({ conversationId }: { conversationId: string 
     bootedRef.current = true;
 
     if (!conversationId) {
-      const question = takePendingQuestion();
-      if (question) ask(question);
+      const pending = takePendingQuestion();
+      if (pending) ask(pending.question, pending.focus);
       else router.replace('/');
       return;
     }

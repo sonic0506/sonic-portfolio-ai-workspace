@@ -117,6 +117,48 @@ class ChatApiTest extends ApiTestSupport {
     }
 
     @Test
+    void focusedQuestionUsesThatDocumentEvenWhenItsCategoryIsKeptOutOfChat() throws Exception {
+        // ADR-0023: "이 글 요약해 주세요" on a study post. The visitor picked the post, so ADR-0018 does not apply.
+        long study = insertReturningId("insert into category (code, name, rag_enabled) values ('study', '학습', false)");
+        long post = insertReturningId("insert into blog_post (slug, title, published, category_id) values ('s-note', '학습 S', true, ?)", study);
+        long s = document("BLOG", post, "s-note", "학습 S", true);
+        chunk(s, 1, "S 둘째", oneHot(5, 1f));
+        chunk(s, 0, "S 첫째", oneHot(5, 1f));
+        generator.deltas = List.of("요약입니다 [1][2].");
+
+        String body = focused("BLOG", "s-note");
+        assertEquals(List.of("status", "documents", "status", "answer_delta", "done"), events(body));
+        String prompt = generator.userPrompts.get(0);
+        assertTrue(prompt.startsWith("<근거>\n[1] 학습 S — 개요\nS 첫째\n\n[2] 학습 S — 개요\nS 둘째\n</근거>"), prompt);
+        assertTrue(embeddings.texts.isEmpty(), "no vector search, expansion or embedding call");
+        String done = body.substring(body.indexOf("event:done"));
+        assertTrue(done.contains("s-note") && done.contains("\"unanswered\":false"), done);
+    }
+
+    @Test
+    void focusOnPrivateOrMissingDocumentFallsBackToOrdinarySearch() throws Exception {
+        String body = focused("BLOG", "c-draft");
+        assertFalse(generator.userPrompts.get(0).contains("C 비밀 내용"));
+        assertTrue(body.contains("a-project"), "ordinary search ran");
+        send("{\"question\":\"A?\",\"focus\":{\"type\":\"FAQ\",\"slug\":\"x\"}}").andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void longDocumentsAreSampledEvenlyInOrder() {
+        assertEquals(List.of(0, 1, 2), Retriever.spread(List.of(0, 1, 2), 12));
+        List<Integer> many = java.util.stream.IntStream.range(0, 24).boxed().toList();
+        assertEquals(List.of(0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22), Retriever.spread(many, 12));
+    }
+
+    private String focused(String type, String slug) throws Exception {
+        MvcResult result = send("{\"question\":\"이 글 요약\",\"focus\":{\"type\":\"" + type + "\",\"slug\":\"" + slug + "\"}}")
+                .andExpect(request().asyncStarted())
+                .andReturn();
+        result.getAsyncResult(5_000);
+        return result.getResponse().getContentAsString(java.nio.charset.StandardCharsets.UTF_8);
+    }
+
+    @Test
     void vectorSearchKeepsScanningPastFilteredRows() {
         // With HNSW's default 40 candidates, a query close to many filtered-out chunks returned nothing
         // in production (2026-10-08). Every connection turns on pgvector 0.8's iterative scan.

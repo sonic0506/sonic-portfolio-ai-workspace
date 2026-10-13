@@ -4,7 +4,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +19,12 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RestController
 public class ChatController {
 
-    public record ChatRequest(@NotBlank @Size(max = 500) String question) {
+    /** focus: the one document the question is about (ADR-0023); null for an ordinary question. */
+    public record ChatRequest(@NotBlank @Size(max = 500) String question, @Valid Focus focus) {
+    }
+
+    public record Focus(@NotBlank @Pattern(regexp = "BLOG|PROJECT") String type,
+                        @NotBlank @Size(max = 200) String slug) {
     }
 
     private final ChatService chat;
@@ -46,7 +53,7 @@ public class ChatController {
         String question = request.question().strip();
         ChatStreams.disableBuffering(response);
         return streams.start(sink -> {
-            ChatService.Answer answer = chat.answer(question, sink);
+            ChatService.Answer answer = chat.answer(question, List.of(), request.focus(), sink);
             unanswered.recordQuietly(question, answer, null);
             ChatService.done(sink, answer);
         });

@@ -92,7 +92,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
       key={slug}
       headings={extractHeadings(post.sections)}
       header={header}
-      aside={<PostInfoCard title={post.title} category={post.category} facts={facts} />}
+      aside={<PostInfoCard slug={slug} title={post.title} category={post.category} facts={facts} />}
     >
       <Sections sections={post.sections} />
       <References references={post.references} referencedBy={post.referencedBy} className="mt-14 border-t border-border pt-14" />

@@ -8,10 +8,12 @@ import type { Category } from '@/lib/types';
 
 /** 우측 aside의 글 정보. 수치는 전부 글과 참고 관계에서 세어 온 값이다. */
 export function PostInfoCard({
+  slug,
   title,
   category,
   facts,
 }: {
+  slug: string;
   title: string;
   category: Category | null;
   facts: string[];
@@ -39,7 +41,7 @@ export function PostInfoCard({
 
       <button
         type="button"
-        onClick={() => askChat(`"${title}" 글을 요약해 주세요`)}
+        onClick={() => askChat(`"${title}" 글을 요약해 주세요`, { type: 'BLOG', slug })}
         className="-mx-2 flex w-[calc(100%+16px)] cursor-pointer items-center gap-2 rounded-md px-2 py-[7px] text-left text-sm text-text-2 transition-colors hover:bg-surface-hi hover:text-text-1"
       >
         <CornerDownRight className="size-3.5 shrink-0 text-text-3" strokeWidth={1.5} />이 글 요약해 주세요

@@ -73,7 +73,23 @@ public class ChatService {
      * follow-ups ("거기서 맡은 역할은?") retrieve the same topic; facts still come only from retrieved evidence.
      */
     public Answer answer(String question, List<AnswerPrompt.Turn> history, Sink sink) {
+        return answer(question, history, null, sink);
+    }
+
+    /**
+     * focus (ADR-0023): the question is about one document, so its own chunks are the evidence instead of
+     * a vector search; no relation expansion or FAQ. Falls back to the ordinary search when it has no chunks.
+     */
+    public Answer answer(String question, List<AnswerPrompt.Turn> history, ChatController.Focus focus, Sink sink) {
         sink.send(ChatEvents.STATUS, new Status(Stage.SEARCHING));
+        if (focus != null) {
+            List<Retriever.Hit> evidence = retriever.documentChunks(focus.type(), focus.slug());
+            if (!evidence.isEmpty()) {
+                sink.send(ChatEvents.DOCUMENTS, new Documents(List.of(Doc.of(evidence.get(0).document()))));
+                sink.send(ChatEvents.STATUS, new Status(Stage.ANSWERING));
+                return generate(question, history, evidence, sink);
+            }
+        }
         String searchText = history.isEmpty() ? question
                 : history.get(history.size() - 1).question() + "\n" + question;
         float[] query = embeddings.embed(List.of(searchText)).get(0);
@@ -110,6 +126,11 @@ public class ChatService {
             sink.send(ChatEvents.ANSWER_DELTA, new AnswerDelta(faq.get().answer()));
             return new Answer(faq.get().answer(), List.of(faq.get().document()), List.copyOf(evidence), null);
         }
+        return generate(question, history, evidence, sink);
+    }
+
+    private Answer generate(String question, List<AnswerPrompt.Turn> history, List<Retriever.Hit> evidence,
+                            Sink sink) {
         NoAnswerMarker marker = new NoAnswerMarker(
                 delta -> sink.send(ChatEvents.ANSWER_DELTA, new AnswerDelta(delta)));
         generator.stream(AnswerPrompt.system(guide, history), AnswerPrompt.user(question, evidence, history), marker);

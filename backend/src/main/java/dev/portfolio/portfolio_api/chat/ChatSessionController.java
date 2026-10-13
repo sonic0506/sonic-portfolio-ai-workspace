@@ -83,7 +83,7 @@ public class ChatSessionController {
         var history = sessions.recentTurns(session.id());
         ChatStreams.disableBuffering(response);
         return streams.start(sink -> {
-            ChatService.Answer answer = chat.answer(question, history, sink);
+            ChatService.Answer answer = chat.answer(question, history, request.focus(), sink);
             sessions.saveTurn(session.id(), question, answer);
             unanswered.recordQuietly(question, answer, session.id());
             ChatService.done(sink, answer);

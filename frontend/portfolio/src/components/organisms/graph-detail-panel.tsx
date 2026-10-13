@@ -10,6 +10,7 @@ import { useAskChat } from '@/hooks/use-ask-chat';
 import { formatDate } from '@/lib/blog';
 import type { Graph, GraphNode } from '@/lib/graph';
 import { GRAPH_TYPE_LABEL, neighborsOfType } from '@/lib/graph';
+import type { ChatFocus } from '@/lib/types';
 import { cn, formatMonth } from '@/lib/utils';
 
 type PanelContent = {
@@ -20,6 +21,7 @@ type PanelContent = {
   href: string | null;
   cta: string;
   chatPrompt: string;
+  chatFocus?: ChatFocus;
 };
 
 /** 노드 종류마다 패널에 보일 내용(GRAPH_DESIGN 5절). 스킬·카테고리 정보는 이웃에서 센다. */
@@ -46,6 +48,7 @@ function toContent(graph: Graph, node: GraphNode): PanelContent {
         href: node.url,
         cta: '글 열기',
         chatPrompt: `"${node.title}" 글을 요약해 주세요`,
+        chatFocus: { type: 'BLOG', slug: node.key },
       };
     case 'CATEGORY':
       return {
@@ -159,7 +162,7 @@ export function GraphDetailPanel({
             )}
             <button
               type="button"
-              onClick={() => askChat(content.chatPrompt)}
+              onClick={() => askChat(content.chatPrompt, content.chatFocus)}
               className="flex w-full items-center gap-2.5 rounded-md border border-border px-3 py-2 text-left text-sm text-text-2 transition-colors hover:border-border-hi hover:bg-surface-hi hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <CornerDownRight className="size-3.5 shrink-0 text-text-3" strokeWidth={1.5} />

@@ -12,7 +12,7 @@ import {
   type StoredConversation,
 } from '@/lib/chat-store';
 import { readSse } from '@/lib/sse';
-import type { ChatSource } from '@/lib/types';
+import type { ChatFocus, ChatSource } from '@/lib/types';
 
 export type Stage = 'SEARCHING' | 'EXPANDING' | 'ANSWERING';
 export type AssistantStatus = 'searching' | 'streaming' | 'done' | 'stopped' | 'error';
@@ -22,6 +22,7 @@ export type AssistantMessage = {
   id: string;
   role: 'assistant';
   question: string;
+  focus?: ChatFocus;
   text: string;
   status: AssistantStatus;
   stage: Stage | null;
@@ -95,7 +96,7 @@ export function useConversation({
   }, []);
 
   const run = useCallback(
-    async (question: string, assistantId: string) => {
+    async (question: string, assistantId: string, focus?: ChatFocus) => {
       const controller = new AbortController();
       controllerRef.current = controller;
       patch(assistantId, () => ({
@@ -119,7 +120,7 @@ export function useConversation({
           onCreated?.(session);
         }
 
-        const res = await postQuestion(session, question, controller.signal);
+        const res = await postQuestion(session, question, focus, controller.signal);
         if (res.status === 404) {
           onExpired?.();
           throw new ChatHttpError(404);
@@ -172,7 +173,7 @@ export function useConversation({
   );
 
   const ask = useCallback(
-    (raw: string) => {
+    (raw: string, focus?: ChatFocus) => {
       const question = raw.trim();
       if (!question || controllerRef.current) return;
       const assistantId = newId();
@@ -183,6 +184,7 @@ export function useConversation({
           id: assistantId,
           role: 'assistant',
           question,
+          focus,
           text: '',
           status: 'searching',
           stage: 'SEARCHING',
@@ -190,13 +192,13 @@ export function useConversation({
           sources: [],
         },
       ]);
-      void run(question, assistantId);
+      void run(question, assistantId, focus);
     },
     [run],
   );
 
   /** 오류가 난 답변을 같은 질문으로 다시 받는다. */
-  const retry = useCallback((message: AssistantMessage) => void run(message.question, message.id), [run]);
+  const retry = useCallback((message: AssistantMessage) => void run(message.question, message.id, message.focus), [run]);
 
   const stop = useCallback(() => controllerRef.current?.abort(), []);
 
@@ -223,13 +225,14 @@ export function useConversation({
  * 다른 화면(홈·본문 추천 질문)에서 넘겨받는 첫 질문. URL에 싣지 않고 클라이언트
  * 이동 사이에 메모리로 넘긴다. 새로고침하면 사라지는 게 맞다.
  */
-let pendingQuestion: string | null = null;
+type PendingQuestion = { question: string; focus?: ChatFocus };
+let pendingQuestion: PendingQuestion | null = null;
 
-export function setPendingQuestion(question: string) {
-  pendingQuestion = question;
+export function setPendingQuestion(question: string, focus?: ChatFocus) {
+  pendingQuestion = { question, focus };
 }
 
-export function takePendingQuestion(): string | null {
+export function takePendingQuestion(): PendingQuestion | null {
   const question = pendingQuestion;
   pendingQuestion = null;
   return question;

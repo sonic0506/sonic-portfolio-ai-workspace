@@ -1,7 +1,7 @@
 // 채팅 세션 API (ADR-0008, ADR-0011). 브라우저에서 부른다. 개발 중에는 /api/*를 Next rewrites가 넘기고,
 // 운영에서는 NEXT_PUBLIC_API_BASE_URL(api 도메인)을 직접 부른다. Vercel을 거치면 질문 제한이 방문자 IP를 못 본다(ADR-0017).
 import type { StoredConversation } from "./chat-store";
-import type { ChatSource } from "./types";
+import type { ChatFocus, ChatSource } from "./types";
 
 const BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
 
@@ -40,11 +40,11 @@ export async function deleteSession(session: Session) {
   );
 }
 
-export function postQuestion(session: Session, question: string, signal?: AbortSignal) {
+export function postQuestion(session: Session, question: string, focus?: ChatFocus, signal?: AbortSignal) {
   return fetch(`${BASE}/api/chat/sessions/${session.id}/messages`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "text/event-stream", ...keyHeader(session) },
-    body: JSON.stringify({ question }),
+    body: JSON.stringify({ question, focus }),
     signal,
   });
 }

@@ -104,3 +104,6 @@ export type Profile = {
 
 // 채팅 (ADR-0008, ADR-0011)
 export type ChatSource = { type: string; slug: string; title: string; url: string | null };
+
+/** 질문이 특정 글에 대한 것일 때 함께 보낸다. 서버는 이 글의 본문을 근거로 쓴다(ADR-0023). */
+export type ChatFocus = { type: "BLOG"; slug: string };
