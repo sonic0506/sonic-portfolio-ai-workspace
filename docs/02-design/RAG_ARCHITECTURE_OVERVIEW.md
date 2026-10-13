@@ -657,6 +657,7 @@ erDiagram
 - `document`는 `(document_type, source_id)`로 원본과 1:1이다. 원본을 고치면 다시 투영되고, RAG 데이터를 직접 편집하지 않는다.
 - `document_relation`은 자기 자신 연결을 금지하고, 같은 쌍의 중복을 막는다.
 - `category.rag_enabled`(V6)는 블로그 글을 채팅 근거로 쓸지 정한다. 검색 SQL이 매번 확인하므로 값을 바꿔도 재색인할 필요가 없다.
+- 요청에 `focus`(글 지정, 요약 버튼)가 있으면 검색·확장·FAQ 없이 그 글의 조각(최대 12개)을 근거로 쓰고 `rag_enabled`를 보지 않는다(ADR-0023, 2026-10-13).
 
 ---
 

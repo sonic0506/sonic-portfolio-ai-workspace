@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-10-13 — Post Summary Button Refused on Study Categories (ADR-0023)
+
+- 사용자 보고: 운영 `/blog?category=infra` 글 상세의 "이 글 요약해 주세요"가 "답변드리기 어려워요. 경력이나 프로젝트에 대해…"로 답함.
+- 원인: 버튼은 제목 문장만 보내 일반 벡터 검색을 탔고, ADR-0018로 꺼진 카테고리(경험 3개 외 6개)의 글 조각은 검색에서 빠져 근거가 비었다. 켜진 카테고리도 상위 5조각만으로 요약해 품질이 불안정했다.
+- 사용자 결정 C안: 요청 선택 필드 `focus: {type, slug}`. 있으면 그 공개 문서 조각(최대 12개, 고르게 추출, `Retriever.documentChunks`/`spread`)만 근거로, 임베딩·검색·확장·FAQ 생략, 카테고리 조건 미적용. 없거나 비공개면 일반 검색. 프론트는 글 정보 카드·그래프 블로그 노드 요약 버튼만 `focus`를 보낸다(`useAskChat`→pending→`ask`→`postQuestion`, 다시 시도도 유지).
+- 검증: 백엔드 139건(새 3건), 포트폴리오 tsc·lint·vitest 32. 로컬 실제 모델: `docker-network`(infra) 같은 질문이 focus 없음 → 안내 문구, focus → 글 출처 요약. 브라우저에서 상세 버튼 → 대화 → 요약·출처 "Docker Network" 확인. 그래프 패널 버튼은 브라우저로 미확인.
+- 문서: ADR-0023 신규, ADR-0018 결과 항목, API_DESIGN·RAG_DESIGN·RAG_ARCHITECTURE_OVERVIEW.
+
 ## 2026-10-12 — Mermaid in Markdown, AI Portfolio Wiki Design Section
 
 - 사용자 요청: 위키 `AI 개발자 포트폴리오/README.md`에 RAG 설계 섹션 추가, `## 배운 점`을 `## 학습 내용` 세 항목(Spring Boot·RAG·채팅) 기준으로 다시 작성. 원래 배운 점의 AI 협업 문단은 학습 내용 항목이 아니라 뺐다(결정 문서 03에 있음). `content/` 재변환·운영 시드는 하지 않음.

@@ -62,6 +62,7 @@ API 방식은 [ADR-0008](../03-decisions/ADR-0008-rest-and-chat-sse.md)로 확�
 - 응답 헤더 `Cache-Control: no-cache, no-transform`, `X-Accel-Buffering: no` — 압축·프록시가 이벤트를 모아 보내지 않게 한다(세션 질문 SSE도 같음, 2026-09-17).
 - 검색: 코사인 거리 상위 5청크(공개 문서만), 연관 공개 문서 최대 2건에서 질문과 가장 가까운 청크 1개씩 추가.
 - 근거가 없어도 생성은 호출한다(ADR-0007). 답변의 `[n]`은 근거 청크 번호다.
+- 선택 필드 `focus: {"type": "BLOG"|"PROJECT", "slug": "..."}`(2026-10-13, ADR-0023): 그 공개 문서의 조각(최대 12개, 고르게 추출)만 근거로 쓰고 검색·확장·FAQ를 건너뛴다. 카테고리 채팅 반영(ADR-0018)과 무관하다. 문서가 없거나 비공개면 일반 검색. `type` 값이 다르면 `400`. 세션 질문(`/api/chat/sessions/{id}/messages`)도 같다. 이때 `documents` 이벤트는 그 문서 1건, `EXPANDING`은 없다.
 
 검증: `ChatApiTest`, `ChatRateLimiterTest` (2026-09-16)
 
