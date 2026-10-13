@@ -357,7 +357,10 @@ create table chat_session (
   visitor_key    text,
   created_at     timestamptz not null default now(),
   last_active_at timestamptz not null default now(),
-  expires_at     timestamptz
+  expires_at     timestamptz,
+  pending_question   text,  -- V10, 생성 때 맡긴 첫 질문. /pending이 꺼내며 비운다(ADR-0024)
+  focus_type     text,  -- V10, 세션을 연 지정 글(ADR-0023). 꺼낸 뒤에도 남아 이어지는 질문의 근거가 된다
+  focus_slug     text
 );
 
 create table chat_message (
