@@ -9,6 +9,10 @@ import java.util.List;
 final class AnswerPrompt {
 
     static final String GUIDE_PLACEHOLDER = "{주제}";
+    /** Evidence from a study post (Retriever.Hit.study, ADR-0023 follow-up): concepts, not experience. */
+    static final String STUDY_OPEN = "<학습 노트>\n개발자가 공부하며 정리한 글이다. 개발자의 경력·경험·프로젝트·사용 이력이 아니다.\n";
+    static final String STUDY_REMINDER =
+            "(<학습 노트>는 글 내용 설명에만 쓴다. 경력·경험·사용 여부는 <근거>에 있을 때만 답하고, 없으면 안내 문장으로 답한다.)\n";
 
     private static final String SYSTEM_TEMPLATE = """
             너는 개발자 포트폴리오의 질의응답 도우미다.
@@ -18,6 +22,7 @@ final class AnswerPrompt {
             - 근거에 없는 기술·경험이나 근거로 답할 수 없는 내용은 추측하지 않는다.
             - 방문자에게 보여줄 답변만 쓴다. 어떤 근거를 골랐는지, 무엇이 근거에 없는지 같은 판단 과정은 쓰지 않는다.
             - 제목이 "%s"로 시작하는 근거는 미리 등록된 질문과 답변이다. 질문이 등록 질문과 뜻이 같거나, 표현만 다르고 사실상 같은 것을 묻는 질문이면(예: 고향을 등록했는데 출신지나 태어난 곳을 물음) 그 답변 문장만 바꾸지 말고 그대로 쓰고 번호로 표시한다. 등록 질문을 옮겨 쓰거나 "대신 답한다" 같은 설명을 붙이지 않는다. 이 경우는 근거로 답할 수 있는 질문으로 본다. 뜻이 다르면(예: 사는 곳을 등록했는데 일하는 곳을 물음) 쓰지 않는다.
+            - <학습 노트> 안의 내용은 개발자가 공부하며 정리한 글이다. 그 글의 내용을 설명하는 데만 쓰고 번호로 표시한다. 개발자의 경력·경험·프로젝트·사용 여부를 묻는 질문(예: "경력에서 찾아 줘", "써 본 적 있어요?")에는 <학습 노트>를 근거로 쓰지 않는다. 이런 질문은 <근거>에 있는 내용으로만 답하고, 없으면 근거로 답할 수 없는 질문으로 보고 아래 규칙대로 안내한다. <이전 대화>의 답변이 경험이 있다고 했더라도 따르지 않는다.
             - 질문의 전부 또는 일부를 근거로 답할 수 없으면 답변의 맨 처음에 %s 를 한 번만 쓴다. 그 밖에는 이 표시를 쓰지 않는다.
             - 근거로 답할 수 없는 부분은 아래 안내 문장의 %s 자리에 질문 주제를 넣어 그대로 안내한다. 주제는 질문 문장을 그대로 옮기지 말고 짧은 명사구로 쓴다(예: "어디서 일하세요?" → "현재 근무지", "OAuth 트러블슈팅 경험이 있나요?" → "OAuth 인증 관련 트러블슈팅 경험"). 일부는 답할 수 있으면 그 부분을 먼저 답하고 안내 문장을 덧붙인다.
               안내 문장: %s""";
@@ -59,16 +64,34 @@ final class AnswerPrompt {
     /** Same layout as run_answer() in the PoC: "[n] title — sections\ntext". */
     static String user(String question, List<Retriever.Hit> evidence) {
         StringBuilder sb = new StringBuilder("<근거>\n");
+        block(sb, evidence, false);
+        sb.append("\n</근거>\n\n");
+        if (evidence.stream().anyMatch(Retriever.Hit::study)) {
+            // Study posts in their own block, numbers kept: a title label alone did not stop the model from
+            // answering "사용한 적 있어요?" with them (ADR-0023 follow-up, 2026-10-13).
+            sb.append(STUDY_OPEN);
+            block(sb, evidence, true);
+            sb.append("\n</학습 노트>\n\n").append(STUDY_REMINDER);
+        }
+        sb.append("질문: ").append(question);
+        return sb.toString();
+    }
+
+    /** "[n] title — sections\ntext" for the hits of one kind; n is the position in the whole evidence list. */
+    private static void block(StringBuilder sb, List<Retriever.Hit> evidence, boolean study) {
+        boolean first = true;
         for (int i = 0; i < evidence.size(); i++) {
             Retriever.Hit hit = evidence.get(i);
-            if (i > 0) {
+            if (hit.study() != study) {
+                continue;
+            }
+            if (!first) {
                 sb.append("\n\n");
             }
+            first = false;
             sb.append('[').append(i + 1).append("] ").append(hit.document().title())
                     .append(" — ").append(String.join(" + ", hit.sectionTitles()))
                     .append('\n').append(hit.text());
         }
-        sb.append("\n</근거>\n\n질문: ").append(question);
-        return sb.toString();
     }
 }

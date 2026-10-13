@@ -225,6 +225,78 @@ class ChatSessionApiTest extends ApiTestSupport {
         ask("A?", key).andExpect(status().isServiceUnavailable());
     }
 
+    @Test
+    void firstQuestionStoredAtCreationRunsOnceFromPending() throws Exception {
+        // ADR-0024: survives a full-page navigation because the server keeps it, not the page.
+        String created = mockMvc.perform(post("/api/chat/sessions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"question\":\" A 요약 \",\"focus\":{\"type\":\"PROJECT\",\"slug\":\"a-project\"}}"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        id = JsonPath.read(created, "$.sessionId");
+        key = JsonPath.read(created, "$.sessionKey");
+
+        mockMvc.perform(get("/api/chat/sessions/{id}", id).header(KEY, key))
+                .andExpect(jsonPath("$.messages.length()").value(0))
+                .andExpect(jsonPath("$.pending.question").value("A 요약"))
+                .andExpect(jsonPath("$.pending.focus.slug").value("a-project"));
+        mockMvc.perform(post("/api/chat/sessions/{id}/pending", id)).andExpect(status().isNotFound());
+
+        MvcResult result = mockMvc.perform(post("/api/chat/sessions/{id}/pending", id).header(KEY, key)
+                        .accept(MediaType.TEXT_EVENT_STREAM))
+                .andExpect(request().asyncStarted()).andReturn();
+        result.getAsyncResult(5_000);
+        assertTrue(result.getResponse().getContentAsString(StandardCharsets.UTF_8).contains("event:done"));
+        assertTrue(embeddings.texts.isEmpty(), "focus: the document's own chunks, no search");
+        assertTrue(generator.userPrompts.get(0).endsWith("질문: A 요약"));
+
+        mockMvc.perform(get("/api/chat/sessions/{id}", id).header(KEY, key))
+                .andExpect(jsonPath("$.messages.length()").value(2))
+                .andExpect(jsonPath("$.messages[0].content").value("A 요약"))
+                .andExpect(jsonPath("$.pending").isEmpty());
+        limiter.reset();
+        mockMvc.perform(post("/api/chat/sessions/{id}/pending", id).header(KEY, key))
+                .andExpect(status().isGone());
+    }
+
+    @Test
+    void followUpsInAFocusedSessionKeepTheDocumentAndStillSearch() throws Exception {
+        // 2026-10-13: "해당 글을 3줄 요약" after the summary button answered from another document, because
+        // the post's category is kept out of chat search (ADR-0018) and only the first question had focus.
+        long study = insertReturningId("insert into category (code, name, rag_enabled) values ('study', '학습', false)");
+        long post = insertReturningId("insert into blog_post (slug, title, published, category_id) values ('s-note', '학습 S', true, ?)", study);
+        long s = insertReturningId("""
+                insert into document (document_type, source_id, title, content, metadata, visible, index_status)
+                values ('BLOG', ?, '학습 S', 'x', '{"slug":"s-note"}', true, 'READY')""", post);
+        jdbc.update("""
+                insert into document_chunk (document_id, chunk_index, content, section_titles)
+                values (?, 0, 'S 내용', '{개요}')""", s);
+        String created = mockMvc.perform(post("/api/chat/sessions").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"question\":\"S 요약\",\"focus\":{\"type\":\"BLOG\",\"slug\":\"s-note\"}}"))
+                .andReturn().getResponse().getContentAsString();
+        id = JsonPath.read(created, "$.sessionId");
+        key = JsonPath.read(created, "$.sessionKey");
+        MvcResult first = mockMvc.perform(post("/api/chat/sessions/{id}/pending", id).header(KEY, key))
+                .andExpect(request().asyncStarted()).andReturn();
+        first.getAsyncResult(5_000);
+
+        askOk("해당 글을 3줄 요약");
+        String prompt = generator.userPrompts.get(1);
+        assertTrue(prompt.contains("<근거>\n[2] 프로젝트 A"), prompt);
+        assertTrue(prompt.contains(AnswerPrompt.STUDY_OPEN + "[1] 학습 S — 개요\nS 내용\n</학습 노트>"), prompt);
+        assertEquals(1, embeddings.texts.size(), "the follow-up still searches");
+    }
+
+    @Test
+    void sessionWithoutFirstQuestionHasNothingPending() throws Exception {
+        mockMvc.perform(get("/api/chat/sessions/{id}", id).header(KEY, key))
+                .andExpect(jsonPath("$.pending").isEmpty());
+        mockMvc.perform(post("/api/chat/sessions/{id}/pending", id).header(KEY, key))
+                .andExpect(status().isGone());
+        mockMvc.perform(post("/api/chat/sessions").contentType(MediaType.APPLICATION_JSON).content("{\"question\":\" \"}"))
+                .andExpect(status().isBadRequest());
+    }
+
     private long internalId() {
         return jdbc.queryForObject("select id from chat_session where public_id = cast(? as uuid)", Long.class, id);
     }

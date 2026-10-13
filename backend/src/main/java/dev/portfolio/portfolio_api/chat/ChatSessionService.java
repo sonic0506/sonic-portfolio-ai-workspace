@@ -15,6 +15,7 @@ import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,11 @@ public class ChatSessionService {
     public record Message(String role, String content, List<Doc> sources, Instant createdAt) {
     }
 
-    public record Transcript(UUID sessionId, Instant expiresAt, List<Message> messages) {
+    /** pending: the first question stored at creation and not yet run (ADR-0024), else null. */
+    public record Transcript(UUID sessionId, Instant expiresAt, List<Message> messages, Pending pending) {
+    }
+
+    public record Pending(String question, ChatController.Focus focus) {
     }
 
     private static final Logger log = LoggerFactory.getLogger(ChatSessionService.class);
@@ -57,15 +62,19 @@ public class ChatSessionService {
         this.jdbc = jdbc;
     }
 
+    /** first: an optional first question kept until claim() runs it (ADR-0024). */
     @Transactional
-    public Created create() {
+    public Created create(ChatController.ChatRequest first) {
         byte[] secret = new byte[32];
         RANDOM.nextBytes(secret);
         String key = Base64.getUrlEncoder().withoutPadding().encodeToString(secret);
         Instant expiresAt = Instant.now().plus(TTL);
+        ChatController.Focus focus = first == null ? null : first.focus();
         UUID publicId = jdbc.queryForObject("""
-                insert into chat_session (visitor_key, expires_at) values (?, ?) returning public_id""",
-                UUID.class, hash(key), Timestamp.from(expiresAt));
+                insert into chat_session (visitor_key, expires_at, pending_question, focus_type, focus_slug)
+                values (?, ?, ?, ?, ?) returning public_id""",
+                UUID.class, hash(key), Timestamp.from(expiresAt), first == null ? null : first.question().strip(),
+                focus == null ? null : focus.type(), focus == null ? null : focus.slug());
         return new Created(publicId, key, expiresAt);
     }
 
@@ -136,6 +145,38 @@ public class ChatSessionService {
                 Timestamp.from(now), Timestamp.from(now.plus(TTL)), sessionId);
     }
 
+    /**
+     * Takes the pending question and clears it in one statement (the row lock makes a second caller see
+     * it already cleared), so it runs once even if two tabs ask together. Empty when there is none.
+     */
+    @Transactional
+    public Optional<Pending> claim(long sessionId) {
+        return jdbc.query("""
+                update chat_session s
+                set pending_question = null
+                from (select id, pending_question, focus_type, focus_slug from chat_session
+                      where id = ? for update) old
+                where s.id = old.id and old.pending_question is not null
+                returning old.pending_question, old.focus_type, old.focus_slug""",
+                (rs, n) -> pending(rs.getString(1), rs.getString(2), rs.getString(3)), sessionId)
+                .stream().findFirst();
+    }
+
+    /** The document the session was opened about (ADR-0023); kept for follow-ups, null for an ordinary chat. */
+    @Transactional(readOnly = true)
+    public ChatController.Focus focus(long sessionId) {
+        return jdbc.queryForObject("select focus_type, focus_slug from chat_session where id = ?",
+                (rs, n) -> focus(rs.getString(1), rs.getString(2)), sessionId);
+    }
+
+    private static Pending pending(String question, String focusType, String focusSlug) {
+        return question == null ? null : new Pending(question, focus(focusType, focusSlug));
+    }
+
+    private static ChatController.Focus focus(String type, String slug) {
+        return type == null ? null : new ChatController.Focus(type, slug);
+    }
+
     /** Sources are shown only while the document is still public (ADR-0005). */
     @Transactional(readOnly = true)
     public Transcript transcript(Session session) {
@@ -160,7 +201,10 @@ public class ChatSessionService {
                         sources.getOrDefault(rs.getLong("id"), List.of()),
                         rs.getTimestamp("created_at").toInstant()),
                 session.id());
-        return new Transcript(session.publicId(), session.expiresAt(), messages);
+        Pending pending = jdbc.queryForObject("""
+                select pending_question, focus_type, focus_slug from chat_session where id = ?""",
+                (rs, n) -> pending(rs.getString(1), rs.getString(2), rs.getString(3)), session.id());
+        return new Transcript(session.publicId(), session.expiresAt(), messages, pending);
     }
 
     @Transactional

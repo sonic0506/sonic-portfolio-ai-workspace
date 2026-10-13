@@ -77,23 +77,29 @@ public class ChatService {
     }
 
     /**
-     * focus (ADR-0023): the question is about one document, so its own chunks are the evidence instead of
-     * a vector search; no relation expansion or FAQ. Falls back to the ordinary search when it has no chunks.
+     * focus (ADR-0023): the conversation is about one document. The first question uses only its chunks;
+     * no search, relation expansion or FAQ. Follow-ups put fewer of its chunks first and still search, so
+     * "그 글 3줄 요약" stays on the document and a change of topic still finds other evidence.
+     * Without chunks (private or missing) it is an ordinary question.
      */
     public Answer answer(String question, List<AnswerPrompt.Turn> history, ChatController.Focus focus, Sink sink) {
         sink.send(ChatEvents.STATUS, new Status(Stage.SEARCHING));
-        if (focus != null) {
-            List<Retriever.Hit> evidence = retriever.documentChunks(focus.type(), focus.slug());
-            if (!evidence.isEmpty()) {
-                sink.send(ChatEvents.DOCUMENTS, new Documents(List.of(Doc.of(evidence.get(0).document()))));
-                sink.send(ChatEvents.STATUS, new Status(Stage.ANSWERING));
-                return generate(question, history, evidence, sink);
-            }
+        List<Retriever.Hit> focused = focus == null ? List.of()
+                : retriever.documentChunks(focus.type(), focus.slug(),
+                        history.isEmpty() ? Retriever.MAX_FOCUS_CHUNKS : Retriever.MAX_FOLLOW_UP_FOCUS_CHUNKS);
+        if (!focused.isEmpty() && history.isEmpty()) {
+            sink.send(ChatEvents.DOCUMENTS, new Documents(List.of(Doc.of(focused.get(0).document()))));
+            sink.send(ChatEvents.STATUS, new Status(Stage.ANSWERING));
+            return generate(question, history, focused, sink);
         }
         String searchText = history.isEmpty() ? question
                 : history.get(history.size() - 1).question() + "\n" + question;
         float[] query = embeddings.embed(List.of(searchText)).get(0);
-        List<Retriever.Hit> evidence = new ArrayList<>(retriever.search(query, Retriever.TOP_K));
+        List<Retriever.Hit> evidence = new ArrayList<>(focused);
+        long focusedId = focused.isEmpty() ? -1 : focused.get(0).document().id();
+        retriever.search(query, Retriever.TOP_K).stream()
+                .filter(hit -> hit.document().id() != focusedId) // its chunks are already in, in reading order
+                .forEach(evidence::add);
 
         Map<Long, Retriever.DocumentRef> seen = new LinkedHashMap<>();
         evidence.forEach(hit -> seen.putIfAbsent(hit.document().id(), hit.document()));

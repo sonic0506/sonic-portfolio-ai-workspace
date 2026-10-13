@@ -129,7 +129,8 @@ class ChatApiTest extends ApiTestSupport {
         String body = focused("BLOG", "s-note");
         assertEquals(List.of("status", "documents", "status", "answer_delta", "done"), events(body));
         String prompt = generator.userPrompts.get(0);
-        assertTrue(prompt.startsWith("<근거>\n[1] 학습 S — 개요\nS 첫째\n\n[2] 학습 S — 개요\nS 둘째\n</근거>"), prompt);
+        assertTrue(prompt.startsWith("<근거>\n\n</근거>\n\n" + AnswerPrompt.STUDY_OPEN
+                + "[1] 학습 S — 개요\nS 첫째\n\n[2] 학습 S — 개요\nS 둘째\n</학습 노트>\n\n" + AnswerPrompt.STUDY_REMINDER), prompt);
         assertTrue(embeddings.texts.isEmpty(), "no vector search, expansion or embedding call");
         String done = body.substring(body.indexOf("event:done"));
         assertTrue(done.contains("s-note") && done.contains("\"unanswered\":false"), done);

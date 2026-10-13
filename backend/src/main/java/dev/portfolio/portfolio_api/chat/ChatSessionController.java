@@ -44,10 +44,11 @@ public class ChatSessionController {
         this.unanswered = unanswered;
     }
 
+    /** Optional body {question, focus}: kept as the pending first question, run by /pending (ADR-0024). */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Created create() {
-        return sessions.create();
+    public Created create(@Valid @RequestBody(required = false) ChatRequest first) {
+        return sessions.create(first);
     }
 
     @GetMapping("/{sessionId}")
@@ -69,6 +70,24 @@ public class ChatSessionController {
                           @RequestHeader(name = KEY_HEADER, required = false) String key,
                           @Valid @RequestBody ChatRequest request, HttpServletRequest http,
                           HttpServletResponse response) {
+        Session session = checked(sessionId, key, http);
+        // Follow-ups in a session opened about one document keep it as evidence (ADR-0023 follow-up).
+        ChatController.Focus focus = request.focus() != null ? request.focus() : sessions.focus(session.id());
+        return answer(session, request.question().strip(), focus, response);
+    }
+
+    /** Runs the pending first question once (ADR-0024). Same checks as /messages, then 410 if none is left. */
+    @PostMapping(path = "/{sessionId}/pending", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter askPending(@PathVariable UUID sessionId,
+                                 @RequestHeader(name = KEY_HEADER, required = false) String key,
+                                 HttpServletRequest http, HttpServletResponse response) {
+        Session session = checked(sessionId, key, http);
+        ChatSessionService.Pending pending = sessions.claim(session.id())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.GONE, "no pending question"));
+        return answer(session, pending.question(), pending.focus(), response);
+    }
+
+    private Session checked(UUID sessionId, String key, HttpServletRequest http) {
         if (!chat.available()) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "chat is not configured");
         }
@@ -79,11 +98,15 @@ public class ChatSessionController {
         if (!limiter.tryAcquire(http.getRemoteAddr())) {
             throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "daily question limit reached");
         }
-        String question = request.question().strip();
+        return session;
+    }
+
+    private SseEmitter answer(Session session, String question, ChatController.Focus focus,
+                              HttpServletResponse response) {
         var history = sessions.recentTurns(session.id());
         ChatStreams.disableBuffering(response);
         return streams.start(sink -> {
-            ChatService.Answer answer = chat.answer(question, history, request.focus(), sink);
+            ChatService.Answer answer = chat.answer(question, history, focus, sink);
             sessions.saveTurn(session.id(), question, answer);
             unanswered.recordQuietly(question, answer, session.id());
             ChatService.done(sink, answer);

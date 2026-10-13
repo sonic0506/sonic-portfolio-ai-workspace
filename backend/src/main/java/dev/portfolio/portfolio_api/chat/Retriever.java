@@ -20,6 +20,8 @@ public class Retriever {
     public static final int MAX_RELATED = 2;
     /** ADR-0023: chunks sent for a document-focused question (Chunker.MAX_CHARS each, about 14k characters). */
     public static final int MAX_FOCUS_CHUNKS = 12;
+    /** Follow-up questions in that conversation: fewer, since search results are added too. */
+    public static final int MAX_FOLLOW_UP_FOCUS_CHUNKS = 6;
 
     /**
      * Public view of a document; no internal id is sent to clients. Profile documents projected before
@@ -38,7 +40,12 @@ public class Retriever {
         }
     }
 
-    public record Hit(DocumentRef document, List<String> sectionTitles, String text, double distance) {
+    /** study: from a post whose category is kept out of chat (ADR-0018), reachable only through focus. */
+    public record Hit(DocumentRef document, List<String> sectionTitles, String text, double distance, boolean study) {
+
+        public Hit(DocumentRef document, List<String> sectionTitles, String text, double distance) {
+            this(document, sectionTitles, text, distance, false);
+        }
     }
 
     /** ADR-0018: a blog post in a category with rag_enabled = false is not chat evidence. Checked at query time. */
@@ -69,14 +76,20 @@ public class Retriever {
      * that document. Not limited by RAG_SCOPE: the visitor picked the post, so it cannot be mistaken for
      * experience. Long documents are sampled evenly so the evidence spans the whole text.
      */
-    public List<Hit> documentChunks(String type, String slug) {
+    public List<Hit> documentChunks(String type, String slug, int limit) {
         List<Hit> all = jdbc.query("""
                 select d.id as doc_id, d.document_type, d.metadata->>'slug' as slug, d.title,
-                       c.section_titles, c.content, 0.0 as distance
+                       c.section_titles, c.content, 0.0 as distance,
+                       exists (select 1 from blog_post bp join category cat on cat.id = bp.category_id
+                               where d.document_type = 'BLOG' and bp.id = d.source_id and not cat.rag_enabled) as study
                 from document_chunk c join document d on d.id = c.document_id
                 where d.visible and d.document_type = ? and d.metadata->>'slug' = ?
-                order by c.chunk_index""", this::hit, type, slug);
-        return spread(all, MAX_FOCUS_CHUNKS);
+                order by c.chunk_index""",
+                (rs, n) -> {
+                    Hit hit = hit(rs, n);
+                    return new Hit(hit.document(), hit.sectionTitles(), hit.text(), 0, rs.getBoolean("study"));
+                }, type, slug);
+        return spread(all, limit);
     }
 
     /** At most limit items, evenly spaced and in their original order. */

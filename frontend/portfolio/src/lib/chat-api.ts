@@ -13,11 +13,21 @@ export type HistoryMessage = {
 };
 
 type Session = Pick<StoredConversation, "id" | "key">;
+export type PendingQuestion = { question: string; focus: ChatFocus | null };
 
 const keyHeader = (session: Session) => ({ "X-Chat-Session-Key": session.key });
 
-export async function createSession(): Promise<{ id: string; key: string; expiresAt: string }> {
-  const res = await fetch(`${BASE}/api/chat/sessions`, { method: "POST" });
+/** first: 첫 질문을 세션과 함께 서버에 맡긴다. /chat/{id}가 postPending으로 한 번 실행한다(ADR-0024). */
+export async function createSession(first?: {
+  question: string;
+  focus?: ChatFocus;
+}): Promise<{ id: string; key: string; expiresAt: string }> {
+  const res = await fetch(
+    `${BASE}/api/chat/sessions`,
+    first
+      ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(first) }
+      : { method: "POST" },
+  );
   if (!res.ok) throw new ChatHttpError(res.status);
   const body = (await res.json()) as { sessionId: string; sessionKey: string; expiresAt: string };
   return { id: body.sessionId, key: body.sessionKey, expiresAt: body.expiresAt };
@@ -27,11 +37,11 @@ export async function createSession(): Promise<{ id: string; key: string; expire
 export async function fetchHistory(
   session: Session,
   signal?: AbortSignal,
-): Promise<{ messages: HistoryMessage[]; expiresAt: string } | null> {
+): Promise<{ messages: HistoryMessage[]; expiresAt: string; pending: PendingQuestion | null } | null> {
   const res = await fetch(`${BASE}/api/chat/sessions/${session.id}`, { headers: keyHeader(session), signal });
   if (res.status === 404) return null;
   if (!res.ok) throw new ChatHttpError(res.status);
-  return (await res.json()) as { messages: HistoryMessage[]; expiresAt: string };
+  return (await res.json()) as { messages: HistoryMessage[]; expiresAt: string; pending: PendingQuestion | null };
 }
 
 export async function deleteSession(session: Session) {
@@ -45,6 +55,15 @@ export function postQuestion(session: Session, question: string, focus?: ChatFoc
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "text/event-stream", ...keyHeader(session) },
     body: JSON.stringify({ question, focus }),
+    signal,
+  });
+}
+
+/** 세션에 맡겨 둔 첫 질문을 실행한다. 이미 실행됐으면 410. */
+export function postPending(session: Session, signal?: AbortSignal) {
+  return fetch(`${BASE}/api/chat/sessions/${session.id}/pending`, {
+    method: "POST",
+    headers: { Accept: "text/event-stream", ...keyHeader(session) },
     signal,
   });
 }
@@ -64,6 +83,8 @@ export function errorMessage(status: number): string {
       return "대화가 만료되었습니다. 새 대화를 시작해 주세요.";
     case 409:
       return "이 대화에서 할 수 있는 질문 수를 모두 썼습니다. 새 대화를 시작해 주세요.";
+    case 410:
+      return "이 질문은 이미 처리되었습니다. 화면을 새로고침해 주세요.";
     case 429:
       return "오늘 질문할 수 있는 횟수를 모두 사용했습니다. 내일 다시 이용해 주세요.";
     case 503:

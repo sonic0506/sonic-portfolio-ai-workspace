@@ -53,7 +53,8 @@ public class SecurityConfig {
             auth.requestMatchers("/error").permitAll();
             auth.requestMatchers(HttpMethod.GET, "/actuator/health").permitAll();
             auth.requestMatchers(HttpMethod.GET, PUBLIC_GET).permitAll();
-            auth.requestMatchers(HttpMethod.POST, "/api/chat", "/api/chat/sessions", "/api/chat/sessions/*/messages")
+            auth.requestMatchers(HttpMethod.POST, "/api/chat", "/api/chat/sessions", "/api/chat/sessions/*/messages",
+                    "/api/chat/sessions/*/pending")
                     .permitAll();
             auth.requestMatchers(HttpMethod.GET, "/api/chat/sessions/*").permitAll();
             auth.requestMatchers(HttpMethod.DELETE, "/api/chat/sessions/*").permitAll();

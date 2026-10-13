@@ -49,7 +49,7 @@ export function ConversationScreen({ conversationId }: { conversationId: string 
     if (id) removeConversation(id);
   }, [conversationId, current]);
 
-  const { messages, setMessages, ask, retry, stop, busy } = useConversation({
+  const { messages, setMessages, ask, askPending, retry, stop, busy } = useConversation({
     conversation: current,
     onCreated: handleCreated,
     onExpired: handleExpired,
@@ -88,11 +88,13 @@ export function ConversationScreen({ conversationId }: { conversationId: string 
         syncExpiry(stored.id, history.expiresAt);
         setMessages(fromHistory(history.messages));
         setPhase('ready');
+        // 다른 화면에서 맡겨 둔 첫 질문(ADR-0024). 서버가 한 번만 내준다.
+        if (history.pending) askPending(stored, history.pending.question, history.pending.focus ?? undefined);
       })
       .catch(() => {
         if (!controller.signal.aborted) setPhase('missing');
       });
-  }, [conversationId, ask, router, setMessages]);
+  }, [conversationId, ask, askPending, router, setMessages]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   // 보고 있는 동안 만료(1분 주기 확인)되거나 다른 탭에서 지워지면 본문을 거둔다.

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 
-import { ChatHttpError, createSession, errorMessage, postQuestion, type HistoryMessage } from '@/lib/chat-api';
+import { ChatHttpError, createSession, errorMessage, postPending, postQuestion, type HistoryMessage } from '@/lib/chat-api';
 import {
   getServerSnapshot,
   listConversations,
@@ -96,7 +96,7 @@ export function useConversation({
   }, []);
 
   const run = useCallback(
-    async (question: string, assistantId: string, focus?: ChatFocus) => {
+    async (question: string, assistantId: string, focus?: ChatFocus, fromPending = false) => {
       const controller = new AbortController();
       controllerRef.current = controller;
       patch(assistantId, () => ({
@@ -120,7 +120,9 @@ export function useConversation({
           onCreated?.(session);
         }
 
-        const res = await postQuestion(session, question, focus, controller.signal);
+        const res = fromPending
+          ? await postPending(session, controller.signal)
+          : await postQuestion(session, question, focus, controller.signal);
         if (res.status === 404) {
           onExpired?.();
           throw new ChatHttpError(404);
@@ -173,7 +175,7 @@ export function useConversation({
   );
 
   const ask = useCallback(
-    (raw: string, focus?: ChatFocus) => {
+    (raw: string, focus?: ChatFocus, fromPending = false) => {
       const question = raw.trim();
       if (!question || controllerRef.current) return;
       const assistantId = newId();
@@ -192,12 +194,21 @@ export function useConversation({
           sources: [],
         },
       ]);
-      void run(question, assistantId, focus);
+      void run(question, assistantId, focus, fromPending);
     },
     [run],
   );
 
-  /** 오류가 난 답변을 같은 질문으로 다시 받는다. */
+  /** 세션에 맡겨 둔 첫 질문(ADR-0024)을 실행한다. 화면에는 보통 질문처럼 보인다. */
+  const askPending = useCallback(
+    (session: StoredConversation, question: string, focus?: ChatFocus) => {
+      sessionRef.current = session;
+      ask(question, focus, true);
+    },
+    [ask],
+  );
+
+  /** 오류가 난 답변을 같은 질문으로 다시 받는다. 맡긴 질문은 이미 꺼냈으니 보통 질문으로 보낸다. */
   const retry = useCallback((message: AssistantMessage) => void run(message.question, message.id, message.focus), [run]);
 
   const stop = useCallback(() => controllerRef.current?.abort(), []);
@@ -218,7 +229,7 @@ export function useConversation({
   const last = messages[messages.length - 1];
   const busy = last?.role === 'assistant' && (last.status === 'searching' || last.status === 'streaming');
 
-  return { messages, setMessages, ask, retry, stop, busy };
+  return { messages, setMessages, ask, askPending, retry, stop, busy };
 }
 
 /**
