@@ -7,7 +7,7 @@
 ## 2026-10-16 — Admin Blog List Publish Toggle
 
 - 사용자 요청: 어드민 블로그 목록에서 바로 공개/비공개 변경. 백엔드 변경 없이 목록의 상태 배지를 토글 버튼(`role="switch"`)으로 바꿈: 최신 상세를 읽어 `published`만 뒤집어 기존 `PUT /api/admin/blog/posts/{id}`로 저장(저장 시 색인 재생성은 편집 저장과 동일).
-- 검증: 어드민 tsc·lint·test 27건 통과. 로컬 백엔드 미기동·로그인 필요로 브라우저 확인은 안 함. 미커밋.
+- 검증: 어드민 tsc·lint·test 27건 통과. 사용자가 어드민에서 확인. 커밋 `d69c725` 푸시, Vercel 두 프로젝트 배포 성공.
 
 ## 2026-10-14 — Unified No-answer Wording (ADR-0013 follow-up)
 
