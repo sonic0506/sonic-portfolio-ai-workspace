@@ -77,7 +77,7 @@ Lightsail 콘솔에서 인스턴스 자동 스냅샷을 켠다(2026-10-04 결정
 
 | 프로젝트 | Root Directory | 환경변수 | 도메인 |
 |---|---|---|---|
-| portfolio | `frontend/portfolio` | `API_BASE_URL=https://api.sonic-portfolio.com`, `NEXT_PUBLIC_API_BASE_URL=https://api.sonic-portfolio.com` | `www.sonic-portfolio.com` (+ apex 리다이렉트) |
+| portfolio | `frontend/portfolio` | `API_BASE_URL=https://api.sonic-portfolio.com`, `NEXT_PUBLIC_API_BASE_URL=https://api.sonic-portfolio.com`, `NEXT_PUBLIC_GTM_ID=GTM-5RSJ73F8`(Production만, ADR-0025) | `www.sonic-portfolio.com` (+ apex 리다이렉트) |
 | admin | `frontend/admin` | 없음 (`.env.production`, `vercel.json` 사용) | `admin.sonic-portfolio.com` |
 
 portfolio는 빌드할 때 정적 페이지를 만들며 `API_BASE_URL`로 백엔드를 부른다(ADR-0021). 백엔드가 꺼져 있으면 Vercel 빌드가 실패한다. 어드민 수정은 최대 5분 뒤 반영된다.

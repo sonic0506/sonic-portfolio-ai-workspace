@@ -1,10 +1,17 @@
 # Next Actions
 
-Last Updated: 2026-10-13
+Last Updated: 2026-10-17
 
 ## 현재 기준
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
+
+## Priority 0-Analytics — GA4 + GTM (2026-10-17, ADR-0025)
+
+1. Vercel portfolio 프로젝트 Production 환경 변수 `NEXT_PUBLIC_GTM_ID=GTM-5RSJ73F8` 추가 후 배포(빌드 시 값이 들어가므로 재배포 필요).
+2. 배포 후 운영 `/blog/<slug>`에서 GA4 실시간 보고서로 page_view·scroll 확인(집 IP는 내부 트래픽 필터로 제외되니 다른 네트워크에서 확인).
+3. (선택) 개인정보 처리방침/안내에 GA 사용 문구.
+4. (선택) 데이터가 몇 주 쌓이면 탐색 보고서(페이지 경로 × 조회수·평균 참여 시간·스크롤 비율) 저장.
 
 ## Priority 0-PostToggle — 블로그 목록 공개 토글 (2026-10-16)
 

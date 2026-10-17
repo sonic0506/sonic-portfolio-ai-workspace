@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-10-17 — GA4 + GTM Analytics (ADR-0025)
+
+- 사용자 요청: 방문자 추세와 글별 읽은 정도를 GA4 + GTM으로. 같이 브라우저에서 GA4 계정·속성·웹 스트림(데이터 공유 끔, 보관 14개월, 향상된 측정 스크롤·양식 끔, 맞춤 측정기준 `percent_scrolled`, 내부 트래픽 규칙·필터 활성)과 GTM 컨테이너(GA 태그, `scroll_depth` 맞춤 이벤트 트리거 `/blog/`, `scroll` 이벤트 태그)를 만듦. 약관 동의는 사용자 승인 후.
+- 발견: 화면은 `window`가 아니라 `DocLayout`의 내부 컨테이너가 스크롤해 GTM 기본 스크롤 트리거가 동작하지 않음. 컨테이너에서 25·50·75·90%를 dataLayer `scroll_depth`로 보내도록 함. 처음엔 `<main>`을 봤는데 블로그 상세는 `DocLayout`이 스크롤해서 옮김.
+- 검증: 포트폴리오 tsc·lint·test 35건(새 3건). 앱 내 브라우저는 Tag Assistant 창 연결이 안 돼 사용자 Chrome(Claude in Chrome)으로 미리보기: page_view 태그 실행 확인, 연결된 창에서 스크롤 이벤트는 오지 않음(원인 미확인, 배경 탭에서는 Chrome이 스크롤 이벤트를 보내지 않는 것은 확인). 게시(버전 2) 후 로컬에서 실제 GA 전송 확인: page_view, `scroll` 25·50·75·90, 클라이언트 이동 page_view.
+- 운영 미반영: Vercel `NEXT_PUBLIC_GTM_ID` 설정·배포 필요.
+
 ## 2026-10-16 — Admin Blog List Publish Toggle
 
 - 사용자 요청: 어드민 블로그 목록에서 바로 공개/비공개 변경. 백엔드 변경 없이 목록의 상태 배지를 토글 버튼(`role="switch"`)으로 바꿈: 최신 상세를 읽어 `published`만 뒤집어 기존 `PUT /api/admin/blog/posts/{id}`로 저장(저장 시 색인 재생성은 편집 저장과 동일).

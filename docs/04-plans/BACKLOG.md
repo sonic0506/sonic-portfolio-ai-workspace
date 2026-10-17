@@ -4,7 +4,7 @@
 - 대표 프로젝트 상세 Case Study UX
 - 검색 및 필터 UX
 - SEO 전략
-- Analytics
+- ~~Analytics~~ — GA4 + GTM(2026-10-17, ADR-0025)
 
 ## Admin
 - 콘텐츠 정렬 / Drag & Drop
