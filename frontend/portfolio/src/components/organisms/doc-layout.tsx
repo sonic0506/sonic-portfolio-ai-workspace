@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 
 import { DocToc, DocTocCollapsible } from '@/components/molecules/doc-toc';
 import type { DocHeading } from '@/lib/headings';
+import { newlyCrossed } from '@/lib/scroll-depth';
 
 /** 뷰포트 상단에서 이만큼 지난 마지막 헤딩을 활성으로 본다. */
 const SPY_OFFSET = 120;
@@ -52,6 +53,22 @@ export function DocLayout({
     element.addEventListener('scroll', onScroll, { passive: true });
     return () => element.removeEventListener('scroll', onScroll);
   }, [headings]);
+
+  // 읽은 깊이(25/50/75/90%)를 GTM dataLayer로 보낸다. 화면은 window가 아니라 이 컨테이너가 스크롤해서
+  // GTM 기본 스크롤 트리거가 못 잡는다. 어느 경로를 GA4로 보낼지는 GTM 트리거가 정한다(현재 /blog/만).
+  useEffect(() => {
+    const element = scrollRef.current;
+    if (!element) return;
+    const sent = new Set<number>();
+    const onScroll = () => {
+      for (const t of newlyCrossed(element.scrollTop, element.clientHeight, element.scrollHeight, sent)) {
+        sent.add(t);
+        (window.dataLayer ??= []).push({ event: 'scroll_depth', percent_scrolled: t });
+      }
+    };
+    element.addEventListener('scroll', onScroll, { passive: true });
+    return () => element.removeEventListener('scroll', onScroll);
+  }, []);
 
   const jumpTo = useCallback((id: string) => {
     const element = scrollRef.current;

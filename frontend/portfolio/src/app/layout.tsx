@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { AppShell } from "@/components/templates/app-shell";
+import { Analytics } from "@/components/providers/analytics";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { getCategories } from "@/lib/api";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
@@ -9,6 +10,9 @@ import "./globals.css";
 // 모든 경로를 ISR로 캐시하고 5분마다 다시 만든다(ADR-0021). 경로 전체의 주기는 가장 짧은 값이 정하므로
 // 여기 한 곳에만 둔다. 어드민 수정은 최대 5분 뒤 반영된다(즉시 재검증은 두지 않음).
 export const revalidate = 300;
+
+// 운영(Vercel)에만 넣는다. 로컬·미리보기 배포에서 비워 두면 GTM을 불러오지 않아 방문 기록이 섞이지 않는다.
+const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 
 const DESCRIPTION = "프론트엔드 개발자 Sonic의 프로젝트와 기술 기록. 공개된 글을 근거로 답하는 채팅으로 경력과 작업을 물어볼 수 있습니다.";
 
@@ -40,6 +44,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             <AppShell categories={categories}>{children}</AppShell>
           </QueryProvider>
         </ThemeProvider>
+        {GTM_ID && <Analytics gtmId={GTM_ID} />}
       </body>
     </html>
   );
