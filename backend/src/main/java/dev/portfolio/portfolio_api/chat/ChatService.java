@@ -92,6 +92,16 @@ public class ChatService {
             sink.send(ChatEvents.STATUS, new Status(Stage.ANSWERING));
             return generate(question, history, focused, sink);
         }
+        String previousQuestion = history.isEmpty() ? null : history.get(history.size() - 1).question();
+        // Before search: a FAQ must not depend on ranking in the top chunks (ADR-0014 follow-up 3)
+        var faq = faqs.match(question, previousQuestion);
+        if (faq.isPresent()) {
+            // Registered answer, sent unchanged (ADR-0014 follow-up)
+            sink.send(ChatEvents.DOCUMENTS, new Documents(List.of(Doc.of(faq.get().document()))));
+            sink.send(ChatEvents.STATUS, new Status(Stage.ANSWERING));
+            sink.send(ChatEvents.ANSWER_DELTA, new AnswerDelta(faq.get().answer()));
+            return new Answer(faq.get().answer(), List.of(faq.get().document()), List.of(), null);
+        }
         String searchText = history.isEmpty() ? question
                 : history.get(history.size() - 1).question() + "\n" + question;
         float[] query = embeddings.embed(List.of(searchText)).get(0);
@@ -125,13 +135,6 @@ public class ChatService {
         }
 
         sink.send(ChatEvents.STATUS, new Status(Stage.ANSWERING));
-        String previousQuestion = history.isEmpty() ? null : history.get(history.size() - 1).question();
-        var faq = faqs.match(question, previousQuestion, evidence);
-        if (faq.isPresent()) {
-            // Registered answer, sent unchanged (ADR-0014 follow-up)
-            sink.send(ChatEvents.ANSWER_DELTA, new AnswerDelta(faq.get().answer()));
-            return new Answer(faq.get().answer(), List.of(faq.get().document()), List.copyOf(evidence), null);
-        }
         return generate(question, history, evidence, sink);
     }
 

@@ -136,7 +136,7 @@ class FaqAdminApiTest extends ApiTestSupport {
         assertEquals(0, jdbc.queryForObject(
                 "select count(*) from chat_unanswered_question where status <> 'ANSWERED'", Integer.class));
         assertFalse(body.contains("NO_ANSWER"));
-        assertEquals(1, generator.faqJudgePrompts.size(), "judge asked because a FAQ was retrieved");
+        assertEquals(1, generator.faqJudgePrompts.size(), "judge asked because a FAQ is published");
         assertTrue(generator.faqJudgePrompts.get(0).contains("1. 어디에 사시나요?"), generator.faqJudgePrompts.get(0));
     }
 
@@ -163,6 +163,43 @@ class FaqAdminApiTest extends ApiTestSupport {
         assertTrue(body.contains("\"unanswered\":false"), body);
         assertEquals(0, jdbc.queryForObject(
                 "select count(*) from chat_unanswered_question where status <> 'ANSWERED'", Integer.class));
+    }
+
+    @Test
+    void questionEqualToARegisteredOneSkipsTheJudge() throws Exception {
+        long id = create(faq("안녕하세요", "반갑습니다.", true, null));
+        generator.deltas = List.of("생성된 답변이 쓰이면 안 된다");
+
+        String body = chat("안녕하세요 !");
+
+        assertTrue(generator.faqJudgePrompts.isEmpty(), "no model call for an exact match");
+        assertTrue(generator.userPrompts.isEmpty(), "no answer generation on a FAQ match");
+        assertTrue(body.contains("{\"text\":\"반갑습니다.\"}"), body);
+        assertTrue(body.contains("\"slug\":\"faq-" + id + "\""), body);
+    }
+
+    @Test
+    void judgeSeesEveryPublishedFaqWithoutSearch() throws Exception {
+        create(faq("안녕하세요", "반갑습니다.", true, null));
+        create(faq("고향이 어디세요?", "저의 고향은 안산입니다.", true, null));
+        create(faq("비공개 질문", "비공개 답변", false, null));
+        generator.faqJudgeReply = "1";
+
+        String body = chat("만나서 반가워요");
+
+        String judge = generator.faqJudgePrompts.get(0);
+        assertTrue(judge.contains("1. 안녕하세요\n2. 고향이 어디세요?\n</등록 질문>"), judge);
+        assertFalse(judge.contains("비공개 질문"), judge);
+        assertTrue(generator.userPrompts.isEmpty(), "no answer generation on a FAQ match");
+        assertTrue(body.contains("{\"text\":\"반갑습니다.\"}"), body);
+    }
+
+    private String chat(String question) throws Exception {
+        MvcResult result = mockMvc.perform(post("/api/chat").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"question\":\"%s\"}".formatted(question)))
+                .andExpect(request().asyncStarted()).andReturn();
+        result.getAsyncResult(5_000);
+        return result.getResponse().getContentAsString(StandardCharsets.UTF_8);
     }
 
     private static String faq(String question, String answer, boolean published, Long fromUnansweredId) {
