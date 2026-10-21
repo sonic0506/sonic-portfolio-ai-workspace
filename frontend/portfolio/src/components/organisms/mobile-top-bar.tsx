@@ -1,6 +1,6 @@
 'use client';
 
-import { PanelLeft } from 'lucide-react';
+import { Menu } from 'lucide-react';
 
 import { useSidebar } from '@/components/ui/sidebar';
 import { SITE_NAME } from '@/lib/site';
@@ -20,7 +20,7 @@ export function MobileTopBar() {
         aria-label="메뉴 열기"
         className="flex size-11 shrink-0 items-center justify-center rounded-md text-text-2 transition-colors hover:bg-surface-hi hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
-        <PanelLeft className="size-4" strokeWidth={1.5} />
+        <Menu className="size-5" strokeWidth={1.5} />
       </button>
       <span className="font-display text-md font-semibold tracking-[-0.02em]">{SITE_NAME}</span>
     </div>

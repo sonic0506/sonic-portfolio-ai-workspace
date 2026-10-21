@@ -38,7 +38,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     // next-themes가 <html>에 .dark를 붙이므로 서버와 클래스가 달라진다.
     <html lang="ko" suppressHydrationWarning>
-      <body className="h-screen w-screen overflow-hidden bg-bg text-text-1">
+      <body className="h-dvh w-screen overflow-hidden bg-bg text-text-1">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <QueryProvider>
             <AppShell categories={categories}>{children}</AppShell>

@@ -1,10 +1,15 @@
 # Next Actions
 
-Last Updated: 2026-10-17
+Last Updated: 2026-10-21
 
 ## 현재 기준
 
 전체 MVP 및 월 10만 원 예산은 유지한다. ADR-0001~0009는 Accepted다. 콘텐츠 모델·ERD 초안과 샘플 RAG 평가는 완료되어 다시 선정하지 않는다.
+
+## Priority 0-MobileBar — 모바일 상단 막대 (2026-10-21)
+
+1. (완료 2026-10-21) 실기기 확인(사용자).
+2. 커밋·Vercel 배포.
 
 ## Priority 0-Analytics — GA4 + GTM (2026-10-17, ADR-0025)
 
